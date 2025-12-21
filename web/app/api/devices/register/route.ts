@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { db } from "@/lib/db"
-import { devices } from "@/lib/db/schema"
+import { db } from "@/db"
+import { Devices } from "@/db/schema"
 import { eq } from "drizzle-orm"
 
 export async function POST(request: NextRequest) {
@@ -10,15 +10,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing device ID" }, { status: 400 })
   }
 
-  const existing = await db.query.devices.findFirst({
-    where: eq(devices.deviceId, deviceId),
+  const existing = await db.query.Devices.findFirst({
+    where: eq(Devices.deviceId, deviceId),
   })
 
   if (existing) {
     await db
-      .update(devices)
+      .update(Devices)
       .set({ lastSeenAt: new Date() })
-      .where(eq(devices.deviceId, deviceId))
+      .where(eq(Devices.deviceId, deviceId))
 
     return NextResponse.json({
       registered: true,
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   }
 
   const [device] = await db
-    .insert(devices)
+    .insert(Devices)
     .values({
       deviceId,
       name: request.headers.get("x-device-name") || "Unknown Device",

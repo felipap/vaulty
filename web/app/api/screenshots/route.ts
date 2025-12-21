@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { db } from "@/lib/db"
-import { screenshots, devices } from "@/lib/db/schema"
+import { db } from "@/db"
+import { Screenshots, Devices } from "@/db/schema"
 import { resizeScreenshot } from "@/lib/image-resize"
 import { config } from "@/lib/config"
 import sharp from "sharp"
@@ -17,8 +17,8 @@ async function validateDevice(request: NextRequest): Promise<DeviceValidation> {
     return { valid: false, error: "Missing device ID" }
   }
 
-  const device = await db.query.devices.findFirst({
-    where: eq(devices.deviceId, deviceId),
+  const device = await db.query.Devices.findFirst({
+    where: eq(Devices.deviceId, deviceId),
   })
 
   if (!device) {
@@ -30,9 +30,9 @@ async function validateDevice(request: NextRequest): Promise<DeviceValidation> {
   }
 
   await db
-    .update(devices)
+    .update(Devices)
     .set({ lastSeenAt: new Date() })
-    .where(eq(devices.deviceId, deviceId))
+    .where(eq(Devices.deviceId, deviceId))
 
   return { valid: true, deviceDbId: device.id }
 }
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
   const dataUrl = `data:image/webp;base64,${base64Data}`
 
   const [screenshot] = await db
-    .insert(screenshots)
+    .insert(Screenshots)
     .values({
       deviceId: deviceCheck.deviceDbId,
       data: dataUrl,

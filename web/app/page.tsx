@@ -1,26 +1,22 @@
-"use client"
+import { redirect } from "next/navigation"
+import { isAuthenticated } from "@/lib/admin-auth"
+import { LoginForm } from "./LoginForm"
 
-import { useSession } from "@/lib/auth-client"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
-
-function Page() {
-  const { data: session, isPending } = useSession()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!isPending) {
-      if (session) {
-        router.push("/dashboard")
-      } else {
-        router.push("/sign-in")
-      }
-    }
-  }, [session, isPending, router])
+async function Page() {
+  if (await isAuthenticated()) {
+    redirect("/dashboard")
+  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <p className="text-zinc-500">Loading...</p>
+    <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+      <div className="w-full max-w-sm rounded-2xl border border-zinc-200 bg-white p-8 dark:border-zinc-800 dark:bg-zinc-900">
+        <h1 className="mb-2 text-center text-2xl font-semibold">Context</h1>
+        <p className="mb-6 text-center text-sm text-zinc-500">
+          Enter your admin passphrase
+        </p>
+
+        <LoginForm />
+      </div>
     </div>
   )
 }

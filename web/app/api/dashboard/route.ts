@@ -1,28 +1,23 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
-import { db } from "@/lib/db"
-import { screenshots } from "@/lib/db/schema"
+import { isAuthenticated } from "@/lib/admin-auth"
+import { db } from "@/db"
+import { Screenshots } from "@/db/schema"
 import { sql, desc } from "drizzle-orm"
-import { headers } from "next/headers"
 
 export async function GET() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-
-  if (!session) {
+  if (!(await isAuthenticated())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   const [countResult] = await db
     .select({
       count: sql<number>`count(*)::int`,
-      totalBytes: sql<number>`coalesce(sum(${screenshots.sizeBytes}), 0)::int`,
+      totalBytes: sql<number>`coalesce(sum(${Screenshots.sizeBytes}), 0)::int`,
     })
-    .from(screenshots)
+    .from(Screenshots)
 
-  const recentScreenshots = await db.query.screenshots.findMany({
-    orderBy: desc(screenshots.capturedAt),
+  const recentScreenshots = await db.query.Screenshots.findMany({
+    orderBy: desc(Screenshots.capturedAt),
     limit: 10,
     columns: {
       id: true,
