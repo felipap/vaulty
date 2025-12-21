@@ -1,13 +1,123 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* https://tailwindcss.com/blog/tailwindcss-v4#css-first-configuration */
 
-body {
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif;
-  margin: auto;
-  max-width: 38rem;
-  padding: 2rem;
+@layer theme, base, components, utilities;
+
+@import './apple.css';
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css' layer(utilities);
+@plugin '@tailwindcss/forms';
+
+/* https://tailwindcss.com/docs/dark-mode */
+/* @custom-variant dark (&:where(.dark, .dark *)); */
+/* @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *)); */
+
+:root {
+	color-scheme: light dark;
+
+	/* Fonts */
+	--font-display:
+		'SF Pro Display', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+		'Noto Color Emoji';
+	--font-sans:
+		'SF Pro', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+		'Noto Color Emoji';
+	--font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+	--font-mono:
+		ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+		'Courier New', monospace;
+
+	/* Layout */
+	--nav-height: 60px;
+	--column-width: 100%;
 }
 
+@theme {
+	/* Colors */
+	--color-contrast: #000;
+	--text-color-secondary: #888;
+	--text-color-inverted: #fff;
+	--background-color-one: #f4f6f6;
+	--background-color-two: #eee;
+	--background-color-three: #fff;
+	--highlight-color: #3b82f6;
+	--twitter-blue: #1da1f2;
+	--text-color-link: #007aff;
+
+	/*  */
+	--color-sidebar: #ffffffd0;
+	--border-color-one: #eaeaea;
+
+	/* font sizes */
+	--text-sm: 13px;
+	--text-md: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-contrast: #fff;
+		--text-color-primary: #fff;
+		--text-color-link: #6fb4ff;
+		--text-color-secondary: #aaa;
+		--text-color-inverted: #000;
+		--color-sidebar: #222222ea;
+
+		--background-color-one: #202020;
+		--background-color-two: #161616;
+		--background-color-three: #2a2a2a;
+
+		--border-color-primary: red;
+		--border-color-two: red;
+
+		--color-apple-highlight-color: var(--apple-highlight-color-dark);
+	}
+}
+
+@layer base {
+	*,
+	::before,
+	::after {
+		@apply dark:border-[#000] border-[#ddd];
+	}
+
+	/* 50 is too bold and 400 is too light, so antialiased is a little hack here. */
+	.weight-450 {
+		@apply font-medium antialiased;
+	}
+}
+
+.link {
+	color: var(--text-color-link);
+}
+
+body {
+	/* Override the background color set in index.html */
+	background-color: transparent !important;
+	color: var(--text-color-primary);
+}
+
+button {
+	cursor: pointer;
+}
+
+textarea {
+	@apply border-inherit;
+}
+
+*,
+::after,
+::before,
+::backdrop,
+::file-selector-button {
+	/* https://github.com/tailwindlabs/tailwindcss/discussions/14508 */
+}
+
+/* LAYOUT CLASSES */
+
+.track-20 {
+	letter-spacing: 0.02rem !important;
+}
+
+.track-10 {
+	letter-spacing: 0.01rem !important;
+}
