@@ -9,3 +9,4 @@ export const config = {
     maxFileSizeMB: 10,
   },
 }
+

@@ -20,3 +20,4 @@ export async function resizeScreenshot(buffer: Buffer): Promise<Buffer> {
 
   return pipeline.webp({ quality: config.image.quality }).toBuffer()
 }
+
