@@ -1,5 +1,6 @@
 import { desktopCapturer, screen } from "electron";
 import { store, addRequestLog, getDeviceId } from "../store";
+import { startAnimating, stopAnimating } from "../tray/animate";
 
 let captureInterval: NodeJS.Timeout | null = null;
 let nextCaptureTime: Date | null = null;
@@ -113,10 +114,13 @@ async function captureAndUpload(): Promise<void> {
     return;
   }
 
+  startAnimating("old");
   try {
     await uploadScreenshot(imageBuffer);
   } catch (error) {
     console.error("Failed to upload screenshot:", error);
+  } finally {
+    stopAnimating();
   }
 }
 
@@ -169,5 +173,9 @@ export function restartScreenCapture(): void {
 
 export function isScreenCaptureRunning(): boolean {
   return captureInterval !== null;
+}
+
+export async function captureNow(): Promise<void> {
+  await captureAndUpload();
 }
 

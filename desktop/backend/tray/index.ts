@@ -1,6 +1,7 @@
 import { app, Menu, Tray, nativeImage } from 'electron'
 import path from 'path'
 import {
+  captureNow,
   formatTimeUntilNextCapture,
   isScreenCaptureRunning,
   startScreenCapture,
@@ -8,7 +9,6 @@ import {
 } from '../screen-capture'
 import { showMainWindow } from '../windows/settings'
 import { store } from '../store'
-import { startAnimating } from './animate'
 
 let tray: Tray | null = null
 let updateInterval: NodeJS.Timeout | null = null
@@ -41,8 +41,6 @@ function updateTrayMenu(): void {
 
   const isCapturing = isScreenCaptureRunning()
   const timeUntilNext = formatTimeUntilNextCapture()
-  const screenCaptureConfig = store.get('screenCapture')
-  const intervalMinutes = screenCaptureConfig.intervalMinutes
 
   const contextMenu = Menu.buildFromTemplate([
     // Screen Capture Section
@@ -51,12 +49,17 @@ function updateTrayMenu(): void {
       enabled: false,
     },
     {
-      label: isCapturing ? `  Next capture in: ${timeUntilNext}` : '  Disabled',
+      label: isCapturing
+        ? `  Next capture: ${timeUntilNext}`
+        : '  No capture scheduled',
       enabled: false,
     },
     {
-      label: `  Interval: ${intervalMinutes} minutes`,
-      enabled: false,
+      label: '  Capture Now',
+      enabled: isCapturing,
+      click: () => {
+        captureNow()
+      },
     },
     { type: 'separator' },
 
@@ -140,5 +143,3 @@ export function setTrayIcon(iconName: string): void {
 export function refreshTrayMenu(): void {
   updateTrayMenu()
 }
-
-// startAnimating('old')
