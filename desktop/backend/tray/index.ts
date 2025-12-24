@@ -8,11 +8,12 @@ import {
 } from '../screen-capture'
 import { showMainWindow } from '../windows/settings'
 import { store } from '../store'
+import { startAnimating } from './animate'
 
 let tray: Tray | null = null
 let updateInterval: NodeJS.Timeout | null = null
 
-export function getImagePath(name: string): string {
+export function getAssetsPath(name: string): string {
   const base = app.isPackaged
     ? path.join(process.resourcesPath, 'assets')
     : path.join(__dirname, '../../../assets')
@@ -20,7 +21,7 @@ export function getImagePath(name: string): string {
 }
 
 function createTrayIcon(): Tray {
-  const iconPath = getImagePath('tray-default.png')
+  const iconPath = getAssetsPath('tray-default.png')
   const icon = nativeImage.createFromPath(iconPath)
   const trayIcon = icon.resize({ width: 18, quality: 'best' })
   trayIcon.setTemplateImage(true)
@@ -128,7 +129,7 @@ export function setTrayIcon(iconName: string): void {
     return
   }
 
-  const iconPath = getImagePath(iconName)
+  const iconPath = getAssetsPath(iconName)
   const icon = nativeImage.createFromPath(iconPath)
   const trayIcon = icon.resize({ width: 18, quality: 'best' })
   trayIcon.setTemplateImage(true)
@@ -139,3 +140,5 @@ export function setTrayIcon(iconName: string): void {
 export function refreshTrayMenu(): void {
   updateTrayMenu()
 }
+
+// startAnimating('old')

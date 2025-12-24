@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tray Icon Animation Generator</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        background: #1a1a2e;
+        color: #eaeaea;
+        min-height: 100vh;
+        margin: 0;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+      }
+
+      h1 {
+        font-size: 24px;
+        font-weight: 400;
+        margin: 0;
+        color: #fff;
+      }
+
+      .preview-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .preview-container {
+        background: #2d2d44;
+        border-radius: 12px;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .canvas-row {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+      }
+
+      .canvas-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .canvas-wrapper label {
+        font-size: 12px;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      #previewCanvas {
+        background: repeating-conic-gradient(#3a3a5a 0% 25%, #2a2a4a 0% 50%)
+          50% / 10px 10px;
+        border-radius: 8px;
+        image-rendering: pixelated;
+      }
+
+      #actualSizeCanvas {
+        background: repeating-conic-gradient(#3a3a5a 0% 25%, #2a2a4a 0% 50%)
+          50% / 4px 4px;
+        border-radius: 4px;
+      }
+
+      .controls {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .control-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .control-row label {
+        font-size: 13px;
+        color: #aaa;
+      }
+
+      .control-row input[type='range'] {
+        flex: 1;
+        max-width: 200px;
+      }
+
+      .control-row span {
+        font-size: 12px;
+        color: #666;
+        min-width: 40px;
+        text-align: right;
+      }
+
+      select {
+        background: #3a3a5a;
+        color: #eaeaea;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .frames-preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        max-width: 600px;
+        margin-top: 20px;
+      }
+
+      .frame-thumb {
+        width: 30px;
+        height: 30px;
+        background: repeating-conic-gradient(#3a3a5a 0% 25%, #2a2a4a 0% 50%)
+          50% / 4px 4px;
+        border-radius: 4px;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 12px;
+      }
+
+      button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition:
+          transform 0.1s,
+          box-shadow 0.2s;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      button.secondary {
+        background: #3a3a5a;
+      }
+
+      button.secondary:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .frame-counter {
+        font-size: 14px;
+        color: #888;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="title">Animation Generator</h1>
+
+    <div class="preview-section">
+      <div class="preview-container">
+        <div class="canvas-row">
+          <div class="canvas-wrapper">
+            <label>Preview (5x)</label>
+            <canvas id="previewCanvas" width="150" height="150"></canvas>
+          </div>
+          <div class="canvas-wrapper">
+            <label>Actual Size</label>
+            <canvas id="actualSizeCanvas" width="30" height="30"></canvas>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="control-row">
+            <label>Animation</label>
+            <select id="animationFile">
+              <option value="./animations/droplet.js">Droplet</option>
+              <option value="./animations/flame.js">Flame</option>
+            </select>
+          </div>
+
+          <div class="control-row">
+            <label>Mode</label>
+            <select id="animationMode"></select>
+          </div>
+
+          <div class="control-row">
+            <label>Intensity</label>
+            <input
+              type="range"
+              id="intensity"
+              min="0.1"
+              max="1"
+              step="0.1"
+              value="0.5"
+            />
+            <span id="intensityValue">0.5</span>
+          </div>
+
+          <div class="control-row">
+            <label>Frames</label>
+            <input
+              type="range"
+              id="frameCount"
+              min="8"
+              max="30"
+              step="1"
+              value="20"
+            />
+            <span id="frameCountValue">20</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="secondary" id="playPause">Pause</button>
+        <button id="downloadBtn">Download All Frames</button>
+      </div>
+
+      <div class="frame-counter">
+        Frame: <span id="currentFrame">1</span> /
+        <span id="totalFrames">20</span>
+      </div>
+
+      <div class="frames-preview" id="framesPreview"></div>
+    </div>
+
+    <script type="module">
+      const previewCanvas = document.getElementById('previewCanvas')
+      const actualCanvas = document.getElementById('actualSizeCanvas')
+      const previewCtx = previewCanvas.getContext('2d')
+      const actualCtx = actualCanvas.getContext('2d')
+
+      const titleEl = document.getElementById('title')
+      const animationFile = document.getElementById('animationFile')
+      const animationMode = document.getElementById('animationMode')
+      const intensitySlider = document.getElementById('intensity')
+      const frameCountSlider = document.getElementById('frameCount')
+      const intensityValue = document.getElementById('intensityValue')
+      const frameCountValue = document.getElementById('frameCountValue')
+      const currentFrameEl = document.getElementById('currentFrame')
+      const totalFramesEl = document.getElementById('totalFrames')
+      const framesPreview = document.getElementById('framesPreview')
+      const playPauseBtn = document.getElementById('playPause')
+      const downloadBtn = document.getElementById('downloadBtn')
+
+      let currentFrame = 0
+      let isPlaying = true
+      let animationId = null
+      let lastTime = 0
+      let fps = 12
+      let frameInterval = 1000 / fps
+
+      // Current animation module
+      let currentAnimation = null
+
+      async function loadAnimation(path) {
+        const module = await import(path)
+        currentAnimation = module
+
+        // Update title
+        titleEl.textContent = `${module.name} Animation Generator`
+
+        // Populate mode dropdown
+        animationMode.innerHTML = ''
+        for (const mode of module.modes) {
+          const option = document.createElement('option')
+          option.value = mode
+          option.textContent = mode.charAt(0).toUpperCase() + mode.slice(1)
+          animationMode.appendChild(option)
+        }
+
+        // Apply defaults
+        if (module.defaults) {
+          frameCountSlider.value = module.defaults.frameCount || 20
+          frameCountValue.textContent = frameCountSlider.value
+          totalFramesEl.textContent = frameCountSlider.value
+
+          intensitySlider.value = module.defaults.intensity || 0.5
+          intensityValue.textContent = intensitySlider.value
+
+          fps = module.defaults.fps || 12
+          frameInterval = 1000 / fps
+        }
+
+        currentFrame = 0
+        generateFramePreviews()
+      }
+
+      function renderFrame(frame, totalFrames) {
+        if (!currentAnimation) {
+          return
+        }
+
+        const mode = animationMode.value
+        const intensity = parseFloat(intensitySlider.value)
+
+        // Clear canvases
+        previewCtx.clearRect(0, 0, 150, 150)
+        actualCtx.clearRect(0, 0, 30, 30)
+
+        const deform = currentAnimation.getDeformForFrame(
+          frame,
+          totalFrames,
+          mode,
+          intensity,
+        )
+
+        // Draw on preview (5x scale)
+        currentAnimation.draw(previewCtx, 75, 78, 60, deform)
+
+        // Draw on actual size
+        currentAnimation.draw(actualCtx, 15, 15.5, 12, deform)
+      }
+
+      function animate(timestamp) {
+        if (!isPlaying) {
+          animationId = requestAnimationFrame(animate)
+          return
+        }
+
+        if (timestamp - lastTime >= frameInterval) {
+          const totalFrames = parseInt(frameCountSlider.value)
+          renderFrame(currentFrame, totalFrames)
+          currentFrameEl.textContent = currentFrame + 1
+
+          currentFrame = (currentFrame + 1) % totalFrames
+          lastTime = timestamp
+        }
+
+        animationId = requestAnimationFrame(animate)
+      }
+
+      function generateFramePreviews() {
+        if (!currentAnimation) {
+          return
+        }
+
+        framesPreview.innerHTML = ''
+        const totalFrames = parseInt(frameCountSlider.value)
+        const mode = animationMode.value
+        const intensity = parseFloat(intensitySlider.value)
+
+        for (let i = 0; i < totalFrames; i++) {
+          const canvas = document.createElement('canvas')
+          canvas.width = 30
+          canvas.height = 30
+          canvas.className = 'frame-thumb'
+
+          const ctx = canvas.getContext('2d')
+          const deform = currentAnimation.getDeformForFrame(
+            i,
+            totalFrames,
+            mode,
+            intensity,
+          )
+          currentAnimation.draw(ctx, 15, 15.5, 12, deform)
+
+          framesPreview.appendChild(canvas)
+        }
+      }
+
+      async function downloadFrames() {
+        if (!currentAnimation) {
+          return
+        }
+
+        const totalFrames = parseInt(frameCountSlider.value)
+        const mode = animationMode.value
+        const intensity = parseFloat(intensitySlider.value)
+
+        for (let i = 0; i < totalFrames; i++) {
+          const canvas = document.createElement('canvas')
+          canvas.width = 30
+          canvas.height = 30
+
+          const ctx = canvas.getContext('2d')
+          const deform = currentAnimation.getDeformForFrame(
+            i,
+            totalFrames,
+            mode,
+            intensity,
+          )
+          currentAnimation.draw(ctx, 15, 15.5, 12, deform)
+
+          // Convert to blob and download
+          const blob = await new Promise((resolve) =>
+            canvas.toBlob(resolve, 'image/png'),
+          )
+          const url = URL.createObjectURL(blob)
+
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `frame-${i + 1}.png`
+          a.click()
+
+          URL.revokeObjectURL(url)
+
+          // Small delay between downloads
+          await new Promise((r) => setTimeout(r, 100))
+        }
+      }
+
+      // Event listeners
+      animationFile.addEventListener('change', () => {
+        loadAnimation(animationFile.value)
+      })
+
+      animationMode.addEventListener('change', () => {
+        currentFrame = 0
+        generateFramePreviews()
+      })
+
+      intensitySlider.addEventListener('input', () => {
+        intensityValue.textContent = intensitySlider.value
+        generateFramePreviews()
+      })
+
+      frameCountSlider.addEventListener('input', () => {
+        frameCountValue.textContent = frameCountSlider.value
+        totalFramesEl.textContent = frameCountSlider.value
+        currentFrame = 0
+        generateFramePreviews()
+      })
+
+      playPauseBtn.addEventListener('click', () => {
+        isPlaying = !isPlaying
+        playPauseBtn.textContent = isPlaying ? 'Pause' : 'Play'
+      })
+
+      downloadBtn.addEventListener('click', downloadFrames)
+
+      // Initial setup - load default animation
+      loadAnimation(animationFile.value).then(() => {
+        animate(0)
+      })
+    </script>
+  </body>
+</html>
