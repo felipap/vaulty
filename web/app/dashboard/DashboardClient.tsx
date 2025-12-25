@@ -1,17 +1,8 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
-import {
-  logout,
-  getDashboardStats,
-  getDevices,
-  approveDevice,
-  deleteDevice,
-  type DashboardStats,
-  type Device,
-} from "../actions"
+import { useEffect, useState } from "react"
+import { logout, getDashboardStats, type DashboardStats } from "../actions"
 import { RecentScreenshots } from "./RecentScreenshots"
-import { DeviceList } from "./DeviceList"
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) {
@@ -34,34 +25,17 @@ function StatCard({ label, value }: { label: string; value: string }) {
 
 export function DashboardClient() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
-  const [devices, setDevices] = useState<Device[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const loadDevices = useCallback(async () => {
-    const deviceList = await getDevices()
-    setDevices(deviceList)
-  }, [])
-
   useEffect(() => {
-    Promise.all([getDashboardStats(), getDevices()])
-      .then(([statsData, deviceList]) => {
+    getDashboardStats()
+      .then((statsData) => {
         setStats(statsData)
-        setDevices(deviceList)
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
   }, [])
-
-  const handleApproveDevice = async (id: string) => {
-    await approveDevice(id)
-    await loadDevices()
-  }
-
-  const handleDeleteDevice = async (id: string) => {
-    await deleteDevice(id)
-    await loadDevices()
-  }
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -96,12 +70,6 @@ export function DashboardClient() {
                 value={formatBytes(stats.totalStorageBytes)}
               />
             </div>
-
-            <DeviceList
-              devices={devices}
-              onApprove={handleApproveDevice}
-              onDelete={handleDeleteDevice}
-            />
 
             <RecentScreenshots />
           </div>

@@ -6,22 +6,14 @@ import {
   isAuthenticated,
 } from "@/lib/admin-auth"
 import { redirect } from "next/navigation"
+import { revalidatePath } from "next/cache"
 import { db } from "@/db"
-import { Devices, Screenshots } from "@/db/schema"
-import { sql, desc, eq } from "drizzle-orm"
+import { Screenshots } from "@/db/schema"
+import { sql } from "drizzle-orm"
 
 export type DashboardStats = {
   totalScreenshots: number
   totalStorageBytes: number
-}
-
-export type Device = {
-  id: string
-  deviceId: string
-  name: string | null
-  approved: boolean
-  lastSeenAt: Date | null
-  createdAt: Date
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
@@ -39,49 +31,6 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   return {
     totalScreenshots: countResult.count,
     totalStorageBytes: countResult.totalBytes,
-  }
-}
-
-export async function getDevices(): Promise<Device[]> {
-  if (!(await isAuthenticated())) {
-    throw new Error("Unauthorized")
-  }
-
-  const allDevices = await db.query.Devices.findMany({
-    orderBy: [desc(Devices.createdAt)],
-  })
-
-  return allDevices
-}
-
-export async function approveDevice(id: string): Promise<void> {
-  if (!(await isAuthenticated())) {
-    throw new Error("Unauthorized")
-  }
-
-  const [updated] = await db
-    .update(Devices)
-    .set({ approved: true })
-    .where(eq(Devices.id, id))
-    .returning()
-
-  if (!updated) {
-    throw new Error("Device not found")
-  }
-}
-
-export async function deleteDevice(id: string): Promise<void> {
-  if (!(await isAuthenticated())) {
-    throw new Error("Unauthorized")
-  }
-
-  const [deleted] = await db
-    .delete(Devices)
-    .where(eq(Devices.id, id))
-    .returning()
-
-  if (!deleted) {
-    throw new Error("Device not found")
   }
 }
 
@@ -105,5 +54,6 @@ export async function login(
 
 export async function logout(): Promise<void> {
   await clearAuthCookie()
+  revalidatePath("/", "layout")
   redirect("/")
 }

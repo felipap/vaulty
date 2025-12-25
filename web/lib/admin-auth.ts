@@ -2,16 +2,15 @@ import { cookies } from "next/headers"
 
 const COOKIE_NAME = "context_admin"
 
-export async function isAuthenticated(): Promise<boolean> {
-  const secret = process.env.ADMIN_SECRET
-  if (!secret) {
-    // No secret configured = no auth required (for development)
-    return true
-  }
+const ADMIN_SECRET = process.env.ADMIN_SECRET || ""
+if (!ADMIN_SECRET) {
+  throw new Error("ADMIN_SECRET is not set")
+}
 
+export async function isAuthenticated(): Promise<boolean> {
   const cookieStore = await cookies()
   const token = cookieStore.get(COOKIE_NAME)?.value
-  return token === secret
+  return token === ADMIN_SECRET
 }
 
 export async function setAuthCookie(secret: string): Promise<boolean> {
@@ -33,10 +32,8 @@ export async function setAuthCookie(secret: string): Promise<boolean> {
 
 export async function clearAuthCookie(): Promise<void> {
   const cookieStore = await cookies()
-  cookieStore.delete(COOKIE_NAME)
+  cookieStore.delete({
+    name: COOKIE_NAME,
+    path: "/",
+  })
 }
-
-
-
-
-
