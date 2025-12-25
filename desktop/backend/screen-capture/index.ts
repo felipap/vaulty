@@ -41,7 +41,18 @@ async function captureScreen(): Promise<Buffer | null> {
   const primarySource = sources[0];
   const thumbnail = primarySource.thumbnail;
 
-  return thumbnail.toPNG();
+  if (thumbnail.isEmpty()) {
+    console.error("Screen capture returned empty thumbnail");
+    return null;
+  }
+
+  const pngBuffer = thumbnail.toPNG();
+  if (pngBuffer.length === 0) {
+    console.error("Screen capture returned empty PNG buffer");
+    return null;
+  }
+
+  return pngBuffer;
 }
 
 async function uploadScreenshot(imageBuffer: Buffer): Promise<void> {

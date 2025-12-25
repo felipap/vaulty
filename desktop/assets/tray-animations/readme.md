@@ -21,3 +21,5 @@ done
 - `-channel A -level 0%,70%` boosts the alpha (70% opacity becomes 100%)
 - `-compose Blend -define compose:args=70,30` blends 70% frame + 30% tray-default
 
+
+
