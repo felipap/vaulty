@@ -41,7 +41,7 @@ async function animateOnce(animationName: AnimationName): Promise<void> {
   let frameIndex = 0
 
   await new Promise<void>((resolve) => {
-    animationInterval = setInterval(() => {
+    animationInterval = setInterval(async () => {
       setTrayIcon(
         `tray-animations/${animationName}/frame-${frames[frameIndex]}.png`,
       )
@@ -51,9 +51,12 @@ async function animateOnce(animationName: AnimationName): Promise<void> {
         clearInterval(animationInterval)
         animationInterval = null
         resolve()
+        return
       }
     }, FRAME_INTERVAL)
   })
+
+  await sleep(1000)
 
   setTrayIcon('tray-default.png')
 }
@@ -69,6 +72,7 @@ export function startAnimating(animationName: AnimationName): () => void {
   const runLoop = async () => {
     while (!shouldStop) {
       await animateOnce(animationName)
+      await sleep(1000)
     }
     setTrayIcon('tray-default.png')
   }
@@ -90,4 +94,8 @@ export function stopAnimatingImmediately() {
     animationInterval = null
   }
   setTrayIcon('tray-default.png')
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }

@@ -1,4 +1,7 @@
-import { execSync } from 'child_process'
+import Database from 'better-sqlite3'
+import { readdirSync } from 'fs'
+import { homedir } from 'os'
+import { join } from 'path'
 import { apiRequest } from '../../lib/contexter-api'
 
 export type Contact = {
@@ -10,76 +13,91 @@ export type Contact = {
   phoneNumbers: string[]
 }
 
-const APPLESCRIPT = `
-tell application "Contacts"
-  set output to ""
-  repeat with aPerson in people
-    set personId to id of aPerson
-    set personFirstName to first name of aPerson
-    set personLastName to last name of aPerson
-    set personOrg to organization of aPerson
+function findContactsDatabase(): string | null {
+  const addressBookDir = join(
+    homedir(),
+    'Library/Application Support/AddressBook/Sources',
+  )
 
-    set emailList to ""
-    repeat with anEmail in emails of aPerson
-      if emailList is not "" then
-        set emailList to emailList & ","
-      end if
-      set emailList to emailList & (value of anEmail as string)
-    end repeat
-
-    set phoneList to ""
-    repeat with aPhone in phones of aPerson
-      if phoneList is not "" then
-        set phoneList to phoneList & ","
-      end if
-      set phoneList to phoneList & (value of aPhone as string)
-    end repeat
-
-    if output is not "" then
-      set output to output & "\\n"
-    end if
-    set output to output & personId & "\\t" & personFirstName & "\\t" & personLastName & "\\t" & personOrg & "\\t" & emailList & "\\t" & phoneList
-  end repeat
-  return output
-end tell
-`
-
-function parseAppleScriptOutput(output: string): Contact[] {
-  const lines = output.trim().split('\n')
-  const contacts: Contact[] = []
-
-  for (const line of lines) {
-    if (!line.trim()) {
-      continue
+  try {
+    const sources = readdirSync(addressBookDir)
+    for (const source of sources) {
+      const dbPath = join(addressBookDir, source, 'AddressBook-v22.abcddb')
+      try {
+        readdirSync(join(addressBookDir, source)).includes(
+          'AddressBook-v22.abcddb',
+        )
+        return dbPath
+      } catch {
+        continue
+      }
     }
-
-    const parts = line.split('\t')
-    if (parts.length < 6) {
-      continue
-    }
-
-    const [id, firstName, lastName, organization, emails, phones] = parts
-
-    contacts.push({
-      id: id || '',
-      firstName: firstName === 'missing value' ? null : firstName || null,
-      lastName: lastName === 'missing value' ? null : lastName || null,
-      organization: organization === 'missing value' ? null : organization || null,
-      emails: emails ? emails.split(',').filter(Boolean) : [],
-      phoneNumbers: phones ? phones.split(',').filter(Boolean) : [],
-    })
+  } catch {
+    // Directory doesn't exist or can't be read
   }
 
-  return contacts
+  return null
 }
 
 export function fetchContacts(): Contact[] {
-  const output = execSync(`osascript -e '${APPLESCRIPT}'`, {
-    encoding: 'utf-8',
-    maxBuffer: 50 * 1024 * 1024,
+  const dbPath = findContactsDatabase()
+  if (!dbPath) {
+    console.error('[contacts] Could not find Contacts database')
+    return []
+  }
+
+  const db = new Database(dbPath, { readonly: true })
+
+  const people = db
+    .prepare(
+      `
+      SELECT
+        ZUNIQUEID as id,
+        ZFIRSTNAME as firstName,
+        ZLASTNAME as lastName,
+        ZORGANIZATION as organization,
+        Z_PK as pk
+      FROM ZABCDRECORD
+      WHERE ZUNIQUEID IS NOT NULL
+    `,
+    )
+    .all() as Array<{
+    id: string
+    firstName: string | null
+    lastName: string | null
+    organization: string | null
+    pk: number
+  }>
+
+  const emailStmt = db.prepare(`
+    SELECT ZADDRESSNORMALIZED as email
+    FROM ZABCDEMAILADDRESS
+    WHERE ZOWNER = ?
+  `)
+
+  const phoneStmt = db.prepare(`
+    SELECT ZFULLNUMBER as phone
+    FROM ZABCDPHONENUMBER
+    WHERE ZOWNER = ?
+  `)
+
+  const contacts: Contact[] = people.map((person) => {
+    const emails = emailStmt.all(person.pk) as Array<{ email: string | null }>
+    const phones = phoneStmt.all(person.pk) as Array<{ phone: string | null }>
+
+    return {
+      id: person.id,
+      firstName: person.firstName,
+      lastName: person.lastName,
+      organization: person.organization,
+      emails: emails.map((e) => e.email).filter(Boolean) as string[],
+      phoneNumbers: phones.map((p) => p.phone).filter(Boolean) as string[],
+    }
   })
 
-  return parseAppleScriptOutput(output)
+  db.close()
+
+  return contacts
 }
 
 export async function uploadContacts(contacts: Contact[]): Promise<void> {

@@ -10,11 +10,12 @@ async function syncAndUpload(): Promise<void> {
   console.log('[contacts] Syncing...')
 
   const contacts = fetchContacts()
-
   if (contacts.length === 0) {
     console.log('[contacts] No contacts to sync')
     return
   }
+
+  console.log(`Fetched ${contacts.length} contacts`)
 
   startAnimating('old')
   try {
@@ -33,7 +34,11 @@ function scheduleNextSync(): void {
   nextSyncTime = new Date(Date.now() + intervalMs)
 
   syncInterval = setTimeout(async () => {
-    await syncAndUpload()
+    try {
+      await syncAndUpload()
+    } catch (error) {
+      console.error('[contacts] Scheduled sync failed:', error)
+    }
     scheduleNextSync()
   }, intervalMs)
 }
@@ -54,7 +59,9 @@ async function start(): Promise<void> {
 
   // Do initial sync, but don't let failures prevent scheduling
   try {
+    console.log('initial sync')
     await syncAndUpload()
+    console.log('initial sync done')
   } catch (error) {
     console.error('[contacts] Initial sync failed:', error)
   }
@@ -81,7 +88,11 @@ function isRunning(): boolean {
 }
 
 async function runNow(): Promise<void> {
-  await syncAndUpload()
+  try {
+    await syncAndUpload()
+  } catch (error) {
+    console.error('[contacts] Manual sync failed:', error)
+  }
 }
 
 function getNextRunTime(): Date | null {

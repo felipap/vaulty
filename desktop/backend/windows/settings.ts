@@ -5,7 +5,21 @@ const isDev = !app.isPackaged
 
 let mainWindow: BrowserWindow | null = null
 
+function showDock(): void {
+  if (process.platform === 'darwin' && app.dock) {
+    app.dock.show()
+  }
+}
+
+function hideDock(): void {
+  if (process.platform === 'darwin' && app.dock) {
+    app.dock.hide()
+  }
+}
+
 export function createMainWindow(): BrowserWindow {
+  showDock()
+
   mainWindow = new BrowserWindow({
     width: 500,
     height: 600,
@@ -23,6 +37,15 @@ export function createMainWindow(): BrowserWindow {
 
   mainWindow.on('closed', () => {
     mainWindow = null
+    hideDock()
+  })
+
+  mainWindow.on('hide', () => {
+    hideDock()
+  })
+
+  mainWindow.on('show', () => {
+    showDock()
   })
 
   return mainWindow

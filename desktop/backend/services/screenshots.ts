@@ -32,7 +32,11 @@ function scheduleNextCapture(): void {
   nextCaptureTime = new Date(Date.now() + intervalMs)
 
   captureInterval = setTimeout(async () => {
-    await captureAndUpload()
+    try {
+      await captureAndUpload()
+    } catch (error) {
+      console.error('[screenshots] Scheduled capture failed:', error)
+    }
     scheduleNextCapture()
   }, intervalMs)
 }
@@ -51,7 +55,13 @@ async function start(): Promise<void> {
 
   console.log('[screenshots] Starting...')
 
-  captureAndUpload()
+  // Do initial capture, but don't let failures prevent scheduling
+  try {
+    await captureAndUpload()
+  } catch (error) {
+    console.error('[screenshots] Initial capture failed:', error)
+  }
+
   scheduleNextCapture()
 }
 
@@ -74,7 +84,11 @@ function isRunning(): boolean {
 }
 
 async function runNow(): Promise<void> {
-  await captureAndUpload()
+  try {
+    await captureAndUpload()
+  } catch (error) {
+    console.error('[screenshots] Manual capture failed:', error)
+  }
 }
 
 function getNextRunTime(): Date | null {

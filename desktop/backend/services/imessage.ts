@@ -78,7 +78,11 @@ function scheduleNextExport(): void {
   nextExportTime = new Date(Date.now() + intervalMs)
 
   exportInterval = setTimeout(async () => {
-    await exportAndUpload()
+    try {
+      await exportAndUpload()
+    } catch (error) {
+      console.error('[imessage] Scheduled export failed:', error)
+    }
     scheduleNextExport()
   }, intervalMs)
 }
@@ -133,10 +137,14 @@ function isRunning(): boolean {
 }
 
 async function runNow(): Promise<void> {
-  if (!sdk) {
-    sdk = createIMessageSDK()
+  try {
+    if (!sdk) {
+      sdk = createIMessageSDK()
+    }
+    await exportAndUpload()
+  } catch (error) {
+    console.error('[imessage] Manual export failed:', error)
   }
-  await exportAndUpload()
 }
 
 function getNextRunTime(): Date | null {
@@ -159,10 +167,14 @@ export type BackfillProgress = {
   status: BackfillStatus
   error?: string
 }
-let backfillProgress: BackfillProgress = { current: 0, total: 0, status: 'idle' }
+let backfillProgress: BackfillProgress = {
+  current: 0,
+  total: 0,
+  status: 'idle',
+}
 let backfillCancelled = false
 
-async function runBackfill(days: number = 120): Promise<void> {
+async function runBackfill(days = 120): Promise<void> {
   if (backfillInProgress) {
     console.log('[imessage] Backfill already in progress')
     return
