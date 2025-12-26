@@ -11,6 +11,9 @@ jobs:
   release:
     runs-on: macos-14
     timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: desktop
     env:
       CSC_IDENTITY: ${{ secrets.MACOS_CERTIFICATE_ID }}
       APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -29,6 +32,7 @@ jobs:
 
       - name: Enable Corepack
         run: corepack enable
+        working-directory: .
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -46,6 +50,7 @@ jobs:
 
       - name: Install Xcode Command Line Tools
         run: xcode-select --install || true
+        working-directory: .
 
       - name: Build Electron app
         run: pnpm run build
@@ -58,10 +63,10 @@ jobs:
         with:
           name: 'Yap ${{ github.ref_name }}'
           files: |
-            dist-electron/**/*.dmg
-            dist-electron/**/*.zip
-            dist-electron/**/*.app
-            dist-electron/latest-mac.yml
+            desktop/dist-electron/**/*.dmg
+            desktop/dist-electron/**/*.zip
+            desktop/dist-electron/**/*.app
+            desktop/dist-electron/latest-mac.yml
           draft: false
           generate_release_notes: true
           # prerelease: false
