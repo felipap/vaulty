@@ -2,18 +2,18 @@
 
 ## Now
 
-- [ ] Make packing work
 - [ ] Feat: implement an onboarding with info
 - [ ] Feat: blur the texts in screenshots
-- [ ] Feat: desktop icon
 - [ ] Feat: whitelist or blacklist messages from particular numbers
 - [ ] Feat: Allow expire data after certain time
 - [ ] Feat: _Don't_ auto upload data when starting the app
 - [ ] Think about real-time authentication of features
-- [ ] Fix: local packing taking too long
+- [ ] Whitelisting IPs
 
 ## Done
 
+- [x] Fix: local packing taking too long
+- [x] Feat: desktop icon
 - [x] Fix notarization
 - [x] Fix CI/CD
 - [x] Feat: export macOS contacts

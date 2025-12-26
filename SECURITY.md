@@ -29,3 +29,5 @@ Devices authenticate via a shared secret:
 If `DEVICE_SECRET` is unset on the server, device auth is bypassed (for development).
 
 ## Server security
+
+API read is actually more sensitive than write.
