@@ -6,7 +6,7 @@ import {
   fetchMessages,
   type Message,
 } from '../sources/imessage'
-import { store } from '../store'
+import { getDeviceId, store } from '../store'
 import { startAnimating } from '../tray/animate'
 import type { Service } from './index'
 
@@ -18,8 +18,13 @@ async function uploadMessages(
   }
 
   const res = await apiRequest({
-    path: '/api/messages',
-    body: { messages },
+    path: '/api/imessages',
+    body: {
+      messages,
+      syncTime: new Date().toISOString(),
+      deviceId: getDeviceId(),
+      messageCount: messages.length,
+    },
   })
   if ('error' in res) {
     return { error: res.error }
@@ -42,16 +47,19 @@ async function exportAndUpload(): Promise<void> {
     return
   }
 
+  const config = store.get('imessageExport')
   const since =
     lastExportedMessageDate || new Date(Date.now() - 24 * 60 * 60 * 1000)
-  const messages = await fetchMessages(sdk, since)
+  const messages = await fetchMessages(sdk, since, {
+    includeAttachments: config.includeAttachments,
+  })
 
   if (messages.length === 0) {
     console.log('[imessage] No new messages to export')
     return
   }
 
-  const latestDate = messages.reduce(
+  const latestDateStr = messages.reduce(
     (max, msg) => (msg.date > max ? msg.date : max),
     messages[0].date,
   )
@@ -68,7 +76,7 @@ async function exportAndUpload(): Promise<void> {
   }
 
   stopAnimating()
-  lastExportedMessageDate = latestDate
+  lastExportedMessageDate = new Date(latestDateStr)
 }
 
 function scheduleNextExport(): void {
@@ -186,6 +194,7 @@ async function runBackfill(days = 120): Promise<void> {
 
   console.log(`[imessage] Starting backfill for ${days} days`)
 
+  const config = store.get('imessageExport')
   const backfillSdk = createIMessageSDK()
   const stopAnimating = startAnimating('old')
 
@@ -204,8 +213,10 @@ async function runBackfill(days = 120): Promise<void> {
       nextDate.setTime(endDate.getTime())
     }
 
-    const messages = await fetchMessages(backfillSdk, currentDate)
-    const filtered = messages.filter((m) => m.date < nextDate)
+    const messages = await fetchMessages(backfillSdk, currentDate, {
+      includeAttachments: config.includeAttachments,
+    })
+    const filtered = messages.filter((m) => new Date(m.date) < nextDate)
 
     if (filtered.length > 0) {
       const res = await catchAndComplain(uploadMessages(filtered))

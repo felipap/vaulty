@@ -13,10 +13,13 @@ async function main() {
   if (messages.length > 0) {
     console.log('Sample message:', {
       id: messages[0].id,
-      text: messages[0].text.slice(0, 50),
-      sender: messages[0].sender,
+      guid: messages[0].guid,
+      text: messages[0].text?.slice(0, 50),
+      contact: messages[0].contact,
       isFromMe: messages[0].isFromMe,
       date: messages[0].date,
+      hasAttachments: messages[0].hasAttachments,
+      service: messages[0].service,
     })
   }
 }

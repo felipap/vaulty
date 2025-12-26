@@ -23,6 +23,7 @@ type StoreSchema = {
   imessageExport: {
     enabled: boolean
     intervalMinutes: number
+    includeAttachments: boolean
   }
   contactsSync: {
     enabled: boolean
@@ -45,6 +46,7 @@ export const store = new Store<StoreSchema>({
     imessageExport: {
       enabled: false,
       intervalMinutes: 5,
+      includeAttachments: true,
     },
     contactsSync: {
       enabled: false,
