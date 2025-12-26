@@ -48,4 +48,11 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.invoke('check-screen-recording-access'),
   openScreenRecordingSettings: () =>
     ipcRenderer.invoke('open-screen-recording-settings'),
+
+  // iMessage backfill
+  startIMessageBackfill: (days: number) =>
+    ipcRenderer.invoke('imessage-backfill-start', days),
+  cancelIMessageBackfill: () => ipcRenderer.invoke('imessage-backfill-cancel'),
+  getIMessageBackfillProgress: () =>
+    ipcRenderer.invoke('imessage-backfill-progress'),
 })

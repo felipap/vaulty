@@ -21,6 +21,13 @@ export interface ServiceStatus {
   timeUntilNextRun: number
 }
 
+export interface BackfillProgress {
+  current: number
+  total: number
+  status: 'idle' | 'running' | 'completed' | 'error' | 'cancelled'
+  error?: string
+}
+
 interface ElectronAPI {
   platform: string
 
@@ -56,6 +63,11 @@ interface ElectronAPI {
   openFullDiskAccessSettings: () => Promise<void>
   checkScreenRecordingAccess: () => Promise<{ hasAccess: boolean }>
   openScreenRecordingSettings: () => Promise<void>
+
+  // iMessage backfill
+  startIMessageBackfill: (days: number) => Promise<void>
+  cancelIMessageBackfill: () => Promise<void>
+  getIMessageBackfillProgress: () => Promise<BackfillProgress>
 }
 
 declare global {

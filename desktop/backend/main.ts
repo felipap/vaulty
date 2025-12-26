@@ -19,6 +19,8 @@ if (!gotTheLock) {
 }
 
 app.on('second-instance', () => {
+  console.warn('second-instance fired')
+
   // Someone tried to run a second instance, focus our window instead
   const win = getMainWindow()
   if (!win) {
@@ -32,11 +34,35 @@ app.on('second-instance', () => {
   win.focus()
 })
 
-app.whenReady().then(() => {
+// Prevent multiple initialization
+let isInitialized = false
+
+app.whenReady().then(async () => {
+  if (isInitialized) {
+    console.log('App already initialized, skipping...')
+    return
+  }
+
+  isInitialized = true
   registerIpcHandlers()
   createMainWindow()
   initTray()
-  startAllServices()
+  await startAllServices()
+
+  console.log('App initialized')
+
+  // app.on('activate', () => {
+  //   // On macOS, when the dock icon is clicked, show the library window
+  //   if (!libraryWindow) {
+  //     createLibraryWindow()
+  //     return
+  //   }
+  //   if (libraryWindow.isMinimized()) {
+  //     libraryWindow.restore()
+  //   }
+  //   libraryWindow.show()
+  //   libraryWindow.focus()
+  // })
 })
 
 app.on('window-all-closed', () => {

@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
 import { SERVICES, getService } from './services'
+import { imessageBackfill } from './services/imessage'
 import {
   store,
   getRequestLogs,
@@ -121,5 +122,18 @@ export function registerIpcHandlers(): void {
     shell.openExternal(
       'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture',
     )
+  })
+
+  // iMessage backfill
+  ipcMain.handle('imessage-backfill-start', async (_event, days: number) => {
+    await imessageBackfill.run(days)
+  })
+
+  ipcMain.handle('imessage-backfill-cancel', () => {
+    imessageBackfill.cancel()
+  })
+
+  ipcMain.handle('imessage-backfill-progress', () => {
+    return imessageBackfill.getProgress()
   })
 }

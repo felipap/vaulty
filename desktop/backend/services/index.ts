@@ -1,6 +1,6 @@
 export type Service = {
   name: string
-  start: () => Promise<void> | void
+  start: () => Promise<void>
   stop: () => void
   restart: () => void
   isRunning: () => boolean
@@ -14,15 +14,19 @@ import { imessageService } from './imessage'
 import { contactsService } from './contacts'
 
 export const SERVICES: Service[] = [
-  screenshotsService,
   imessageService,
+  screenshotsService,
   contactsService,
 ]
 
-export function startAllServices(): void {
+export async function startAllServices(): Promise<void> {
+  console.log('Starting all services...')
+
   for (const service of SERVICES) {
-    service.start()
+    console.debug(`Will start service ${service.name}`)
+    await service.start()
   }
+  console.log('All services started')
 }
 
 export function stopAllServices(): void {

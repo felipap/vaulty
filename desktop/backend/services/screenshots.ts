@@ -37,7 +37,7 @@ function scheduleNextCapture(): void {
   }, intervalMs)
 }
 
-function start(): void {
+async function start(): Promise<void> {
   if (captureInterval) {
     console.log('[screenshots] Already running')
     return

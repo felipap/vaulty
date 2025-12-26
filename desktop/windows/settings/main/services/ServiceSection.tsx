@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ServiceConfig } from '../../../electron'
 import { FullDiskPermission } from './FullDiskPermission'
+import { HistoricalBackfill } from './HistoricalBackfill'
 import { ScreenRecordingPermission } from './ScreenRecordingPermission'
 
 export type ServiceInfo = {
@@ -170,7 +171,10 @@ export function ServiceSection({ service }: { service: ServiceInfo }) {
 
           {service.name === 'screenshots' && <ScreenRecordingPermission />}
           {service.name === 'imessage' && (
-            <FullDiskPermission serviceName="imessage" />
+            <>
+              <FullDiskPermission serviceName="imessage" />
+              <HistoricalBackfill />
+            </>
           )}
           {service.name === 'contacts' && (
             <FullDiskPermission serviceName="contacts" />
