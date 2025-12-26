@@ -2,9 +2,7 @@
 
 ## Now
 
-- [ ] Fix CI/CD
 - [ ] Make packing work
-- [ ] Fix notarization
 - [ ] Feat: implement an onboarding with info
 - [ ] Feat: blur the texts in screenshots
 - [ ] Feat: desktop icon
@@ -12,9 +10,12 @@
 - [ ] Feat: Allow expire data after certain time
 - [ ] Feat: _Don't_ auto upload data when starting the app
 - [ ] Think about real-time authentication of features
+- [ ] Fix: local packing taking too long
 
 ## Done
 
+- [x] Fix notarization
+- [x] Fix CI/CD
 - [x] Feat: export macOS contacts
 - [x] Feat: export iMessage
 - [x] Show animation when uploading a screenshot
