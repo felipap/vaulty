@@ -1,18 +1,18 @@
-import { db } from '@/db'
-import { DEFAULT_USER_ID } from '@/db/schema'
-import { sql } from 'drizzle-orm'
-import { NextRequest } from 'next/server'
-import { authMobileRequest } from '../../lib'
+import { db } from "@/db"
+import { DEFAULT_USER_ID } from "@/db/schema"
+import { sql } from "drizzle-orm"
+import { NextRequest } from "next/server"
+import { authMobileRequest } from "../../lib"
 
 export const GET = authMobileRequest(async (request: NextRequest) => {
   const { searchParams } = new URL(request.url)
-  const limitParam = searchParams.get('limit')
-  const offsetParam = searchParams.get('offset')
+  const limitParam = searchParams.get("limit")
+  const offsetParam = searchParams.get("offset")
 
   if (!limitParam) {
     return Response.json(
-      { error: 'limit query parameter is required' },
-      { status: 400 },
+      { error: "limit query parameter is required" },
+      { status: 400 }
     )
   }
 
@@ -21,15 +21,15 @@ export const GET = authMobileRequest(async (request: NextRequest) => {
 
   if (isNaN(limit) || limit < 1) {
     return Response.json(
-      { error: 'limit must be a positive integer' },
-      { status: 400 },
+      { error: "limit must be a positive integer" },
+      { status: 400 }
     )
   }
 
   if (isNaN(offset) || offset < 0) {
     return Response.json(
-      { error: 'offset must be a non-negative integer' },
-      { status: 400 },
+      { error: "offset must be a non-negative integer" },
+      { status: 400 }
     )
   }
 
@@ -65,12 +65,12 @@ interface Chat {
 
 function isGroupChat(chatId: string): boolean {
   // Group chats typically start with "chat" followed by numbers
-  return chatId.startsWith('chat')
+  return chatId.startsWith("chat")
 }
 
 async function getLatestChats(
   limit: number,
-  offset: number,
+  offset: number
 ): Promise<{ chats: Chat[] }> {
   // Use a single SQL query with window functions to:
   // 1. Get the latest message per chat (using ROW_NUMBER)
