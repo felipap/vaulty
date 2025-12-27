@@ -1,7 +1,7 @@
 import { db } from "@/db"
 import { WriteLogs, ReadLogs } from "@/db/schema"
 
-export type WriteLogType = "screenshot" | "imessage" | "attachment"
+export type WriteLogType = "screenshot" | "imessage" | "attachment" | "contact"
 export type ReadLogType =
   | "screenshot"
   | "imessage"

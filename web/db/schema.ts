@@ -126,3 +126,33 @@ export const ReadLogs = pgTable(
 
 export type NewReadLog = typeof ReadLogs.$inferInsert
 export type ReadLog = typeof ReadLogs.$inferSelect
+
+//
+//
+//
+//
+
+export const Contacts = pgTable(
+  "contacts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id").notNull(),
+    contactId: text("contact_id").notNull(), // The unique ID from the contacts database
+    firstName: text("first_name"),
+    lastName: text("last_name"),
+    organization: text("organization"),
+    emails: text("emails").notNull(), // JSON array
+    phoneNumbers: text("phone_numbers").notNull(), // JSON array
+    deviceId: text("device_id").notNull(),
+    syncTime: timestamp("sync_time").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("contacts_user_contact_unique").on(table.userId, table.contactId),
+    index("contacts_user_id_idx").on(table.userId),
+  ]
+)
+
+export type NewContact = typeof Contacts.$inferInsert
+export type Contact = typeof Contacts.$inferSelect
