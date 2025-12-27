@@ -1,8 +1,8 @@
 "use client"
 
+import { Pagination } from "@/ui/Pagination"
 import { useEffect, useState } from "react"
 import { getChats, type Chat } from "./actions"
-import { Pagination } from "../(index)/Pagination"
 
 export function ChatsClient() {
   const [chats, setChats] = useState<Chat[]>([])
@@ -12,62 +12,70 @@ export function ChatsClient() {
   const [total, setTotal] = useState(0)
 
   useEffect(() => {
-    setLoading(true)
-    getChats(page)
-      .then((data) => {
-        setChats(data.chats)
-        setTotalPages(data.totalPages)
-        setTotal(data.total)
-      })
-      .finally(() => setLoading(false))
+    async function load() {
+      setLoading(true)
+      const data = await getChats(page)
+      setChats(data.chats)
+      setTotalPages(data.totalPages)
+      setTotal(data.total)
+      setLoading(false)
+    }
+    load()
   }, [page])
+
+  let inner
+  if (loading) {
+    inner = <p className="text-zinc-500">Loading...</p>
+  } else if (chats.length === 0) {
+    inner = <p className="text-zinc-500">No chats yet.</p>
+  } else {
+    inner = (
+      <>
+        <div className="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800">
+          <table className="w-full">
+            <thead className="bg-zinc-50 dark:bg-zinc-900">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-medium text-zinc-500">
+                  Contact
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-zinc-500">
+                  Last Message
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-zinc-500">
+                  Messages
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-zinc-500">
+                  Date
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-200 bg-white dark:divide-zinc-800 dark:bg-zinc-950">
+              {chats.map((chat) => (
+                <ChatRow key={chat.chatId} chat={chat} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
+      </>
+    )
+  }
 
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Chats</h1>
-        <span className="text-sm text-zinc-500">{total.toLocaleString()} total</span>
+        <span className="text-sm text-zinc-500">
+          {total.toLocaleString()} total
+        </span>
       </div>
 
-      {loading ? (
-        <p className="text-zinc-500">Loading...</p>
-      ) : chats.length === 0 ? (
-        <p className="text-zinc-500">No chats yet.</p>
-      ) : (
-        <>
-          <div className="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800">
-            <table className="w-full">
-              <thead className="bg-zinc-50 dark:bg-zinc-900">
-                <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-zinc-500">
-                    Contact
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-zinc-500">
-                    Last Message
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-zinc-500">
-                    Messages
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-zinc-500">
-                    Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-200 bg-white dark:divide-zinc-800 dark:bg-zinc-950">
-                {chats.map((chat) => (
-                  <ChatRow key={chat.chatId} chat={chat} />
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-          />
-        </>
-      )}
+      {inner}
     </div>
   )
 }
@@ -103,13 +111,7 @@ function ChatRow({ chat }: { chat: Chat }) {
   )
 }
 
-function ContactAvatar({
-  name,
-  isGroup,
-}: {
-  name: string
-  isGroup: boolean
-}) {
+function ContactAvatar({ name, isGroup }: { name: string; isGroup: boolean }) {
   const initial = name.charAt(0).toUpperCase()
   const bgColor = isGroup
     ? "bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400"
@@ -175,5 +177,3 @@ function formatRelativeDate(date: Date): string {
   }
   return date.toLocaleDateString([], { month: "short", day: "numeric" })
 }
-
-

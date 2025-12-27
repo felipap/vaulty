@@ -1,9 +1,5 @@
 import { MessagesClient } from "./MessagesClient"
 
-function Page() {
+export default function Page() {
   return <MessagesClient />
 }
-
-export default Page
-
-

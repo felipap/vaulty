@@ -2,23 +2,53 @@
 
 import { useEffect, useState } from "react"
 import { getContacts, type Contact } from "./actions"
+import { Pagination } from "@/ui/Pagination"
 
-export function Contacts() {
-  const { contacts, loading } = useContacts()
+export function ContactsClient() {
+  const [contacts, setContacts] = useState<Contact[]>([])
+  const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [total, setTotal] = useState(0)
+
+  useEffect(() => {
+    setLoading(true)
+    getContacts(page)
+      .then((data) => {
+        setContacts(data.contacts)
+        setTotalPages(data.totalPages)
+        setTotal(data.total)
+      })
+      .finally(() => setLoading(false))
+  }, [page])
 
   return (
     <div>
-      <h2 className="mb-4 text-lg font-semibold">Contacts</h2>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Contacts</h1>
+        <span className="text-sm text-zinc-500">
+          {total.toLocaleString()} total
+        </span>
+      </div>
+
       {loading ? (
         <p className="text-zinc-500">Loading...</p>
       ) : contacts.length === 0 ? (
         <p className="text-zinc-500">No contacts yet.</p>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {contacts.map((contact) => (
-            <ContactCard key={contact.contact} contact={contact} />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {contacts.map((contact) => (
+              <ContactCard key={contact.contact} contact={contact} />
+            ))}
+          </div>
+
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
+        </>
       )}
     </div>
   )
@@ -111,18 +141,3 @@ function formatRelativeDate(date: Date): string {
   }
   return date.toLocaleDateString([], { month: "short", day: "numeric" })
 }
-
-function useContacts() {
-  const [data, setData] = useState<Contact[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    getContacts()
-      .then(setData)
-      .finally(() => setLoading(false))
-  }, [])
-
-  return { contacts: data, loading }
-}
-
-

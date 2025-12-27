@@ -10,6 +10,7 @@ const navItems = [
   { href: "/dashboard/screenshots", label: "Screenshots" },
   { href: "/dashboard/messages", label: "Messages" },
   { href: "/dashboard/chats", label: "Chats" },
+  { href: "/dashboard/contacts", label: "Contacts" },
 ]
 
 export function DashboardNav() {

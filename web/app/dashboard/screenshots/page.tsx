@@ -1,9 +1,5 @@
 import { ScreenshotsClient } from "./ScreenshotsClient"
 
-function Page() {
+export default function Page() {
   return <ScreenshotsClient />
 }
-
-export default Page
-
-

@@ -13,10 +13,31 @@ export type Contact = {
   lastMessageFromMe: boolean
 }
 
-export async function getContacts(): Promise<Contact[]> {
+export type ContactsPage = {
+  contacts: Contact[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
+export async function getContacts(
+  page: number = 1,
+  pageSize: number = 20
+): Promise<ContactsPage> {
   if (!(await isAuthenticated())) {
     throw new Error("Unauthorized")
   }
+
+  const offset = (page - 1) * pageSize
+
+  const [countResult] = await db.execute<{ count: number }>(sql`
+    SELECT COUNT(DISTINCT contact)::int as count
+    FROM imessages
+    WHERE user_id = ${DEFAULT_USER_ID}
+  `)
+
+  const total = countResult.count
 
   const result = await db.execute<{
     contact: string
@@ -55,16 +76,23 @@ export async function getContacts(): Promise<Contact[]> {
     FROM contact_stats cs
     LEFT JOIN ranked_messages rm ON cs.contact = rm.contact AND rm.rn = 1
     ORDER BY rm.date DESC NULLS LAST
-    LIMIT 20
+    LIMIT ${pageSize}
+    OFFSET ${offset}
   `)
 
-  return [...result].map((row) => ({
+  const contacts = [...result].map((row) => ({
     contact: row.contact,
     messageCount: Number(row.message_count),
     lastMessageDate: row.last_message_date,
     lastMessageText: row.last_message_text,
     lastMessageFromMe: row.last_message_from_me === 1,
   }))
+
+  return {
+    contacts,
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  }
 }
-
-

@@ -2,12 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { twMerge } from "tailwind-merge"
 import { ActivityLogs } from "./ActivityLogs"
-import { Contacts } from "./Contacts"
-import { RecentChats } from "./RecentChats"
-import { RecentMessages } from "./RecentMessages"
-import { RecentScreenshots } from "./RecentScreenshots"
 import { getDashboardStats, type DashboardStats } from "./actions"
 
 function formatBytes(bytes: number): string {
@@ -41,21 +36,10 @@ function StatCard({ label, value, href }: StatCardProps) {
   )
 }
 
-const tabs = [
-  { id: "screenshots", label: "Screenshots" },
-  { id: "messages", label: "Messages" },
-  { id: "chats", label: "Chats" },
-  { id: "contacts", label: "Contacts" },
-  { id: "activity", label: "Activity" },
-] as const
-
-type TabId = (typeof tabs)[number]["id"]
-
 export function DashboardClient() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<TabId>("screenshots")
 
   useEffect(() => {
     getDashboardStats()
@@ -112,28 +96,8 @@ export function DashboardClient() {
       </div>
 
       <div>
-        <div className="mb-4 flex gap-1 border-b border-zinc-200 dark:border-zinc-800">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={twMerge(
-                "px-4 py-2 text-sm font-medium transition-colors",
-                activeTab === tab.id
-                  ? "border-b-2 border-zinc-900 text-zinc-900 dark:border-zinc-100 dark:text-zinc-100"
-                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {activeTab === "screenshots" && <RecentScreenshots />}
-        {activeTab === "messages" && <RecentMessages />}
-        {activeTab === "chats" && <RecentChats />}
-        {activeTab === "contacts" && <Contacts />}
-        {activeTab === "activity" && <ActivityLogs />}
+        <h2 className="mb-4 text-lg font-semibold">Activity</h2>
+        <ActivityLogs />
       </div>
     </div>
   )
