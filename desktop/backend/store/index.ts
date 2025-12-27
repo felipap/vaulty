@@ -5,8 +5,8 @@
 import { app } from 'electron'
 import Store from 'electron-store'
 import { MAX_LOGS } from '../config'
-import { decryptSecret, encryptSecret } from '../lib/keychain'
 import { debug } from '../lib/logger'
+import { decryptSecret, encryptSecret } from './keychain'
 import { ApiRequestLog, DEFAULT_STATE, StoreSchema } from './schema'
 
 // Changes where the backend data is stored depending on dev or prod.
@@ -19,8 +19,20 @@ export const store = new Store<StoreSchema>({
   defaults: DEFAULT_STATE,
 })
 
-export function getDeviceSecret(): string {
+//
+//
+//
+//
+//
+//
+//
+//
+
+export function getDeviceSecret(): string | null {
   const stored = store.get('deviceSecret')
+  if (!stored) {
+    return null
+  }
   return decryptSecret(stored)
 }
 
@@ -30,7 +42,11 @@ export function setDeviceSecret(secret: string): void {
 }
 
 export function getDeviceId(): string {
-  return store.get('deviceId')
+  const id = store.get('deviceId')
+  if (!id) {
+    throw new Error('Device ID is not set')
+  }
+  return id
 }
 
 export function addRequestLog(log: Omit<ApiRequestLog, 'id'>): void {

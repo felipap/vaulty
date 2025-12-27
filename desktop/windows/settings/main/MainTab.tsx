@@ -12,8 +12,8 @@ export function MainTab() {
         window.electron.getServerUrl(),
         window.electron.getDeviceSecret(),
       ])
-      setServerUrl(url)
-      setDeviceSecret(secret)
+      setServerUrl(url ?? '')
+      setDeviceSecret(secret ?? '')
       setIsLoading(false)
     }
     load()
