@@ -24,5 +24,6 @@
     "**/tsconfig.tsbuildinfo": true,
     "**/package-lock.json": true,
     "**/pnpm-lock.yaml": true,
+    "**/tray-animations": true,
   }
 }
