@@ -8,7 +8,7 @@ import {
 } from '../sources/imessage'
 import { getDeviceId, store } from '../store'
 import { startAnimating } from '../tray/animate'
-import type { Service, SyncStatus } from './index'
+import { createScheduledService } from './scheduler'
 
 async function uploadMessages(
   messages: Message[],
@@ -35,18 +35,13 @@ async function uploadMessages(
 }
 
 let sdk: IMessageSDK | null = null
-let exportInterval: NodeJS.Timeout | null = null
-let nextExportTime: Date | null = null
 let lastExportedMessageDate: Date | null = null
-let lastSyncStatus: SyncStatus = null
 
 async function exportAndUpload(): Promise<void> {
   console.log('[imessage] Exporting messages...')
 
   if (!sdk) {
-    console.debug('[imessage] SDK not initialized')
-    lastSyncStatus = 'error'
-    return
+    throw new Error('SDK not initialized')
   }
 
   const config = store.get('imessageExport')
@@ -58,7 +53,6 @@ async function exportAndUpload(): Promise<void> {
 
   if (messages.length === 0) {
     console.log('[imessage] No new messages to export')
-    lastSyncStatus = 'success'
     return
   }
 
@@ -72,125 +66,31 @@ async function exportAndUpload(): Promise<void> {
   const stopAnimating = startAnimating('old')
 
   const res = await catchAndComplain(uploadMessages(messages))
-  if ('error' in res) {
-    console.error('[imessage] uploadMessages THREW:', res.error)
-    stopAnimating()
-    lastSyncStatus = 'error'
-    return
-  }
-
   stopAnimating()
+
+  if ('error' in res) {
+    throw new Error(`uploadMessages failed: ${res.error}`)
+  }
+
   lastExportedMessageDate = new Date(latestDateStr)
-  lastSyncStatus = 'success'
 }
 
-function scheduleNextExport(): void {
-  const config = store.get('imessageExport')
-  const intervalMs = config.intervalMinutes * 60 * 1000
-
-  nextExportTime = new Date(Date.now() + intervalMs)
-
-  exportInterval = setTimeout(async () => {
-    try {
-      await exportAndUpload()
-    } catch (error) {
-      console.error('[imessage] Scheduled export failed:', error)
+export const imessageService = createScheduledService({
+  name: 'imessage',
+  configKey: 'imessageExport',
+  onSync: exportAndUpload,
+  onStart: () => {
+    sdk = createIMessageSDK()
+  },
+  onStop: () => {
+    if (sdk) {
+      sdk.close()
+      sdk = null
     }
-    scheduleNextExport()
-  }, intervalMs)
-}
+  },
+})
 
-async function start(): Promise<void> {
-  if (exportInterval) {
-    console.log('[imessage] Already running')
-    return
-  }
-
-  const config = store.get('imessageExport')
-  if (!config.enabled) {
-    console.log('[imessage] Disabled')
-    return
-  }
-
-  console.log('[imessage] Starting...')
-
-  sdk = createIMessageSDK()
-
-  // Do initial export, but don't let failures prevent scheduling
-  try {
-    await exportAndUpload()
-  } catch (error) {
-    console.error('[imessage] Initial export failed:', error)
-  }
-
-  scheduleNextExport()
-}
-
-function stop(): void {
-  if (exportInterval) {
-    clearTimeout(exportInterval)
-    exportInterval = null
-    nextExportTime = null
-    console.log('[imessage] Stopped')
-  }
-
-  if (sdk) {
-    sdk.close()
-    sdk = null
-  }
-}
-
-function restart(): void {
-  stop()
-  start()
-}
-
-function isRunning(): boolean {
-  return exportInterval !== null
-}
-
-async function runNow(): Promise<void> {
-  const config = store.get('imessageExport')
-  if (!config.enabled) {
-    throw new Error('iMessage export is disabled')
-  }
-
-  try {
-    if (!sdk) {
-      sdk = createIMessageSDK()
-    }
-    await exportAndUpload()
-  } catch (error) {
-    console.error('[imessage] Manual export failed:', error)
-  }
-
-  // Restart the clock after manual run
-  if (exportInterval) {
-    clearTimeout(exportInterval)
-    scheduleNextExport()
-  }
-}
-
-function getNextRunTime(): Date | null {
-  return nextExportTime
-}
-
-function getTimeUntilNextRun(): number {
-  if (!nextExportTime) {
-    return 0
-  }
-  return Math.max(0, nextExportTime.getTime() - Date.now())
-}
-
-function isEnabled(): boolean {
-  return store.get('imessageExport').enabled
-}
-
-function getLastSyncStatus(): SyncStatus {
-  return lastSyncStatus
-}
-
-// Backfill state
+// Backfill functionality
 let backfillInProgress = false
 type BackfillStatus = 'idle' | 'running' | 'completed' | 'error' | 'cancelled'
 export type BackfillProgress = {
@@ -281,19 +181,6 @@ function cancelBackfill(): void {
 
 function getBackfillProgress(): BackfillProgress {
   return { ...backfillProgress }
-}
-
-export const imessageService: Service = {
-  name: 'imessage',
-  start,
-  stop,
-  restart,
-  isRunning,
-  isEnabled,
-  runNow,
-  getNextRunTime,
-  getTimeUntilNextRun,
-  getLastSyncStatus,
 }
 
 export const imessageBackfill = {
