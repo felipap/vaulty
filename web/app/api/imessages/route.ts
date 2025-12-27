@@ -5,12 +5,47 @@ import { NextRequest } from "next/server"
 import { z } from "zod"
 import { logRead, logWrite } from "@/lib/activity-log"
 
+const MAX_LIMIT = 50
+
 export async function GET(request: NextRequest) {
   console.log("GET /api/imessages")
 
   const { searchParams } = new URL(request.url)
+  const limitParam = searchParams.get("limit")
+  const offsetParam = searchParams.get("offset")
   const afterParam = searchParams.get("after")
   const contactParam = searchParams.get("contact")
+
+  if (!limitParam) {
+    return Response.json(
+      { error: "limit query parameter is required" },
+      { status: 400 }
+    )
+  }
+
+  const limit = parseInt(limitParam, 10)
+  const offset = offsetParam ? parseInt(offsetParam, 10) : 0
+
+  if (isNaN(limit) || limit < 1) {
+    return Response.json(
+      { error: "limit must be a positive integer" },
+      { status: 400 }
+    )
+  }
+
+  if (limit > MAX_LIMIT) {
+    return Response.json(
+      { error: `limit must not exceed ${MAX_LIMIT}` },
+      { status: 400 }
+    )
+  }
+
+  if (isNaN(offset) || offset < 0) {
+    return Response.json(
+      { error: "offset must be a non-negative integer" },
+      { status: 400 }
+    )
+  }
 
   const conditions = [eq(iMessages.userId, DEFAULT_USER_ID)]
 
@@ -32,7 +67,8 @@ export async function GET(request: NextRequest) {
   const messages = await db.query.iMessages.findMany({
     where: and(...conditions),
     orderBy: (iMessages, { asc }) => [asc(iMessages.date)],
-    limit: 1000,
+    limit,
+    offset,
   })
 
   console.info(
@@ -51,6 +87,10 @@ export async function GET(request: NextRequest) {
     success: true,
     messages,
     count: messages.length,
+    page: {
+      limit,
+      offset,
+    },
   })
 }
 
