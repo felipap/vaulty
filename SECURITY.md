@@ -31,3 +31,15 @@ If `API_WRITE_SECRET` is unset on the server, device auth is bypassed (for devel
 ## Server security
 
 API read is actually more sensitive than write.
+
+## Rate Limiting (Vercel)
+
+Vercel's `vercel.json` supports WAF rules but only `challenge` and `deny` actions—not rate limiting.
+
+For rate limiting, your options are:
+
+1. **Vercel Dashboard WAF** — Configure in Firewall tab, no code needed
+2. **@vercel/firewall SDK** — Programmatic, but still requires dashboard rule setup first
+3. **@upstash/ratelimit** — Fully code-based, requires Upstash Redis (free tier available)
+
+See: https://vercel.com/docs/vercel-firewall/vercel-waf/rate-limiting

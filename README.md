@@ -18,6 +18,8 @@ Required environment variables:
 - `DASHBOARD_SECRET` — Passphrase to access the web dashboard
 - `API_WRITE_SECRET` — Secret for authenticating the Electron app
 
+For rate limiting and other security considerations, see [SECURITY.md](./SECURITY.md).
+
 # License
 
 MIT
