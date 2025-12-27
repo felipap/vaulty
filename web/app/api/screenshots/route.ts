@@ -3,6 +3,7 @@ import { db } from "@/db"
 import { Screenshots } from "@/db/schema"
 import { resizeScreenshot } from "@/lib/image-resize"
 import { config } from "@/lib/config"
+import { logWrite } from "@/lib/activity-log"
 import { protectApiWrite } from "../lib"
 import sharp from "sharp"
 
@@ -57,6 +58,12 @@ export const POST = protectApiWrite(async (request: NextRequest) => {
       sizeBytes: resizedBuffer.length,
     })
     .returning()
+
+  await logWrite({
+    type: "screenshot",
+    description: `Uploaded screenshot (${metadata.width}x${metadata.height})`,
+    metadata: { sizeBytes: resizedBuffer.length },
+  })
 
   return NextResponse.json({
     id: screenshot.id,

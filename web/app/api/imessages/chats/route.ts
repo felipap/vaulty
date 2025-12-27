@@ -2,10 +2,11 @@ import { db } from "@/db"
 import { DEFAULT_USER_ID } from "@/db/schema"
 import { sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
+import { logRead } from "@/lib/activity-log"
 import { CallerInfo, protectApiRead } from "../../lib"
 
 export const GET = protectApiRead(
-  async (request: NextRequest, caller: CallerInfo) => {
+  async (request: NextRequest, _caller: CallerInfo) => {
     const { searchParams } = new URL(request.url)
     const limitParam = searchParams.get("limit")
     const offsetParam = searchParams.get("offset")
@@ -37,6 +38,12 @@ export const GET = protectApiRead(
     const startTime = Date.now()
 
     const { chats } = await getLatestChats(limit, offset)
+
+    await logRead({
+      type: "chat",
+      description: "Fetched chat list",
+      count: chats.length,
+    })
 
     return Response.json({
       success: true,

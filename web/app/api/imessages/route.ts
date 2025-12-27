@@ -3,6 +3,7 @@ import { DEFAULT_USER_ID, iMessageAttachments, iMessages } from "@/db/schema"
 import { and, eq, gte, sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { z } from "zod"
+import { logRead, logWrite } from "@/lib/activity-log"
 import { protectApiRead, protectApiWrite } from "../lib"
 
 export const GET = protectApiRead(async (request: NextRequest) => {
@@ -38,6 +39,14 @@ export const GET = protectApiRead(async (request: NextRequest) => {
   console.info(
     `Retrieved ${messages.length} iMessages${contactParam ? ` for contact ${contactParam}` : ""}`
   )
+
+  await logRead({
+    type: "imessage",
+    description: contactParam
+      ? `Fetched messages for ${contactParam}`
+      : "Fetched messages",
+    count: messages.length,
+  })
 
   return Response.json({
     success: true,
@@ -99,6 +108,23 @@ export const POST = protectApiWrite(async (request: NextRequest) => {
       "Inserted message IDs:",
       insertedMessages.map((m) => m.id)
     )
+  }
+
+  if (insertedMessages.length > 0) {
+    await logWrite({
+      type: "imessage",
+      description: `Synced messages from ${deviceId}`,
+      count: insertedMessages.length,
+      metadata: { skippedCount, rejectedCount: rejectedMessages.length },
+    })
+  }
+
+  if (insertedAttachments.length > 0) {
+    await logWrite({
+      type: "attachment",
+      description: `Synced attachments from ${deviceId}`,
+      count: insertedAttachments.length,
+    })
   }
 
   return Response.json({

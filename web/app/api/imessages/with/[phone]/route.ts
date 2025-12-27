@@ -2,6 +2,7 @@ import { db } from "@/db"
 import { DEFAULT_USER_ID, iMessages } from "@/db/schema"
 import { and, desc, eq } from "drizzle-orm"
 import { NextRequest } from "next/server"
+import { logRead } from "@/lib/activity-log"
 import { protectApiRead } from "../../../lib"
 
 export const GET = protectApiRead(async (request: NextRequest) => {
@@ -42,6 +43,12 @@ export const GET = protectApiRead(async (request: NextRequest) => {
 
   const decodedPhone = decodeURIComponent(phone)
   const messages = await getMessagesWithContact(decodedPhone, limit, offset)
+
+  await logRead({
+    type: "imessage",
+    description: `Fetched conversation with ${decodedPhone}`,
+    count: messages.length,
+  })
 
   return Response.json({
     success: true,

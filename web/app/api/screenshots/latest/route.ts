@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/db"
 import { Screenshots } from "@/db/schema"
 import { desc } from "drizzle-orm"
+import { logRead } from "@/lib/activity-log"
 import { protectApiRead } from "../../lib"
 
 export const GET = protectApiRead(async (_request: NextRequest) => {
@@ -12,6 +13,12 @@ export const GET = protectApiRead(async (_request: NextRequest) => {
   if (!screenshot) {
     return NextResponse.json({ error: "No screenshots found" }, { status: 404 })
   }
+
+  await logRead({
+    type: "screenshot",
+    description: "Fetched latest screenshot",
+    count: 1,
+  })
 
   return NextResponse.json({
     id: screenshot.id,

@@ -84,3 +84,45 @@ export const iMessageAttachments = pgTable("imessage_attachments", {
 
 export type NewIMessageAttachment = typeof iMessageAttachments.$inferInsert
 export type IMessageAttachment = typeof iMessageAttachments.$inferSelect
+
+//
+//
+//
+//
+
+export const WriteLogs = pgTable(
+  "write_logs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    type: text("type").notNull(), // 'screenshot' | 'imessage' | 'attachment'
+    description: text("description").notNull(),
+    count: integer("count").notNull().default(1),
+    metadata: text("metadata"), // JSON string for extra info
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("write_logs_created_at_idx").on(table.createdAt)]
+)
+
+export type NewWriteLog = typeof WriteLogs.$inferInsert
+export type WriteLog = typeof WriteLogs.$inferSelect
+
+//
+//
+//
+//
+
+export const ReadLogs = pgTable(
+  "read_logs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    type: text("type").notNull(), // 'screenshot' | 'imessage' | 'chat' | 'contact' | 'stats'
+    description: text("description").notNull(),
+    count: integer("count"), // number of items returned
+    metadata: text("metadata"), // JSON string for extra info
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("read_logs_created_at_idx").on(table.createdAt)]
+)
+
+export type NewReadLog = typeof ReadLogs.$inferInsert
+export type ReadLog = typeof ReadLogs.$inferSelect
