@@ -102,6 +102,12 @@ async function runNow(): Promise<void> {
   } catch (error) {
     console.error('[contacts] Manual sync failed:', error)
   }
+
+  // Restart the clock after manual run
+  if (syncInterval) {
+    clearTimeout(syncInterval)
+    scheduleNextSync()
+  }
 }
 
 function getNextRunTime(): Date | null {

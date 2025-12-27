@@ -163,6 +163,12 @@ async function runNow(): Promise<void> {
   } catch (error) {
     console.error('[imessage] Manual export failed:', error)
   }
+
+  // Restart the clock after manual run
+  if (exportInterval) {
+    clearTimeout(exportInterval)
+    scheduleNextExport()
+  }
 }
 
 function getNextRunTime(): Date | null {
