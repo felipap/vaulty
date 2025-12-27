@@ -17,11 +17,13 @@ export function createSettingsWindow(): BrowserWindow {
 
   const iconPath = findIconPath()
 
-  console.log('iconPath', iconPath)
-
   settingsWindow = new BrowserWindow({
     width: 500,
     height: 600,
+    minWidth: 500,
+    minHeight: 600,
+    maxWidth: 500,
+    maxHeight: 600,
     webPreferences: {
       preload: path.join(__dirname, '../preload.js'),
     },
