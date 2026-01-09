@@ -1,19 +1,19 @@
 "use client"
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useState, useEffect } from "react"
-import { logout } from "./actions"
-import { twMerge } from "tailwind-merge"
 import {
-  getEncryptionKey,
-  setEncryptionKey,
   clearEncryptionKey,
+  getEncryptionKey,
   getEncryptionKeyExpiry,
+  setEncryptionKey,
 } from "@/lib/encryption"
 import { LockIcon, UnlockIcon } from "@/ui/icons"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
+import { twMerge } from "tailwind-merge"
+import { logout } from "./actions"
 
-const navItems = [
+const NAV_ITEMS = [
   { href: "/dashboard", label: "Overview" },
   { href: "/dashboard/screenshots", label: "Screenshots" },
   { href: "/dashboard/messages", label: "Messages" },
@@ -48,7 +48,7 @@ export function DashboardNav() {
           </div>
         </div>
         <nav className="-mb-px flex gap-6">
-          {navItems.map((item) => {
+          {NAV_ITEMS.map((item) => {
             const isActive =
               item.href === "/dashboard"
                 ? pathname === "/dashboard"
@@ -116,9 +116,9 @@ function EncryptionKeyButton() {
     }
     const mins = Math.floor(diff / 60000)
     if (mins < 60) {
-      return `${mins}m left`
+      return `Clearing in ${mins}m`
     }
-    return `${Math.floor(mins / 60)}h ${mins % 60}m left`
+    return `Clearing in ${Math.floor(mins / 60)}h ${mins % 60}m`
   }
 
   return (
@@ -131,10 +131,16 @@ function EncryptionKeyButton() {
             ? "border-green-200 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-800 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"
             : "border-zinc-200 text-zinc-500 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
         )}
-        title={hasKey ? `Encryption active - ${formatExpiry(expiryTime)}` : "Set encryption key"}
+        title={
+          hasKey
+            ? `Encryption active - ${formatExpiry(expiryTime)}`
+            : "Set encryption key"
+        }
       >
         {hasKey ? <UnlockIcon /> : <LockIcon />}
-        <span className="hidden sm:inline">{hasKey ? "Decrypting" : "Encrypted"}</span>
+        <span className="hidden sm:inline">
+          {hasKey ? "Decrypting" : "Encrypted"}
+        </span>
       </button>
 
       {isOpen && (
@@ -153,7 +159,7 @@ function EncryptionKeyButton() {
                 onClick={handleClearKey}
                 className="w-full rounded-md bg-red-100 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
               >
-                Clear Key
+                Clear Now
               </button>
             </div>
           ) : (
