@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/db"
 import { Screenshots } from "@/db/schema"
-import { desc } from "drizzle-orm"
 import { logRead } from "@/lib/activity-log"
+import { desc } from "drizzle-orm"
+import { NextResponse } from "next/server"
 
 export async function GET() {
   const screenshot = await db.query.Screenshots.findFirst({
