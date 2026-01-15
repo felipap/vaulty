@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "npm",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3030",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

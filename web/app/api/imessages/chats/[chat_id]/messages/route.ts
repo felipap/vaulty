@@ -1,7 +1,7 @@
 import { db } from "@/db"
 import { DEFAULT_USER_ID, iMessages } from "@/db/schema"
 import { logRead } from "@/lib/activity-log"
-import { and, desc, eq, isNull, or, sql } from "drizzle-orm"
+import { and, desc, eq, isNull, or } from "drizzle-orm"
 import { NextRequest } from "next/server"
 
 type RouteParams = { params: Promise<{ chat_id: string }> }

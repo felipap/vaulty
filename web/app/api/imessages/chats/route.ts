@@ -5,43 +5,43 @@ import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
 
 export async function GET(request: NextRequest) {
-    const { searchParams } = new URL(request.url)
-    const limitParam = searchParams.get("limit")
-    const offsetParam = searchParams.get("offset")
+  const { searchParams } = new URL(request.url)
+  const limitParam = searchParams.get("limit") || "20"
+  const offsetParam = searchParams.get("offset")
 
-    if (!limitParam) {
-      return Response.json(
-        { error: "limit query parameter is required" },
-        { status: 400 }
-      )
-    }
+  // if (!limitParam) {
+  //   return Response.json(
+  //     { error: "limit query parameter is required" },
+  //     { status: 400 }
+  //   )
+  // }
 
-    const limit = parseInt(limitParam, 10)
-    const offset = offsetParam ? parseInt(offsetParam, 10) : 0
+  const limit = parseInt(limitParam, 10)
+  const offset = offsetParam ? parseInt(offsetParam, 10) : 0
 
-    if (isNaN(limit) || limit < 1) {
-      return Response.json(
-        { error: "limit must be a positive integer" },
-        { status: 400 }
-      )
-    }
+  if (isNaN(limit) || limit < 1) {
+    return Response.json(
+      { error: "limit must be a positive integer" },
+      { status: 400 }
+    )
+  }
 
-    if (isNaN(offset) || offset < 0) {
-      return Response.json(
-        { error: "offset must be a non-negative integer" },
-        { status: 400 }
-      )
-    }
+  if (isNaN(offset) || offset < 0) {
+    return Response.json(
+      { error: "offset must be a non-negative integer" },
+      { status: 400 }
+    )
+  }
 
-    const startTime = Date.now()
+  const startTime = Date.now()
 
-    const { chats } = await getLatestChats(limit, offset)
+  const { chats } = await getLatestChats(limit, offset)
 
-    await logRead({
-      type: "chat",
-      description: "Fetched chat list",
-      count: chats.length,
-    })
+  await logRead({
+    type: "chat",
+    description: "Fetched chat list",
+    count: chats.length,
+  })
 
   return Response.json({
     success: true,

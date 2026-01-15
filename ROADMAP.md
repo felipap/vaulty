@@ -3,6 +3,7 @@
 ## Now
 
 - [ ] Explore WhatsApp via Unipile
+- [ ] llms.txt
 
 ## Later
 

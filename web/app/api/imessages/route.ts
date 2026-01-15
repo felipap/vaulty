@@ -71,17 +71,18 @@ export async function GET(request: NextRequest) {
   console.log("GET /api/imessages")
 
   const { searchParams } = new URL(request.url)
-  const limitParam = searchParams.get("limit")
+  const limitParam = searchParams.get("limit") || "20"
   const offsetParam = searchParams.get("offset")
   const afterParam = searchParams.get("after")
   const contactParam = searchParams.get("contact")
 
-  if (!limitParam) {
-    return Response.json(
-      { error: "limit query parameter is required" },
-      { status: 400 }
-    )
-  }
+  // if (!limitParam) {
+  //   limitParam = "20"
+  //   // return Response.json(
+  //   //   { error: "limit query parameter is required" },
+  //   //   { status: 400 }
+  //   // )
+  // }
 
   const limit = parseInt(limitParam, 10)
   const offset = offsetParam ? parseInt(offsetParam, 10) : 0
