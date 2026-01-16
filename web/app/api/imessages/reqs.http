@@ -1,0 +1,17 @@
+@readSecret = {{$dotenv API_READ_SECRET}}
+@host = {{$dotenv WEBSITE_HOST}}
+
+###
+
+GET {{host}}/api/imessages/chats
+Authorization: Bearer {{readSecret}}
+
+###
+
+GET {{host}}/api/imessages/chats/+18573319216/messages
+Authorization: Bearer {{readSecret}}
+
+###
+
+GET {{host}}/api/imessages/latest?within_min=60
+Authorization: Bearer {{readSecret}}

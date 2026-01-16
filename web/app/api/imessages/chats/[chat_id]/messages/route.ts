@@ -11,15 +11,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   const chatId = decodeURIComponent(chat_id)
 
   const { searchParams } = new URL(request.url)
-  const limitParam = searchParams.get("limit")
+  const limitParam = searchParams.get("limit") || "20"
   const offsetParam = searchParams.get("offset")
 
-  if (!limitParam) {
-    return Response.json(
-      { error: "limit query parameter is required" },
-      { status: 400 }
-    )
-  }
+  // if (!limitParam) {
+  //   return Response.json(
+  //     { error: "limit query parameter is required" },
+  //     { status: 400 }
+  //   )
+  // }
 
   const limit = parseInt(limitParam, 10)
   const offset = offsetParam ? parseInt(offsetParam, 10) : 0
