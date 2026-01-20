@@ -79,6 +79,54 @@ export function isEncrypted(text: string | null): boolean {
   return text !== null && text.startsWith(ENCRYPTED_PREFIX)
 }
 
+// Decrypts binary data (stored as enc:v1: string) and returns base64
+// Use this for attachments where the original data was binary, not text
+export async function decryptBinaryToBase64(
+  ciphertext: string,
+  passphrase: string
+): Promise<string | null> {
+  if (!ciphertext || !passphrase) {
+    return ciphertext
+  }
+
+  if (!ciphertext.startsWith(ENCRYPTED_PREFIX)) {
+    // Not encrypted, return as-is (assuming it's already base64)
+    return ciphertext
+  }
+
+  const parts = ciphertext.slice(ENCRYPTED_PREFIX.length).split(':')
+  if (parts.length !== 3) {
+    return null
+  }
+
+  const [ivB64, authTagB64, encryptedB64] = parts
+
+  const iv = Uint8Array.from(atob(ivB64), (c) => c.charCodeAt(0))
+  const authTag = Uint8Array.from(atob(authTagB64), (c) => c.charCodeAt(0))
+  const encrypted = Uint8Array.from(atob(encryptedB64), (c) => c.charCodeAt(0))
+
+  // GCM expects the auth tag appended to the ciphertext
+  const combined = new Uint8Array(encrypted.length + authTag.length)
+  combined.set(encrypted)
+  combined.set(authTag, encrypted.length)
+
+  const key = await deriveKey(passphrase)
+
+  const decrypted = await crypto.subtle.decrypt(
+    { name: ALGORITHM, iv },
+    key,
+    combined
+  )
+
+  // Convert decrypted binary to base64
+  const decryptedArray = new Uint8Array(decrypted)
+  let binary = ''
+  for (let i = 0; i < decryptedArray.length; i++) {
+    binary += String.fromCharCode(decryptedArray[i])
+  }
+  return btoa(binary)
+}
+
 // Session storage helpers with expiry
 
 export function setEncryptionKey(key: string): void {

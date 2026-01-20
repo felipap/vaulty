@@ -2,14 +2,24 @@
 
 import { isAuthenticated } from "@/lib/admin-auth"
 import { db } from "@/db"
-import { DEFAULT_USER_ID, iMessages } from "@/db/schema"
+import { DEFAULT_USER_ID, iMessages, iMessageAttachments } from "@/db/schema"
 import { desc, eq, sql } from "drizzle-orm"
 import { unauthorized } from "next/navigation"
 
 export type SortBy = "syncTime" | "date"
 
+export type Attachment = {
+  id: string
+  filename: string
+  mimeType: string
+  size: number | null
+  isImage: boolean
+  dataBase64: string | null
+}
+
 export type Message = {
   id: string
+  guid: string
   text: string | null
   contact: string
   date: Date | null
@@ -17,6 +27,10 @@ export type Message = {
   isFromMe: boolean
   hasAttachments: boolean
   service: string
+}
+
+export type MessageWithAttachments = Message & {
+  attachments: Attachment[]
 }
 
 export type MessagesPage = {
@@ -27,7 +41,7 @@ export type MessagesPage = {
   totalPages: number
 }
 
-export async function getMessage(id: string): Promise<Message | null> {
+export async function getMessage(id: string): Promise<MessageWithAttachments | null> {
   if (!(await isAuthenticated())) {
     unauthorized()
   }
@@ -36,6 +50,7 @@ export async function getMessage(id: string): Promise<Message | null> {
     where: eq(iMessages.id, id),
     columns: {
       id: true,
+      guid: true,
       text: true,
       contact: true,
       date: true,
@@ -50,8 +65,21 @@ export async function getMessage(id: string): Promise<Message | null> {
     return null
   }
 
+  const attachments = await db.query.iMessageAttachments.findMany({
+    where: eq(iMessageAttachments.messageGuid, message.guid),
+    columns: {
+      id: true,
+      filename: true,
+      mimeType: true,
+      size: true,
+      isImage: true,
+      dataBase64: true,
+    },
+  })
+
   return {
     id: message.id,
+    guid: message.guid,
     text: message.text,
     contact: message.contact,
     date: message.date,
@@ -59,6 +87,14 @@ export async function getMessage(id: string): Promise<Message | null> {
     isFromMe: message.isFromMe === 1,
     hasAttachments: message.hasAttachments === 1,
     service: message.service,
+    attachments: attachments.map((a) => ({
+      id: a.id,
+      filename: a.filename,
+      mimeType: a.mimeType,
+      size: a.size,
+      isImage: a.isImage === 1,
+      dataBase64: a.dataBase64,
+    })),
   }
 }
 
@@ -89,6 +125,7 @@ export async function getMessages(
     offset,
     columns: {
       id: true,
+      guid: true,
       text: true,
       contact: true,
       date: true,
@@ -102,6 +139,7 @@ export async function getMessages(
   return {
     messages: messages.map((m) => ({
       id: m.id,
+      guid: m.guid,
       text: m.text,
       contact: m.contact,
       date: m.date,

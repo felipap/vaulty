@@ -157,6 +157,16 @@ export async function GET(request: NextRequest) {
   })
 }
 
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 export async function POST(request: NextRequest) {
   console.log("POST /api/imessages")
 
@@ -295,7 +305,7 @@ function validateMessages(messages: unknown[]) {
       const truncatedMessage = truncateForLog(message)
       console.warn(
         `Rejected message at index ${i}:`,
-        JSON.stringify({ message: truncatedMessage, error })
+        JSON.stringify({ message: message, error }, null, 2)
       )
       continue
     }
@@ -312,8 +322,8 @@ function validateMessages(messages: unknown[]) {
         rejectedMessages.push({ index: i, message, error })
         const truncatedMessage = truncateForLog(message)
         console.warn(
-          `Rejected message at index ${i}:`,
-          JSON.stringify({ message: truncatedMessage, error })
+          `Rejected message attachment at index ${i}:`,
+          JSON.stringify({ message: truncatedMessage, parsed, error })
         )
         continue
       }
