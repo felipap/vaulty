@@ -59,17 +59,6 @@ export function createSettingsWindow(): BrowserWindow {
     }
   })
 
-  // Hide dock icon when window is hidden
-  settingsWindow.on('hide', () => {
-    if (process.platform === 'darwin' && app.dock) {
-      app.dock.hide()
-    }
-  })
-
-  settingsWindow.on('show', () => {
-    showDock()
-  })
-
   return settingsWindow
 }
 
