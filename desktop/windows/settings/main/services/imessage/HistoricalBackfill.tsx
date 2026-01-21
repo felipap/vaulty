@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { BackfillProgress } from '../../../../electron'
+import { Button } from '../../../../shared/ui/Button'
 
 const DEFAULT_BACKFILL_DAYS = 50
 
@@ -77,7 +78,8 @@ export function HistoricalBackfill() {
             Historical Backfill
           </p>
           <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-            Import historical messages. This may take a while for large date ranges.
+            Import historical messages. This may take a while for large date
+            ranges.
           </p>
         </div>
       </div>
@@ -102,7 +104,7 @@ export function HistoricalBackfill() {
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-xs text-blue-700 dark:text-blue-300">
             <LoadingSpinner />
-            <span>Loading messages from iMessage...</span>
+            <span>Loading messages from iMessage into memory...</span>
           </div>
           <div className="h-2 bg-blue-200 dark:bg-blue-800 rounded-full overflow-hidden">
             <div className="h-full bg-blue-500 dark:bg-blue-400 animate-pulse w-full" />
@@ -148,19 +150,13 @@ export function HistoricalBackfill() {
 
       <div className="flex gap-2">
         {isRunning ? (
-          <button
-            onClick={handleCancel}
-            className="text-xs px-3 py-1.5 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-800/30 rounded-md transition-colors"
-          >
+          <Button variant="danger" size="sm" onClick={handleCancel}>
             Cancel
-          </button>
+          </Button>
         ) : (
-          <button
-            onClick={handleStart}
-            className="text-xs px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
-          >
+          <Button variant="primary" size="sm" onClick={handleStart}>
             {isIdle ? 'Start Backfill' : 'Run Again'}
-          </button>
+          </Button>
         )}
       </div>
     </div>
@@ -170,7 +166,7 @@ export function HistoricalBackfill() {
 function HistoryIcon() {
   return (
     <svg
-      className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0"
+      className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"

@@ -13,6 +13,8 @@ export type BackfillProgress = {
   current: number
   total: number
   messageCount?: number
+  itemsUploaded?: number
+  failedPage?: number
   error?: string
 }
 
@@ -69,47 +71,58 @@ async function runBackfill(days = 120): Promise<void> {
   console.log(`[imessage] Found ${messages.length} messages to backfill in ${fetchEnd - fetchStart}ms`)
 
   if (messages.length === 0) {
-    backfillProgress = { status: 'completed', current: 0, total: 0, messageCount: 0 }
+    backfillProgress = { status: 'completed', current: 0, total: 0, messageCount: 0, itemsUploaded: 0 }
     cleanup(backfillSdk, stopAnimating)
     return
   }
 
   // Switch to uploading phase
   const totalBatches = Math.ceil(messages.length / BATCH_SIZE)
+  let itemsUploaded = 0
   backfillProgress = {
     status: 'running',
     phase: 'uploading',
     current: 0,
     total: totalBatches,
     messageCount: messages.length,
+    itemsUploaded: 0,
   }
 
   // Upload in batches
   for (let i = 0; i < messages.length && !backfillCancelled; i += BATCH_SIZE) {
     const batch = messages.slice(i, i + BATCH_SIZE)
+    const pageNumber = Math.floor(i / BATCH_SIZE) + 1
 
     const res = await catchAndComplain(uploadMessages(batch))
     if ('error' in res) {
-      console.error('[imessage] Backfill upload error:', res.error)
-      backfillProgress.status = 'error'
-      backfillProgress.error = res.error
+      const errorMessage = `Failed to upload page ${pageNumber}. ${itemsUploaded} items uploaded in total.`
+      console.error(`[imessage] ${errorMessage} Error: ${res.error}`)
+      backfillProgress = {
+        ...backfillProgress,
+        status: 'error',
+        failedPage: pageNumber,
+        itemsUploaded,
+        error: `${errorMessage} Error: ${res.error}`,
+      }
       cleanup(backfillSdk, stopAnimating)
       return
     }
 
+    itemsUploaded += batch.length
     backfillProgress.current++
+    backfillProgress.itemsUploaded = itemsUploaded
     console.log(
       `[imessage] Backfill progress: ${backfillProgress.current}/${totalBatches} batches ` +
-      `(${Math.min(i + BATCH_SIZE, messages.length)}/${messages.length} messages)`,
+      `(${itemsUploaded}/${messages.length} messages)`,
     )
   }
 
   if (backfillCancelled) {
-    backfillProgress = { ...backfillProgress, status: 'cancelled' }
-    console.log('[imessage] Backfill cancelled')
+    backfillProgress = { ...backfillProgress, status: 'cancelled', itemsUploaded }
+    console.log(`[imessage] Backfill cancelled. ${itemsUploaded} items uploaded.`)
   } else {
-    backfillProgress = { ...backfillProgress, status: 'completed' }
-    console.log('[imessage] Backfill completed')
+    backfillProgress = { ...backfillProgress, status: 'completed', itemsUploaded }
+    console.log(`[imessage] Backfill completed. ${itemsUploaded} items uploaded.`)
   }
 
   cleanup(backfillSdk, stopAnimating)

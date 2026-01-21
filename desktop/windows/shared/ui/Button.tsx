@@ -10,6 +10,8 @@ const buttonVariants = cva(
         primary: 'bg-blue-500 text-white hover:bg-blue-600',
         secondary:
           'bg-[var(--surface-hover)] hover:bg-[var(--surface-active)] border dark:border-neutral-200',
+        danger:
+          'border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-800/30',
       },
       size: {
         default: 'px-4 py-2',
