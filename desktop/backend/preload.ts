@@ -32,6 +32,7 @@ const api = {
   setIMessageExportConfig: (config: {
     enabled?: boolean
     intervalMinutes?: number
+    includeAttachments?: boolean
   }) => ipcRenderer.invoke('set-imessage-export-config', config),
 
   // Contacts service

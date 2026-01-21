@@ -14,6 +14,10 @@ export interface ServiceConfig {
   intervalMinutes: number
 }
 
+export interface IMessageExportConfig extends ServiceConfig {
+  includeAttachments: boolean
+}
+
 export interface UnipileWhatsappConfig extends ServiceConfig {
   apiBaseUrl: string | null
   apiToken: string | null
@@ -57,8 +61,8 @@ export interface ElectronAPI {
   setScreenCaptureConfig: (config: Partial<ServiceConfig>) => Promise<void>
 
   // iMessage service
-  getIMessageExportConfig: () => Promise<ServiceConfig>
-  setIMessageExportConfig: (config: Partial<ServiceConfig>) => Promise<void>
+  getIMessageExportConfig: () => Promise<IMessageExportConfig>
+  setIMessageExportConfig: (config: Partial<IMessageExportConfig>) => Promise<void>
 
   // Contacts service
   getContactsSyncConfig: () => Promise<ServiceConfig>

@@ -1,6 +1,7 @@
 export type {
   ApiRequestLog,
   ServiceConfig,
+  IMessageExportConfig,
   ServiceStatus,
   BackfillProgress,
   ElectronAPI,

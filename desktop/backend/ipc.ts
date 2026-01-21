@@ -71,7 +71,14 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle(
     'set-imessage-export-config',
-    (_event, config: { enabled?: boolean; intervalMinutes?: number }) => {
+    (
+      _event,
+      config: {
+        enabled?: boolean
+        intervalMinutes?: number
+        includeAttachments?: boolean
+      },
+    ) => {
       const current = store.get('imessageExport')
       store.set('imessageExport', { ...current, ...config })
       getService('imessage')?.restart()

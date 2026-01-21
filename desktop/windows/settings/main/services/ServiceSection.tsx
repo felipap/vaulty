@@ -1,14 +1,21 @@
 import { useState, useEffect, ReactNode } from 'react'
-import { ServiceConfig, UnipileWhatsappConfig } from '../../../electron'
+import {
+  ServiceConfig,
+  IMessageExportConfig,
+  UnipileWhatsappConfig,
+} from '../../../electron'
+
+type AnyServiceConfig =
+  | ServiceConfig
+  | IMessageExportConfig
+  | UnipileWhatsappConfig
 
 export type ServiceInfo = {
   name: string
   label: string
   description: string
-  getConfig: () => Promise<ServiceConfig | UnipileWhatsappConfig>
-  setConfig: (
-    config: Partial<ServiceConfig | UnipileWhatsappConfig>,
-  ) => Promise<void>
+  getConfig: () => Promise<AnyServiceConfig>
+  setConfig: (config: Partial<AnyServiceConfig>) => Promise<void>
   intervalOptions: { value: number; label: string }[]
 }
 
@@ -17,8 +24,8 @@ type Props = {
   children?:
     | ReactNode
     | ((props: {
-        config: ServiceConfig | UnipileWhatsappConfig
-        setConfig: (config: ServiceConfig | UnipileWhatsappConfig) => void
+        config: AnyServiceConfig
+        setConfig: (config: AnyServiceConfig) => void
       }) => ReactNode)
 }
 
@@ -77,9 +84,7 @@ function StatusBadge({ enabled }: { enabled: boolean }) {
 }
 
 export function ServiceSection({ service, children }: Props) {
-  const [config, setConfig] = useState<
-    ServiceConfig | UnipileWhatsappConfig | null
-  >(null)
+  const [config, setConfig] = useState<AnyServiceConfig | null>(null)
   const [isExpanded, setIsExpanded] = useState(false)
 
   useEffect(() => {

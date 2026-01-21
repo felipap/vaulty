@@ -1,6 +1,7 @@
 import { ServiceSection, ServiceInfo } from '../ServiceSection'
 import { FullDiskPermission } from '../FullDiskPermission'
 import { HistoricalBackfill } from './HistoricalBackfill'
+import { IMessageExportConfig } from '../../../../electron'
 
 const SERVICE: ServiceInfo = {
   name: 'imessage',
@@ -35,7 +36,10 @@ function InfoIcon() {
   )
 }
 
-function AttachmentNotice() {
+function AttachmentNotice({ enabled }: { enabled: boolean }) {
+  if (!enabled) {
+    return null
+  }
   return (
     <div className="flex gap-2 p-3 rounded-md bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
       <InfoIcon />
@@ -47,12 +51,58 @@ function AttachmentNotice() {
   )
 }
 
+function AttachmentToggle({
+  enabled,
+  onChange,
+}: {
+  enabled: boolean
+  onChange: () => void
+}) {
+  return (
+    <button
+      onClick={onChange}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+        enabled ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
+      }`}
+    >
+      <span
+        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+          enabled ? 'translate-x-6' : 'translate-x-1'
+        }`}
+      />
+    </button>
+  )
+}
+
 export function IMessageService() {
   return (
     <ServiceSection service={SERVICE}>
-      <FullDiskPermission description="iMessage export requires Full Disk Access to read your messages database." />
-      <AttachmentNotice />
-      <HistoricalBackfill />
+      {({ config, setConfig }) => {
+        const imessageConfig = config as IMessageExportConfig
+
+        const handleToggleAttachments = async () => {
+          const newValue = !imessageConfig.includeAttachments
+          await window.electron.setIMessageExportConfig({
+            includeAttachments: newValue,
+          })
+          setConfig({ ...imessageConfig, includeAttachments: newValue })
+        }
+
+        return (
+          <>
+            <FullDiskPermission description="iMessage export requires Full Disk Access to read your messages database." />
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Sync image attachments</span>
+              <AttachmentToggle
+                enabled={imessageConfig.includeAttachments}
+                onChange={handleToggleAttachments}
+              />
+            </div>
+            <AttachmentNotice enabled={imessageConfig.includeAttachments} />
+            <HistoricalBackfill />
+          </>
+        )
+      }}
     </ServiceSection>
   )
 }
