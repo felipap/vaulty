@@ -4,10 +4,27 @@ import { Button } from '../../../../shared/ui/Button'
 
 const DEFAULT_BACKFILL_DAYS = 50
 
+function formatElapsedTime(seconds: number): string {
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const secs = seconds % 60
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m ${secs}s`
+  }
+  if (minutes > 0) {
+    return `${minutes}m ${secs}s`
+  }
+  return `${secs}s`
+}
+
 export function HistoricalBackfill() {
   const [progress, setProgress] = useState<BackfillProgress | null>(null)
   const [days, setDays] = useState(DEFAULT_BACKFILL_DAYS)
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const startTimeRef = useRef<number | null>(null)
 
   const isRunning = progress?.status === 'running'
   const isLoading = isRunning && progress?.phase === 'loading'
@@ -44,6 +61,35 @@ export function HistoricalBackfill() {
       if (!isRunning && pollingRef.current) {
         clearInterval(pollingRef.current)
         pollingRef.current = null
+      }
+    }
+  }, [isRunning])
+
+  // Elapsed time timer
+  useEffect(() => {
+    if (isRunning) {
+      if (!startTimeRef.current) {
+        startTimeRef.current = Date.now()
+        setElapsedSeconds(0)
+      }
+
+      timerRef.current = setInterval(() => {
+        if (startTimeRef.current) {
+          setElapsedSeconds(Math.floor((Date.now() - startTimeRef.current) / 1000))
+        }
+      }, 1000)
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+        timerRef.current = null
+      }
+      startTimeRef.current = null
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+        timerRef.current = null
       }
     }
   }, [isRunning])
@@ -102,9 +148,12 @@ export function HistoricalBackfill() {
 
       {isLoading && (
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-xs text-blue-700 dark:text-blue-300">
-            <LoadingSpinner />
-            <span>Loading messages from iMessage into memory...</span>
+          <div className="flex items-center justify-between text-xs text-blue-700 dark:text-blue-300">
+            <div className="flex items-center gap-2">
+              <LoadingSpinner />
+              <span>Loading messages from iMessage into memory...</span>
+            </div>
+            <ElapsedTime seconds={elapsedSeconds} />
           </div>
           <div className="h-2 bg-blue-200 dark:bg-blue-800 rounded-full overflow-hidden">
             <div className="h-full bg-blue-500 dark:bg-blue-400 animate-pulse w-full" />
@@ -118,7 +167,10 @@ export function HistoricalBackfill() {
             <span>
               Uploading {progress.messageCount?.toLocaleString()} messages...
             </span>
-            <span>{progressPercent}%</span>
+            <div className="flex items-center gap-3">
+              <ElapsedTime seconds={elapsedSeconds} />
+              <span>{progressPercent}%</span>
+            </div>
           </div>
           <div className="h-2 bg-blue-200 dark:bg-blue-800 rounded-full overflow-hidden">
             <div
@@ -220,5 +272,13 @@ function LoadingSpinner() {
         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
       />
     </svg>
+  )
+}
+
+function ElapsedTime({ seconds }: { seconds: number }) {
+  return (
+    <span className="text-blue-600 dark:text-blue-400 font-mono">
+      {formatElapsedTime(seconds)}
+    </span>
   )
 }
