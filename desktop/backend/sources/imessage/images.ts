@@ -69,6 +69,7 @@ export async function readAndResizeImage(path: string): Promise<ImageResult> {
     const newHeight = Math.round(metadata.height * IMAGE_CONFIG.resizeRatio)
 
     const outputBuffer = await image
+      .rotate() // Auto-orient based on EXIF metadata
       .resize(newWidth, newHeight, {
         fit: 'inside',
         withoutEnlargement: true,
