@@ -155,4 +155,27 @@ export async function getMessages(
   }
 }
 
+export async function deleteAllIMessages(): Promise<{ deletedMessages: number; deletedAttachments: number }> {
+  if (!(await isAuthenticated())) {
+    unauthorized()
+  }
+
+  const [attachmentsResult] = await db
+    .delete(iMessageAttachments)
+    .where(eq(iMessageAttachments.userId, DEFAULT_USER_ID))
+    .returning({ id: iMessageAttachments.id })
+    .then((rows) => [{ count: rows.length }])
+
+  const [messagesResult] = await db
+    .delete(iMessages)
+    .where(eq(iMessages.userId, DEFAULT_USER_ID))
+    .returning({ id: iMessages.id })
+    .then((rows) => [{ count: rows.length }])
+
+  return {
+    deletedMessages: messagesResult.count,
+    deletedAttachments: attachmentsResult.count,
+  }
+}
+
 
