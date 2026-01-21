@@ -1,26 +1,211 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/forms";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+body {
+  margin: 0;
+  background: var(--background-color-one);
+  color: var(--color-contrast);
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  overflow-x: hidden;
+}
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@theme {
+  /* Layout */
+  --nav-height: 50px;
+  --column-width: 900px;
+
+  /* Fonts */
+  --font-sans:
+    "SF Pro", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-text:
+    "SF Pro Text", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Lora", Georgia, serif;
+  --font-mono:
+    "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
+    monospace;
+
+  /* Optional font alternatives (can swap in for --font-mono):
+	--font-mono-menlo: Menlo, Monaco, monospace;
+	--font-mono-jetbrains: 'JetBrains Mono', monospace;
+	--font-mono-fira: 'Fira Code', monospace;
+	--font-mono-ibm: 'IBM Plex Mono', monospace;
+	*/
+
+  /* Colors */
+  --background-color-one: #fff;
+  --background-color-two: #f0f0f0;
+  --background-color-input: #fff;
+  --background-color-navbar: #000;
+  --background-color-card: #fff;
+
+  --color-contrast: #000;
+  --color-secondary: #aaa;
+  --color-inverted: #fff;
+  --color-link: #0087ff;
+  --color-accent: #78c6ff;
+  --color-dangerous: #ef4444;
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Font sizes */
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.dark {
+  color-scheme: dark;
+  --background-color-one: #111;
+  --background-color-two: #212121;
+  --background-color-input: #3a3a3a;
+  --background-color-navbar: #000;
+  --background-color-card: #171717;
+  --border-color-stronger: #222;
+
+  --color-contrast: #fff;
+  --color-secondary: #777;
+  --color-inverted: #000;
+  --color-primary: #ededed;
+  --color-accent: #2a2a2a;
+  --color-dangerous: #ef4444;
+  --color-input: #3a3a3a;
+  --color-ring: #444;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    @apply dark:border-[#222] border-[#EEE];
+    /* outline-color: blue; */
+  }
+
+  input,
+  textarea,
+  select {
+    @apply !border-[#EEE] dark:border-[#444] transition;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.font-display {
+  @apply font-sans;
+  letter-spacing: 0.02em;
+}
+
+.font-text {
+  @apply font-text;
+  letter-spacing: 0em;
+}
+
+.track-20 {
+  letter-spacing: 0.02em;
+}
+
+.track-10 {
+  letter-spacing: 0.01em;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@media (prefers-color-scheme: light) {
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Auto-hide scrollbar - only shows on hover */
+.scrollbar-auto-hide::-webkit-scrollbar-thumb {
+  background: transparent;
+  transition: background 0.2s ease;
+}
+
+.scrollbar-auto-hide:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.scrollbar-auto-hide:hover::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+@media (prefers-color-scheme: light) {
+  .scrollbar-auto-hide:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  .scrollbar-auto-hide:hover::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* Hidden scrollbar - still scrollable */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.reset-btn {
+  @apply text-xs text-link hover:text-link/80;
+}
+
+/* Typing indicator animation */
+@keyframes typing-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+.animate-typing-dot {
+  animation: typing-dot 1.4s ease-in-out infinite;
 }
