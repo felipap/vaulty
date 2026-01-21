@@ -75,7 +75,14 @@ export async function fetchMessages(
 
       for (const att of imageAttachments) {
         const readResult = await readAttachmentAsBase64(att.path, att.isImage)
-        const attachment: Attachment = {
+
+        // Skip attachments that couldn't be read (e.g., file deleted/moved)
+        if (!readResult.ok) {
+          console.warn(`[imessage] Skipping attachment ${att.id} for message ${msg.id}: ${readResult.error}`)
+          continue
+        }
+
+        attachments.push({
           id: att.id,
           filename: att.filename,
           mimeType: 'image/jpeg', // All images are converted to JPEG
@@ -83,14 +90,8 @@ export async function fetchMessages(
           size: att.size,
           isImage: true,
           createdAt: att.createdAt.toISOString(),
-        }
-        if ('data' in readResult) {
-          attachment.dataBase64 = readResult.data
-        }
-        if ('error' in readResult) {
-          attachment.error = readResult.error
-        }
-        attachments.push(attachment)
+          dataBase64: readResult.data,
+        })
       }
     }
 
