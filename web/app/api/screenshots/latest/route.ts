@@ -46,5 +46,8 @@ export async function GET(request: NextRequest) {
       sizeBytes: screenshot.sizeBytes,
       capturedAt: screenshot.capturedAt,
     },
+    metadata: {
+      ageMs: Date.now() - screenshot.capturedAt.getTime(),
+    },
   })
 }

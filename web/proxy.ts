@@ -58,6 +58,11 @@ const EXPECTED_DASHBOARD_TOKEN = generateAuthToken(DASHBOARD_SECRET)
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Cron routes are only protected by CRON_SECRET
+  if (pathname.startsWith("/api/cron")) {
+    return NextResponse.next()
+  }
+
   // API routes
   if (pathname.startsWith("/api/")) {
     // Check if IP is whitelisted, then check the secret.
