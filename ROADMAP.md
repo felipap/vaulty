@@ -3,11 +3,12 @@
 ## Now
 
 - [ ] Explore WhatsApp via Unipile
-- [ ] llms.txt
+- [ ] Expose via MCP
 
 ## Later
 
 - [ ] Ability to emit read keys
+- [x] llms.txt - requires authentication
 - [ ] Button to delete all data
 - [ ] Fix: providing the wrong key breaks the dashboard (stays in "Loading...")
 - [ ] Feat: implement an onboarding with info

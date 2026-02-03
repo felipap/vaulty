@@ -2,6 +2,7 @@
 
 # Is this supposed to?
 .pnpm-store
+.autowake-experiment
 
 # dependencies
 /node_modules
