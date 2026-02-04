@@ -195,40 +195,38 @@ export async function POST(request: NextRequest) {
 
   const { validMessages, rejectedMessages } = validateMessages(messages)
 
-  const insertedMessages = await insertMessagesInBatches(
+  const { inserted, updated } = await insertMessagesInBatches(
     validMessages,
     deviceId,
     syncTime
   )
 
-  // Insert attachments for messages that have them
+  // Insert attachments for messages that were inserted (not updated)
   const insertedAttachments = await insertAttachments(
     validMessages,
-    insertedMessages,
+    inserted,
     deviceId,
     syncTime
   )
 
-  const skippedCount = validMessages.length - insertedMessages.length
-
-  console.info(`Inserted ${insertedMessages.length} iMessages`)
+  console.info(`Inserted ${inserted.length} iMessages`)
+  console.info(`Updated ${updated.length} iMessages`)
   console.info(`Inserted ${insertedAttachments.length} attachments`)
-  console.info(`Skipped ${skippedCount} duplicate messages`)
   console.info(`Rejected ${rejectedMessages.length} invalid messages`)
-  if (insertedMessages.length > 0) {
+  if (inserted.length > 0) {
     console.info(
       "Inserted message IDs:",
-      insertedMessages.map((m) => m.id)
+      inserted.map((m) => m.id)
     )
   }
 
-  if (insertedMessages.length > 0) {
+  if (inserted.length > 0) {
     await logWrite({
       type: "imessage",
       description: `Synced encrypted messages from ${deviceId}`,
-      count: insertedMessages.length,
+      count: inserted.length,
       metadata: {
-        skippedCount,
+        updatedCount: updated.length,
         rejectedCount: rejectedMessages.length,
         encrypted: true,
         encryptedColumns: IMESSAGE_ENCRYPTED_COLUMNS,
@@ -250,11 +248,11 @@ export async function POST(request: NextRequest) {
 
   return Response.json({
     success: true,
-    message: `Stored ${insertedMessages.length} encrypted iMessages and ${insertedAttachments.length} encrypted attachments`,
-    messageCount: insertedMessages.length,
+    message: `Stored ${inserted.length} new iMessages, updated ${updated.length}, and ${insertedAttachments.length} attachments`,
+    insertedCount: inserted.length,
+    updatedCount: updated.length,
     attachmentCount: insertedAttachments.length,
     rejectedCount: rejectedMessages.length,
-    skippedCount,
     encrypted: true,
     syncedAt: new Date().toISOString(),
   })
@@ -338,7 +336,8 @@ function validateMessages(messages: unknown[]) {
 function toMessageValues(
   validMessage: ValidatedMessage,
   deviceId: string,
-  syncTime: string
+  syncTime: string,
+  createdAt: Date
 ) {
   return {
     userId: DEFAULT_USER_ID,
@@ -361,14 +360,20 @@ function toMessageValues(
     chatName: validMessage.chatName ?? null,
     deviceId,
     syncTime: new Date(syncTime),
+    createdAt,
   }
+}
+
+type InsertResult = {
+  inserted: Array<{ id: string; guid: string }>
+  updated: Array<{ id: string; guid: string }>
 }
 
 async function insertMessagesInBatches(
   validMessages: ValidatedMessage[],
   deviceId: string,
   syncTime: string
-) {
+): Promise<InsertResult> {
   const BATCH_SIZE = 50
   const UPSERT_DAYS = 60
   const upsertCutoff = new Date()
@@ -391,7 +396,8 @@ async function insertMessagesInBatches(
     `Splitting ${validMessages.length} messages: ${recentMessages.length} recent (upsert), ${olderMessages.length} older (insert only)`
   )
 
-  const insertedMessages: Array<{ id: string; guid: string }> = []
+  const inserted: Array<{ id: string; guid: string }> = []
+  const updated: Array<{ id: string; guid: string }> = []
 
   // Insert older messages with onConflictDoNothing
   if (olderMessages.length > 0) {
@@ -399,8 +405,9 @@ async function insertMessagesInBatches(
     for (let i = 0; i < olderMessages.length; i += BATCH_SIZE) {
       const batchNumber = Math.floor(i / BATCH_SIZE) + 1
       const batch = olderMessages.slice(i, i + BATCH_SIZE)
+      const batchCreatedAt = new Date()
       const batchValues = batch.map((m) =>
-        toMessageValues(m, deviceId, syncTime)
+        toMessageValues(m, deviceId, syncTime, batchCreatedAt)
       )
 
       const result = await db
@@ -409,7 +416,8 @@ async function insertMessagesInBatches(
         .onConflictDoNothing()
         .returning()
 
-      insertedMessages.push(...result)
+      // onConflictDoNothing only returns actually inserted rows
+      inserted.push(...result)
       console.info(
         `Older batch ${batchNumber}/${totalBatches}: Inserted ${result.length} messages`
       )
@@ -422,8 +430,9 @@ async function insertMessagesInBatches(
     for (let i = 0; i < recentMessages.length; i += BATCH_SIZE) {
       const batchNumber = Math.floor(i / BATCH_SIZE) + 1
       const batch = recentMessages.slice(i, i + BATCH_SIZE)
+      const batchCreatedAt = new Date()
       const batchValues = batch.map((m) =>
-        toMessageValues(m, deviceId, syncTime)
+        toMessageValues(m, deviceId, syncTime, batchCreatedAt)
       )
 
       const result = await db
@@ -440,14 +449,22 @@ async function insertMessagesInBatches(
         })
         .returning()
 
-      insertedMessages.push(...result)
+      // Separate inserted vs updated by comparing createdAt to our batch timestamp
+      for (const row of result) {
+        if (row.createdAt.getTime() === batchCreatedAt.getTime()) {
+          inserted.push(row)
+        } else {
+          updated.push(row)
+        }
+      }
+
       console.info(
-        `Recent batch ${batchNumber}/${totalBatches}: Upserted ${result.length} messages`
+        `Recent batch ${batchNumber}/${totalBatches}: Inserted ${result.filter((r) => r.createdAt.getTime() === batchCreatedAt.getTime()).length}, Updated ${result.filter((r) => r.createdAt.getTime() !== batchCreatedAt.getTime()).length} messages`
       )
     }
   }
 
-  return insertedMessages
+  return { inserted, updated }
 }
 
 async function insertAttachments(
