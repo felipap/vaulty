@@ -1,0 +1,40 @@
+name: 'Desktop: lint and type-check'
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'desktop/**'
+      - '.github/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'desktop/**'
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: desktop
+        run: npm ci
+
+      - name: Type check
+        working-directory: desktop
+        run: npm run ts-check
+
+      - name: Lint
+        working-directory: desktop
+        run: npx eslint .
