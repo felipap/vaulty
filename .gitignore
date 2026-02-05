@@ -4,6 +4,8 @@
 .pnpm-store
 .autowake-experiment
 
+RESEARCH.md
+
 # dependencies
 /node_modules
 /.pnp

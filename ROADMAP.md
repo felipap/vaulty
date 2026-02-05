@@ -2,8 +2,10 @@
 
 ## Now
 
+- [ ] Install via npm.
 - [ ] Explore WhatsApp via Unipile
 - [ ] Expose via MCP
+- [ ] Improve logger
 
 ## Later
 
@@ -11,6 +13,7 @@
 - [x] llms.txt - requires authentication
 - [ ] Button to delete all data
 - [ ] Fix: providing the wrong key breaks the dashboard (stays in "Loading...")
+- [ ] LaunchAgent to awake during darkwakes?
 - [ ] Feat: implement an onboarding with info
 - [ ] Feat: whitelist or blacklist messages from particular numbers
 - [ ] Feat: Allow expire data after certain time
