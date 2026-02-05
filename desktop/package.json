@@ -5,6 +5,14 @@
   "description": "Context desktop app",
   "main": "dist/backend/main.js",
   "license": "MIT",
+  "bin": {
+    "context": "./bin/cli.js"
+  },
+  "files": [
+    "dist/**/*",
+    "assets/**/*",
+    "bin/**/*"
+  ],
   "scripts": {
     "dev": "concurrently \"npm run dev:renderer-settings\" \"npm run dev:watch-main\"",
     "dev:watch-main": "NODE_ENV=development nodemon --watch backend --ext ts --exec \"npm run build:backend && electron --enable-source-maps dist/backend/main.js\"",
@@ -22,7 +30,8 @@
     "ts-check": "npm run ts-check-windows && npm run ts-check-backend",
     "ts-check-windows": "tsc -p windows/tsconfig.json --noEmit",
     "ts-check-backend": "tsc -p tsconfig.backend.json --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "prepublishOnly": "npm run build"
   },
   "prettier": {
     "singleQuote": true,
