@@ -2,10 +2,11 @@
 
 ## Now
 
+- [ ] Name
 - [ ] Install via npm.
 - [ ] Explore WhatsApp via Unipile
 - [ ] Expose via MCP
-- [ ] Improve logger
+- [ ] Improve logger (electron-log?)
 
 ## Later
 
