@@ -3,7 +3,7 @@ import { catchAndComplain } from '../../lib/utils'
 import {
   fetchMessages,
   openWhatsAppDatabase,
-  type WhatsAppMessage as SqliteMessage,
+  type WhatsappSqliteMessage,
 } from '../../sources/whatsapp-sqlite'
 import { store } from '../../store'
 import { startAnimating } from '../../tray/animate'
@@ -13,15 +13,17 @@ import { uploadWhatsAppMessages } from './upload'
 
 let db: Database.Database | null = null
 
-function toWhatsAppMessage(msg: SqliteMessage): WhatsAppMessage {
+function toWhatsAppMessage(msg: WhatsappSqliteMessage): WhatsAppMessage {
   return {
     id: `sqlite-${msg.id}`,
     chatId: msg.chatId,
     chatName: msg.chatName,
     text: msg.text,
     sender: msg.senderJid,
-    senderName: null,
+    senderName: msg.senderName,
+    senderPhoneNumber: msg.senderPhoneNumber,
     timestamp: msg.timestamp,
+    messageType: msg.messageType,
     isFromMe: msg.isFromMe,
     hasMedia: msg.hasMedia,
     attachments: msg.mediaLocalPath
@@ -69,12 +71,17 @@ async function exportAndUpload(): Promise<void> {
 
   const sqliteMessages = fetchMessages(db, since)
 
-  if (sqliteMessages.length === 0) {
+  const ignoredChatIds = store.get('whatsappSqlite').ignoredChatIds ?? []
+  const filteredMessages = sqliteMessages.filter(
+    (msg) => !ignoredChatIds.includes(msg.chatId),
+  )
+
+  if (filteredMessages.length === 0) {
     console.log('[whatsapp-sqlite] No new messages to export')
     return
   }
 
-  const messages = sqliteMessages.map(toWhatsAppMessage)
+  const messages = filteredMessages.map(toWhatsAppMessage)
 
   const latestTimestamp = messages.reduce(
     (max, msg) => (msg.timestamp > max ? msg.timestamp : max),

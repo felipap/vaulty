@@ -10,6 +10,9 @@ function encryptMessages(
   return messages.map((msg) => ({
     ...msg,
     text: msg.text ? encryptText(msg.text, encryptionKey) : msg.text,
+    chatName: msg.chatName
+      ? encryptText(msg.chatName, encryptionKey)
+      : msg.chatName,
     senderName: msg.senderName
       ? encryptText(msg.senderName, encryptionKey)
       : msg.senderName,

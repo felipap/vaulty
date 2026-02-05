@@ -32,6 +32,7 @@
     "ts-check-backend": "tsc -p tsconfig.backend.json --noEmit",
     "lint": "eslint .",
     "mcp": "tsx mcp-server/index.ts",
+    "test": "electron node_modules/vitest/vitest.mjs run",
     "prepublishOnly": "npm run build"
   },
   "prettier": {
@@ -63,6 +64,8 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
+    "@electron/notarize": "^3.1.1",
+    "@electron/rebuild": "^4.0.3",
     "@modelcontextprotocol/sdk": "^1.26.0",
     "@photon-ai/imessage-kit": "^2.1.0",
     "@tailwindcss/forms": "^0.5.11",
@@ -71,8 +74,6 @@
     "class-variance-authority": "^0.7.1",
     "electron": "^39.2.7",
     "electron-log": "^5.4.3",
-    "electron-notarize": "^1.2.2",
-    "electron-rebuild": "^3.2.9",
     "electron-store": "^8.1.0",
     "qrcode-terminal": "^0.12.0",
     "react": "^19.2.3",
@@ -80,7 +81,7 @@
     "sharp": "^0.34.5",
     "tailwind-merge": "^3.4.0",
     "tesseract.js": "^7.0.0",
-    "whatsapp-web.js": "^1.34.6"
+    "zod": "^4.2.1"
   },
   "build": {
     "appId": "com.github.faragaop.context",

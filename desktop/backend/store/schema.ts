@@ -47,6 +47,7 @@ export type StoreSchema = {
     intervalMinutes: number
     nextSyncAfter: string | null
     lastExportedMessageDate: string | null
+    ignoredChatIds: string[]
   }
   whatsappUnipile: {
     enabled: boolean
@@ -90,6 +91,7 @@ export const DEFAULT_STATE: StoreSchema = {
     intervalMinutes: 5,
     nextSyncAfter: null,
     lastExportedMessageDate: null,
+    ignoredChatIds: [],
   },
   whatsappUnipile: {
     enabled: false,
