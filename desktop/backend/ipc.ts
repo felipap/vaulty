@@ -4,6 +4,7 @@ import * as os from 'os'
 import * as path from 'path'
 import { SERVICES, getService } from './services'
 import { imessageBackfill } from './services/imessage'
+import { whatsappBackfill } from './services/whatsapp'
 import { getMcpServerPort, startMcpServer, stopMcpServer } from './local-mcp'
 import {
   store,
@@ -99,12 +100,25 @@ export function registerIpcHandlers(): void {
     },
   )
 
-  ipcMain.handle('get-unipile-whatsapp-config', () => {
-    return store.get('unipileWhatsapp')
+  ipcMain.handle('get-whatsapp-sqlite-config', () => {
+    return store.get('whatsappSqlite')
   })
 
   ipcMain.handle(
-    'set-unipile-whatsapp-config',
+    'set-whatsapp-sqlite-config',
+    (_event, config: { enabled?: boolean; intervalMinutes?: number }) => {
+      const current = store.get('whatsappSqlite')
+      store.set('whatsappSqlite', { ...current, ...config })
+      getService('whatsapp-sqlite')?.restart()
+    },
+  )
+
+  ipcMain.handle('get-whatsapp-unipile-config', () => {
+    return store.get('whatsappUnipile')
+  })
+
+  ipcMain.handle(
+    'set-whatsapp-unipile-config',
     (
       _event,
       config: {
@@ -115,9 +129,9 @@ export function registerIpcHandlers(): void {
         accountId?: string
       },
     ) => {
-      const current = store.get('unipileWhatsapp')
-      store.set('unipileWhatsapp', { ...current, ...config })
-      getService('unipile-whatsapp')?.restart()
+      const current = store.get('whatsappUnipile')
+      store.set('whatsappUnipile', { ...current, ...config })
+      getService('whatsapp-unipile')?.restart()
     },
   )
 
@@ -175,6 +189,19 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('get-imessage-backfill-progress', () => {
     return imessageBackfill.getProgress()
+  })
+
+  // WhatsApp backfill
+  ipcMain.handle('start-whatsapp-backfill', async (_event, days: number) => {
+    await whatsappBackfill.run(days)
+  })
+
+  ipcMain.handle('cancel-whatsapp-backfill', () => {
+    whatsappBackfill.cancel()
+  })
+
+  ipcMain.handle('get-whatsapp-backfill-progress', () => {
+    return whatsappBackfill.getProgress()
   })
 
   // App settings

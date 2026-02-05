@@ -22,7 +22,8 @@ const SOURCE_LABELS: Record<SyncLogSource, string> = {
   screenshots: 'Screen Capture',
   imessage: 'iMessage Export',
   contacts: 'Contacts Sync',
-  'unipile-whatsapp': 'WhatsApp (Unipile)',
+  'whatsapp-sqlite': 'WhatsApp (SQLite)',
+  'whatsapp-unipile': 'WhatsApp (Unipile)',
 }
 
 function getInitialItem(): SidebarItem {
@@ -90,14 +91,21 @@ export function Settings() {
   // Load data source configs and logs
   useEffect(() => {
     async function loadDataSources() {
-      const [screenshots, imessage, contacts, unipile, syncLogs] =
-        await Promise.all([
-          window.electron.getScreenCaptureConfig(),
-          window.electron.getIMessageExportConfig(),
-          window.electron.getContactsSyncConfig(),
-          window.electron.getUnipileWhatsappConfig(),
-          window.electron.getSyncLogs(),
-        ])
+      const [
+        screenshots,
+        imessage,
+        contacts,
+        whatsappSqlite,
+        whatsappUnipile,
+        syncLogs,
+      ] = await Promise.all([
+        window.electron.getScreenCaptureConfig(),
+        window.electron.getIMessageExportConfig(),
+        window.electron.getContactsSyncConfig(),
+        window.electron.getWhatsappSqliteConfig(),
+        window.electron.getWhatsappUnipileConfig(),
+        window.electron.getSyncLogs(),
+      ])
 
       setLogs(syncLogs)
 
@@ -106,7 +114,8 @@ export function Settings() {
         screenshots: false,
         imessage: false,
         contacts: false,
-        'unipile-whatsapp': false,
+        'whatsapp-sqlite': false,
+        'whatsapp-unipile': false,
       }
 
       for (const log of syncLogs) {
@@ -144,10 +153,16 @@ export function Settings() {
           lastSyncFailed: lastSyncStatus['contacts'],
         },
         {
-          source: 'unipile-whatsapp',
-          label: SOURCE_LABELS['unipile-whatsapp'],
-          enabled: unipile.enabled,
-          lastSyncFailed: lastSyncStatus['unipile-whatsapp'],
+          source: 'whatsapp-sqlite',
+          label: SOURCE_LABELS['whatsapp-sqlite'],
+          enabled: whatsappSqlite.enabled,
+          lastSyncFailed: lastSyncStatus['whatsapp-sqlite'],
+        },
+        {
+          source: 'whatsapp-unipile',
+          label: SOURCE_LABELS['whatsapp-unipile'],
+          enabled: whatsappUnipile.enabled,
+          lastSyncFailed: lastSyncStatus['whatsapp-unipile'],
         },
       ])
     }

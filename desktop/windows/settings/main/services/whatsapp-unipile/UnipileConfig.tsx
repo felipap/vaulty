@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import { UnipileWhatsappConfig } from '../../../../../shared-types'
+import { WhatsappUnipileConfig } from '../../../../../shared-types'
 
 type Props = {
-  config: UnipileWhatsappConfig
-  onConfigChange: (config: Partial<UnipileWhatsappConfig>) => Promise<void>
+  config: WhatsappUnipileConfig
+  onConfigChange: (config: Partial<WhatsappUnipileConfig>) => Promise<void>
 }
 
 export function UnipileConfig({ config, onConfigChange }: Props) {

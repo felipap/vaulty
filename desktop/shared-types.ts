@@ -2,7 +2,8 @@ export type SyncLogSource =
   | 'screenshots'
   | 'imessage'
   | 'contacts'
-  | 'unipile-whatsapp'
+  | 'whatsapp-sqlite'
+  | 'whatsapp-unipile'
 
 export interface SyncLog {
   id: string
@@ -22,7 +23,11 @@ export interface IMessageExportConfig extends ServiceConfig {
   includeAttachments: boolean
 }
 
-export interface UnipileWhatsappConfig extends ServiceConfig {
+export interface WhatsappSqliteConfig extends ServiceConfig {
+  lastExportedMessageDate: string | null
+}
+
+export interface WhatsappUnipileConfig extends ServiceConfig {
   apiBaseUrl: string | null
   apiToken: string | null
   accountId: string | null
@@ -84,10 +89,16 @@ export interface ElectronAPI {
   getContactsSyncConfig: () => Promise<ServiceConfig>
   setContactsSyncConfig: (config: Partial<ServiceConfig>) => Promise<void>
 
-  // Unipile WhatsApp service
-  getUnipileWhatsappConfig: () => Promise<UnipileWhatsappConfig>
-  setUnipileWhatsappConfig: (
-    config: Partial<UnipileWhatsappConfig>,
+  // WhatsApp SQLite service
+  getWhatsappSqliteConfig: () => Promise<WhatsappSqliteConfig>
+  setWhatsappSqliteConfig: (
+    config: Partial<WhatsappSqliteConfig>,
+  ) => Promise<void>
+
+  // WhatsApp Unipile service
+  getWhatsappUnipileConfig: () => Promise<WhatsappUnipileConfig>
+  setWhatsappUnipileConfig: (
+    config: Partial<WhatsappUnipileConfig>,
   ) => Promise<void>
 
   // Services status
@@ -104,6 +115,11 @@ export interface ElectronAPI {
   startIMessageBackfill: (days: number) => Promise<void>
   cancelIMessageBackfill: () => Promise<void>
   getIMessageBackfillProgress: () => Promise<BackfillProgress>
+
+  // WhatsApp backfill
+  startWhatsappBackfill: (days: number) => Promise<void>
+  cancelWhatsappBackfill: () => Promise<void>
+  getWhatsappBackfillProgress: () => Promise<BackfillProgress>
 
   // App settings
   getOpenAtLogin: () => Promise<boolean>

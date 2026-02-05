@@ -7,7 +7,8 @@ type ConfigKey =
   | 'screenCapture'
   | 'imessageExport'
   | 'contactsSync'
-  | 'unipileWhatsapp'
+  | 'whatsappSqlite'
+  | 'whatsappUnipile'
 
 class MissingEncryptionKeyError extends Error {
   constructor() {

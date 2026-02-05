@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { ScreenshotsService } from './services/screenshots'
 import { IMessageService } from './services/imessage'
 import { ContactsService } from './services/contacts'
-import { UnipileService } from './services/unipile'
+import { WhatsappSqliteService } from './services/whatsapp-sqlite'
+import { WhatsappUnipileService } from './services/whatsapp-unipile'
 import { EyeIcon, EyeOffIcon } from '../../shared/ui/icons'
 
 type PasswordInputProps = {
@@ -189,7 +190,8 @@ export function MainTab() {
           <ScreenshotsService />
           <IMessageService />
           <ContactsService />
-          <UnipileService />
+          <WhatsappSqliteService />
+          <WhatsappUnipileService />
         </div>
       </div>
     </div>

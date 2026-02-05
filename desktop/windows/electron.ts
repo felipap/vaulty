@@ -6,7 +6,8 @@ export type {
   ServiceStatus,
   BackfillProgress,
   ElectronAPI,
-  UnipileWhatsappConfig,
+  WhatsappSqliteConfig,
+  WhatsappUnipileConfig,
   McpServerConfig,
   McpServerStatus,
 } from '../shared-types'

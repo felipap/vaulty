@@ -2,7 +2,8 @@ import { SyncLog, SyncLogSource } from '../electron'
 import { ScreenshotsConfig } from './main/services/screenshots/ScreenshotsConfig'
 import { IMessageConfig } from './main/services/imessage/IMessageConfig'
 import { ContactsConfig } from './main/services/contacts/ContactsConfig'
-import { UnipileConfigPanel } from './main/services/unipile/UnipileConfigPanel'
+import { SqliteConfig } from './main/services/whatsapp-sqlite/SqliteConfig'
+import { UnipileConfigPanel } from './main/services/whatsapp-unipile/UnipileConfigPanel'
 import { DataSourceLogs } from './DataSourceLogs'
 
 type Props = {
@@ -16,7 +17,8 @@ const SOURCE_LABELS: Record<SyncLogSource, string> = {
   screenshots: 'Screen Capture',
   imessage: 'iMessage Export',
   contacts: 'Contacts Sync',
-  'unipile-whatsapp': 'WhatsApp (Unipile)',
+  'whatsapp-sqlite': 'WhatsApp (SQLite)',
+  'whatsapp-unipile': 'WhatsApp (Unipile)',
 }
 
 export function DataSourceSettings({
@@ -39,7 +41,10 @@ export function DataSourceSettings({
         {source === 'contacts' && (
           <ContactsConfig onEnabledChange={onEnabledChange} />
         )}
-        {source === 'unipile-whatsapp' && (
+        {source === 'whatsapp-sqlite' && (
+          <SqliteConfig onEnabledChange={onEnabledChange} />
+        )}
+        {source === 'whatsapp-unipile' && (
           <UnipileConfigPanel onEnabledChange={onEnabledChange} />
         )}
       </div>

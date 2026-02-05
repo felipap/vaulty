@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { UnipileWhatsappConfig } from '../../../../../shared-types'
+import { WhatsappUnipileConfig } from '../../../../../shared-types'
 
 type Props = {
   onEnabledChange: (enabled: boolean) => void
@@ -37,13 +37,13 @@ function Toggle({
 }
 
 export function UnipileConfigPanel({ onEnabledChange }: Props) {
-  const [config, setConfig] = useState<UnipileWhatsappConfig | null>(null)
+  const [config, setConfig] = useState<WhatsappUnipileConfig | null>(null)
   const [apiBaseUrl, setApiBaseUrl] = useState('')
   const [apiToken, setApiToken] = useState('')
   const [accountId, setAccountId] = useState('')
 
   useEffect(() => {
-    window.electron.getUnipileWhatsappConfig().then((c) => {
+    window.electron.getWhatsappUnipileConfig().then((c) => {
       setConfig(c)
       setApiBaseUrl(c.apiBaseUrl ?? '')
       setApiToken(c.apiToken ?? '')
@@ -56,7 +56,7 @@ export function UnipileConfigPanel({ onEnabledChange }: Props) {
       return
     }
     const newEnabled = !config.enabled
-    await window.electron.setUnipileWhatsappConfig({ enabled: newEnabled })
+    await window.electron.setWhatsappUnipileConfig({ enabled: newEnabled })
     setConfig({ ...config, enabled: newEnabled })
     onEnabledChange(newEnabled)
   }
@@ -65,26 +65,26 @@ export function UnipileConfigPanel({ onEnabledChange }: Props) {
     if (!config) {
       return
     }
-    await window.electron.setUnipileWhatsappConfig({ intervalMinutes: minutes })
+    await window.electron.setWhatsappUnipileConfig({ intervalMinutes: minutes })
     setConfig({ ...config, intervalMinutes: minutes })
   }
 
   const handleApiBaseUrlBlur = async () => {
-    await window.electron.setUnipileWhatsappConfig({ apiBaseUrl })
+    await window.electron.setWhatsappUnipileConfig({ apiBaseUrl })
     if (config) {
       setConfig({ ...config, apiBaseUrl })
     }
   }
 
   const handleApiTokenBlur = async () => {
-    await window.electron.setUnipileWhatsappConfig({ apiToken })
+    await window.electron.setWhatsappUnipileConfig({ apiToken })
     if (config) {
       setConfig({ ...config, apiToken })
     }
   }
 
   const handleAccountIdBlur = async () => {
-    await window.electron.setUnipileWhatsappConfig({ accountId })
+    await window.electron.setWhatsappUnipileConfig({ accountId })
     if (config) {
       setConfig({ ...config, accountId })
     }

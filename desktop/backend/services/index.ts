@@ -17,13 +17,14 @@ export type Service = {
 import { screenshotsService } from './screenshots'
 import { imessageService } from './imessage'
 import { contactsService } from './contacts'
-import { unipileWhatsappService } from './unipile-whatsapp'
+import { whatsappSqliteService, whatsappUnipileService } from './whatsapp'
 
 export const SERVICES: Service[] = [
   imessageService,
   screenshotsService,
   contactsService,
-  unipileWhatsappService,
+  whatsappSqliteService,
+  whatsappUnipileService,
 ]
 
 export async function startAllServices(): Promise<void> {
@@ -50,5 +51,6 @@ export {
   screenshotsService,
   imessageService,
   contactsService,
-  unipileWhatsappService,
+  whatsappSqliteService,
+  whatsappUnipileService,
 }

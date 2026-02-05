@@ -1,13 +1,13 @@
-import { UnipileWhatsappConfig } from '../../../../../shared-types'
+import { WhatsappUnipileConfig } from '../../../../../shared-types'
 import { ServiceSection, ServiceInfo } from '../ServiceSection'
 import { UnipileConfig } from './UnipileConfig'
 
 const SERVICE: ServiceInfo = {
-  name: 'unipile-whatsapp',
+  name: 'whatsapp-unipile',
   label: 'WhatsApp (Unipile)',
   description: 'Sync WhatsApp messages via Unipile API',
-  getConfig: () => window.electron.getUnipileWhatsappConfig(),
-  setConfig: (config) => window.electron.setUnipileWhatsappConfig(config),
+  getConfig: () => window.electron.getWhatsappUnipileConfig(),
+  setConfig: (config) => window.electron.setWhatsappUnipileConfig(config),
   intervalOptions: [
     { value: 1, label: 'Every 1 minute' },
     { value: 5, label: 'Every 5 minutes' },
@@ -17,12 +17,12 @@ const SERVICE: ServiceInfo = {
   ],
 }
 
-export function UnipileService() {
+export function WhatsappUnipileService() {
   return (
     <ServiceSection service={SERVICE}>
       {({ config, setConfig }) => (
         <UnipileConfig
-          config={config as UnipileWhatsappConfig}
+          config={config as WhatsappUnipileConfig}
           onConfigChange={async (newConfig) => {
             await SERVICE.setConfig(newConfig)
             const updated = await SERVICE.getConfig()

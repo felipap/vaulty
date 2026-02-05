@@ -4,7 +4,8 @@ export type SyncLogSource =
   | 'screenshots'
   | 'imessage'
   | 'contacts'
-  | 'unipile-whatsapp'
+  | 'whatsapp-sqlite'
+  | 'whatsapp-unipile'
 
 export type SyncLog = {
   id: string
@@ -41,7 +42,13 @@ export type StoreSchema = {
     intervalMinutes: number
     nextSyncAfter: string | null
   }
-  unipileWhatsapp: {
+  whatsappSqlite: {
+    enabled: boolean
+    intervalMinutes: number
+    nextSyncAfter: string | null
+    lastExportedMessageDate: string | null
+  }
+  whatsappUnipile: {
     enabled: boolean
     intervalMinutes: number
     nextSyncAfter: string | null
@@ -78,7 +85,13 @@ export const DEFAULT_STATE: StoreSchema = {
     intervalMinutes: 60,
     nextSyncAfter: null,
   },
-  unipileWhatsapp: {
+  whatsappSqlite: {
+    enabled: false,
+    intervalMinutes: 5,
+    nextSyncAfter: null,
+    lastExportedMessageDate: null,
+  },
+  whatsappUnipile: {
     enabled: false,
     intervalMinutes: 5,
     nextSyncAfter: null,

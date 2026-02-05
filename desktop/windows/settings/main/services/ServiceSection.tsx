@@ -2,13 +2,15 @@ import { useState, useEffect, ReactNode } from 'react'
 import {
   ServiceConfig,
   IMessageExportConfig,
-  UnipileWhatsappConfig,
+  WhatsappSqliteConfig,
+  WhatsappUnipileConfig,
 } from '../../../electron'
 
 type AnyServiceConfig =
   | ServiceConfig
   | IMessageExportConfig
-  | UnipileWhatsappConfig
+  | WhatsappSqliteConfig
+  | WhatsappUnipileConfig
 
 export type ServiceInfo = {
   name: string

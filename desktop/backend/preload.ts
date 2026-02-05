@@ -42,16 +42,24 @@ const api = {
     intervalMinutes?: number
   }) => ipcRenderer.invoke('set-contacts-sync-config', config),
 
-  // Unipile WhatsApp service
-  getUnipileWhatsappConfig: () =>
-    ipcRenderer.invoke('get-unipile-whatsapp-config'),
-  setUnipileWhatsappConfig: (config: {
+  // WhatsApp SQLite service
+  getWhatsappSqliteConfig: () =>
+    ipcRenderer.invoke('get-whatsapp-sqlite-config'),
+  setWhatsappSqliteConfig: (config: {
+    enabled?: boolean
+    intervalMinutes?: number
+  }) => ipcRenderer.invoke('set-whatsapp-sqlite-config', config),
+
+  // WhatsApp Unipile service
+  getWhatsappUnipileConfig: () =>
+    ipcRenderer.invoke('get-whatsapp-unipile-config'),
+  setWhatsappUnipileConfig: (config: {
     enabled?: boolean
     intervalMinutes?: number
     apiBaseUrl?: string
     apiToken?: string
     accountId?: string
-  }) => ipcRenderer.invoke('set-unipile-whatsapp-config', config),
+  }) => ipcRenderer.invoke('set-whatsapp-unipile-config', config),
 
   // Services status
   getServicesStatus: () => ipcRenderer.invoke('get-services-status'),
@@ -72,6 +80,13 @@ const api = {
   cancelIMessageBackfill: () => ipcRenderer.invoke('cancel-imessage-backfill'),
   getIMessageBackfillProgress: () =>
     ipcRenderer.invoke('get-imessage-backfill-progress'),
+
+  // WhatsApp backfill
+  startWhatsappBackfill: (days: number) =>
+    ipcRenderer.invoke('start-whatsapp-backfill', days),
+  cancelWhatsappBackfill: () => ipcRenderer.invoke('cancel-whatsapp-backfill'),
+  getWhatsappBackfillProgress: () =>
+    ipcRenderer.invoke('get-whatsapp-backfill-progress'),
 
   // App settings
   getOpenAtLogin: () => ipcRenderer.invoke('get-open-at-login'),
