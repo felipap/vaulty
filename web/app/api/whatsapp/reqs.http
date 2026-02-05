@@ -1,0 +1,18 @@
+@readSecret = {{$dotenv API_READ_SECRET}}
+# @host = {{$dotenv WEBSITE_HOST}}
+@host = http://localhost:3001
+
+###
+
+GET {{host}}/api/whatsapp/chats
+Authorization: Bearer {{readSecret}}
+
+###
+
+GET {{host}}/api/whatsapp/chats/5521985351968-1427149878@g.us/messages
+Authorization: Bearer {{readSecret}}
+
+###
+
+GET {{host}}/api/whatsapp/latest?within_min=60
+Authorization: Bearer {{readSecret}}
