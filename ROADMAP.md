@@ -2,14 +2,15 @@
 
 ## Now
 
-- [ ] Name
-- [ ] Install via npm.
+- [ ] Better name?
 - [ ] Explore WhatsApp via Unipile
 - [ ] Expose via MCP
-- [ ] Improve logger (electron-log?)
+- [ ] Better request logs
+- [ ] Horizontal layout of settings
 
 ## Later
 
+- [ ] Install via npm.
 - [ ] Ability to emit read keys
 - [x] llms.txt - requires authentication
 - [ ] Button to delete all data
@@ -24,6 +25,7 @@
 
 ## Done
 
+- [x] Improve logger (electron-log?)
 - [x] Encrypt locations
 - [x] Feat: /api/locations/latest endpoint
 - [x] Feat: _Don't_ auto upload data when starting the app
