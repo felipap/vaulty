@@ -7,8 +7,10 @@ export type WhatsAppMessage = {
   text: string | null
   sender: string | null
   senderName: string | null
+  senderPhoneNumber: string | null
   timestamp: string
   isFromMe: boolean
+  messageType: number
   hasMedia: boolean
   attachments: WhatsAppAttachment[]
 }

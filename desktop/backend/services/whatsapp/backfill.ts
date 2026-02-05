@@ -1,10 +1,11 @@
 import {
   fetchMessages,
   openWhatsAppDatabase,
-  type WhatsAppMessage as SqliteMessage,
+  type WhatsappSqliteMessage,
 } from '../../sources/whatsapp-sqlite'
 import { startAnimating } from '../../tray/animate'
 import { catchAndComplain } from '../../lib/utils'
+import { store } from '../../store'
 import type { WhatsAppMessage } from './types'
 import { uploadWhatsAppMessages } from './upload'
 
@@ -32,16 +33,18 @@ let backfillProgress: BackfillProgress = {
 
 const BATCH_SIZE = 50
 
-function toWhatsAppMessage(msg: SqliteMessage): WhatsAppMessage {
+function toWhatsAppMessage(msg: WhatsappSqliteMessage): WhatsAppMessage {
   return {
     id: `sqlite-${msg.id}`,
     chatId: msg.chatId,
     chatName: msg.chatName,
     text: msg.text,
     sender: msg.senderJid,
-    senderName: null,
+    senderName: msg.senderName,
+    senderPhoneNumber: msg.senderPhoneNumber,
     timestamp: msg.timestamp,
     isFromMe: msg.isFromMe,
+    messageType: msg.messageType,
     hasMedia: msg.hasMedia,
     attachments: msg.mediaLocalPath
       ? [
@@ -111,7 +114,12 @@ async function runBackfill(days = 120): Promise<void> {
     `[whatsapp] Found ${sqliteMessages.length} messages to backfill in ${fetchEnd - fetchStart}ms`,
   )
 
-  if (sqliteMessages.length === 0) {
+  const ignoredChatIds = store.get('whatsappSqlite').ignoredChatIds ?? []
+  const filteredMessages = sqliteMessages.filter(
+    (msg) => !ignoredChatIds.includes(msg.chatId),
+  )
+
+  if (filteredMessages.length === 0) {
     backfillProgress = {
       status: 'completed',
       current: 0,
@@ -125,7 +133,7 @@ async function runBackfill(days = 120): Promise<void> {
     return
   }
 
-  const messages = sqliteMessages.map(toWhatsAppMessage)
+  const messages = filteredMessages.map(toWhatsAppMessage)
 
   // Switch to uploading phase
   const totalBatches = Math.ceil(messages.length / BATCH_SIZE)
