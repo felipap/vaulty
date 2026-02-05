@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'web/**'
+      - '.github/**'
   pull_request:
     branches:
       - main
@@ -26,14 +27,9 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Setup npm
-        uses: npm/action-setup@v4
-        with:
-          version: 10
-
       - name: Install dependencies
         working-directory: web
-        run: npm install --frozen-lockfile
+        run: npm ci
 
       - name: Type check
         working-directory: web
