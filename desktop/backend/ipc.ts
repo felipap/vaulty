@@ -185,4 +185,8 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('set-open-at-login', (_event, enabled: boolean) => {
     app.setLoginItemSettings({ openAtLogin: enabled })
   })
+
+  ipcMain.handle('get-app-version', () => {
+    return app.getVersion()
+  })
 }

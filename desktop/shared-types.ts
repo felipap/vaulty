@@ -94,4 +94,5 @@ export interface ElectronAPI {
   // App settings
   getOpenAtLogin: () => Promise<boolean>
   setOpenAtLogin: (enabled: boolean) => Promise<void>
+  getAppVersion: () => Promise<string>
 }

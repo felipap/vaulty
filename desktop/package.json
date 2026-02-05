@@ -1,7 +1,7 @@
 {
   "name": "context-desktop",
   "productName": "Context",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Context desktop app",
   "main": "dist/backend/main.js",
   "license": "MIT",
@@ -16,7 +16,7 @@
     "pack": "npm run build && electron-builder --publish=never",
     "pack-local": "npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --dir --publish=never --config.mac.identity=null && cp -r ./dist-electron/mac-arm64/Context.app /Applications/",
     "start": "electron .",
-    "generate-icons": "mkdir -p assets/icons/production.iconset && sips -z 16 16 assets/icons/production.png --out assets/icons/production.iconset/icon_16x16.png && sips -z 32 32 assets/icons/production.png --out assets/icons/production.iconset/icon_16x16@2x.png && sips -z 32 32 assets/icons/production.png --out assets/icons/production.iconset/icon_32x32.png && sips -z 64 64 assets/icons/production.png --out assets/icons/production.iconset/icon_32x32@2x.png && sips -z 128 128 assets/icons/production.png --out assets/icons/production.iconset/icon_128x128.png && sips -z 256 256 assets/icons/production.png --out assets/icons/production.iconset/icon_128x128@2x.png && sips -z 256 256 assets/icons/production.png --out assets/icons/production.iconset/icon_256x256.png && sips -z 512 512 assets/icons/production.png --out assets/icons/production.iconset/icon_256x256@2x.png && sips -z 512 512 assets/icons/production.png --out assets/icons/production.iconset/icon_512x512.png && sips -z 1024 1024 assets/icons/production.png --out assets/icons/production.iconset/icon_512x512@2x.png && iconutil -c icns assets/icons/production.iconset -o assets/icons/production.icns && rm -rf assets/icons/production.iconset && mkdir -p assets/icons/development.iconset && sips -z 16 16 assets/icons/development.png --out assets/icons/development.iconset/icon_16x16.png && sips -z 32 32 assets/icons/development.png --out assets/icons/development.iconset/icon_16x16@2x.png && sips -z 32 32 assets/icons/development.png --out assets/icons/development.iconset/icon_32x32.png && sips -z 64 64 assets/icons/development.png --out assets/icons/development.iconset/icon_32x32@2x.png && sips -z 128 128 assets/icons/development.png --out assets/icons/development.iconset/icon_128x128.png && sips -z 256 256 assets/icons/development.png --out assets/icons/development.iconset/icon_128x128@2x.png && sips -z 256 256 assets/icons/development.png --out assets/icons/development.iconset/icon_256x256.png && sips -z 512 512 assets/icons/development.png --out assets/icons/development.iconset/icon_256x256@2x.png && sips -z 512 512 assets/icons/development.png --out assets/icons/development.iconset/icon_512x512.png && sips -z 1024 1024 assets/icons/development.png --out assets/icons/development.iconset/icon_512x512@2x.png && iconutil -c icns assets/icons/development.iconset -o assets/icons/development.icns && rm -rf assets/icons/development.iconset",
+    "generate-icons": "bash scripts/generate-icons.sh",
     "release": "standard-version",
     "postinstall": "electron-builder install-app-deps && electron-rebuild -f -w better-sqlite3,sharp",
     "ts-check": "npm run ts-check-windows && npm run ts-check-backend",

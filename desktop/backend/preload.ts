@@ -77,6 +77,7 @@ const api = {
   getOpenAtLogin: () => ipcRenderer.invoke('get-open-at-login'),
   setOpenAtLogin: (enabled: boolean) =>
     ipcRenderer.invoke('set-open-at-login', enabled),
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
 } satisfies ElectronAPI
 
 contextBridge.exposeInMainWorld('electron', api)

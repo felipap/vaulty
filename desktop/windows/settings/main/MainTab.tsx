@@ -50,22 +50,25 @@ export function MainTab() {
   const [deviceSecret, setDeviceSecret] = useState('')
   const [encryptionKey, setEncryptionKey] = useState('')
   const [openAtLogin, setOpenAtLogin] = useState(false)
+  const [appVersion, setAppVersion] = useState('')
   const [isLoading, setIsLoading] = useState(true)
 
   const hasEncryptionKey = encryptionKey.length > 0
 
   useEffect(() => {
     async function load() {
-      const [url, secret, key, loginEnabled] = await Promise.all([
+      const [url, secret, key, loginEnabled, version] = await Promise.all([
         window.electron.getServerUrl(),
         window.electron.getDeviceSecret(),
         window.electron.getEncryptionKey(),
         window.electron.getOpenAtLogin(),
+        window.electron.getAppVersion(),
       ])
       setServerUrl(url ?? '')
       setDeviceSecret(secret ?? '')
       setEncryptionKey(key ?? '')
       setOpenAtLogin(loginEnabled)
+      setAppVersion(version)
       setIsLoading(false)
     }
     load()
@@ -111,6 +114,9 @@ export function MainTab() {
         </label>
         <p className="text-xs text-[var(--text-color-secondary)] mt-1 ml-7">
           Automatically start Contexter when you log in to your computer
+        </p>
+        <p className="text-xs text-[var(--text-color-secondary)] mt-4">
+          Version {appVersion}
         </p>
       </div>
 
