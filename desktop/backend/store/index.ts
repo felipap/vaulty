@@ -76,7 +76,10 @@ export function getLastExportedMessageDate(): Date | null {
 
 export function setLastExportedMessageDate(date: Date): void {
   const config = store.get('imessageExport')
-  store.set('imessageExport', { ...config, lastExportedMessageDate: date.toISOString() })
+  store.set('imessageExport', {
+    ...config,
+    lastExportedMessageDate: date.toISOString(),
+  })
 }
 
 export function addRequestLog(log: Omit<ApiRequestLog, 'id'>): void {
