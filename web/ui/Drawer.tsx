@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { CloseIcon } from "./icons"
 
@@ -14,13 +14,13 @@ export function Drawer({ title, children, onClose }: Props) {
   const router = useRouter()
   const drawerRef = useRef<HTMLDivElement>(null)
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (onClose) {
       onClose()
     } else {
       router.back()
     }
-  }
+  }, [onClose, router])
 
   useEffect(() => {
     function handleEscape(e: KeyboardEvent) {
@@ -44,7 +44,7 @@ export function Drawer({ title, children, onClose }: Props) {
       document.removeEventListener("mousedown", handleClickOutside)
       document.body.style.overflow = ""
     }
-  }, [])
+  }, [handleClose])
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -67,9 +67,7 @@ export function Drawer({ title, children, onClose }: Props) {
             <CloseIcon size={20} />
           </button>
         </div>
-        <div className="h-[calc(100vh-73px)] overflow-auto p-6">
-          {children}
-        </div>
+        <div className="h-[calc(100vh-73px)] overflow-auto p-6">{children}</div>
       </div>
 
       <style jsx>{`

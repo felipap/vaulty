@@ -9,7 +9,7 @@ import {
 import { LockIcon, MoonIcon, SunIcon, UnlockIcon } from "@/ui/icons"
 import Link from "next/link"
 import { usePathname, useSearchParams, useRouter } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { twMerge } from "tailwind-merge"
 import { logout } from "./actions"
 
@@ -82,6 +82,7 @@ function EncryptionKeyButton() {
   const [keyInput, setKeyInput] = useState("")
   const [hasKey, setHasKey] = useState(false)
   const [expiryTime, setExpiryTime] = useState<Date | null>(null)
+  const [, setTick] = useState(0)
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
@@ -115,10 +116,9 @@ function EncryptionKeyButton() {
       return
     }
     const interval = setInterval(() => {
-      const currentTime = Date.now()
-      setNow(currentTime)
+      setTick((t) => t + 1)
       // Check if expired
-      if (expiryTime.getTime() <= currentTime) {
+      if (expiryTime.getTime() <= Date.now()) {
         clearEncryptionKey()
         setHasKey(false)
         setExpiryTime(null)
@@ -147,24 +147,23 @@ function EncryptionKeyButton() {
     window.location.reload()
   }
 
-  const getMinutesRemaining = useCallback((date: Date | null, now: number) => {
+  const getMinutesRemaining = (date: Date | null) => {
     if (!date) {
       return null
     }
-    const diff = date.getTime() - now
+    // eslint-disable-next-line react-hooks/purity -- Date.now() is intentionally impure to get current time for countdown
+    const diff = date.getTime() - Date.now()
     if (diff <= 0) {
       return 0
     }
     return Math.floor(diff / 60000)
-  }, [])
+  }
 
-  const [now, setNow] = useState(() => Date.now())
-
-  const formatExpiry = useCallback((date: Date | null) => {
+  const formatExpiry = (date: Date | null) => {
     if (!date) {
       return ""
     }
-    const mins = getMinutesRemaining(date, now)
+    const mins = getMinutesRemaining(date)
     if (mins === null || mins <= 0) {
       return "Expired"
     }
@@ -172,9 +171,9 @@ function EncryptionKeyButton() {
       return `Clearing in ${mins}m`
     }
     return `Clearing in ${Math.floor(mins / 60)}h ${mins % 60}m`
-  }, [getMinutesRemaining, now])
+  }
 
-  const minutesRemaining = getMinutesRemaining(expiryTime, now)
+  const minutesRemaining = getMinutesRemaining(expiryTime)
   const showCountdown =
     hasKey && minutesRemaining !== null && minutesRemaining <= 10
 
@@ -269,9 +268,10 @@ function ThemeToggle() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Standard hydration pattern
+    setMounted(true)
     const isDarkMode = document.documentElement.classList.contains("dark")
     setIsDark(isDarkMode)
-    setMounted(true)
   }, [])
 
   const toggleTheme = () => {
