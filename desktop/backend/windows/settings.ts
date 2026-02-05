@@ -29,17 +29,19 @@ function buildQueryString(options: WindowOptions): string {
   return qs ? `?${qs}` : ''
 }
 
-export function createSettingsWindow(options: WindowOptions = {}): BrowserWindow {
+export function createSettingsWindow(
+  options: WindowOptions = {},
+): BrowserWindow {
   showDock()
 
   const iconPath = findIconPath()
 
   settingsWindow = new BrowserWindow({
-    width: 500,
+    width: 800,
     height: 600,
-    minWidth: 500,
+    minWidth: 800,
     minHeight: 600,
-    maxWidth: 500,
+    maxWidth: 800,
     maxHeight: 600,
     webPreferences: {
       preload: path.join(__dirname, '../preload.js'),
