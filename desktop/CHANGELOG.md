@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.2](https://github.com/felipap/contexter/compare/v0.1.12...v0.2.2) (2026-02-06)
+
+
+### Bug Fixes
+
+* desktop build broken ([30b4811](https://github.com/felipap/contexter/commit/30b48116dd4c700b3c25505cdb9a7f72416ceb3f))
+* remove crypt ([8e798e6](https://github.com/felipap/contexter/commit/8e798e6f30482486b1a845031df4d0cf4266de3f))
+* resolve eslint errors in desktop ([07a2a31](https://github.com/felipap/contexter/commit/07a2a317a4f48f6b592eaba41450e1cbc9052769))
+
 ### [0.2.1](https://github.com/felipap/contexter/compare/v0.1.12...v0.2.1) (2026-02-06)
 
 
