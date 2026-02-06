@@ -33,7 +33,10 @@ function encryptMessages(
       ? encryptText(msg.senderName, encryptionKey)
       : msg.senderName,
     senderNameIndex: msg.senderName
-      ? computeSearchIndex(msg.senderName, encryptionKey)
+      ? computeSearchIndex(
+          normalizeChatNameForSearch(msg.senderName),
+          encryptionKey,
+        )
       : undefined,
     senderPhoneNumber: msg.senderPhoneNumber
       ? encryptText(msg.senderPhoneNumber, encryptionKey)
