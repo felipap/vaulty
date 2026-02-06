@@ -164,6 +164,7 @@ export function fetchMessages(
     LEFT JOIN ZWAPROFILEPUSHNAME ppn ON gm.ZMEMBERJID = ppn.ZJID
     LEFT JOIN ZWAMEDIAITEM media ON m.ZMEDIAITEM = media.Z_PK
     WHERE m.ZMESSAGEDATE > ?
+      -- Exclude WhatsApp Status updates (stories)
       AND c.ZCONTACTJID != 'status@broadcast'
       AND c.ZCONTACTJID NOT LIKE '%@status'
     ORDER BY m.ZMESSAGEDATE ASC
