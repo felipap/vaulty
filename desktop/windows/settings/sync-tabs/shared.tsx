@@ -79,7 +79,7 @@ export function IntervalSelect({
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         disabled={disabled}
-        className="w-full px-3 py-2 rounded-md border bg-threefocus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+        className="w-full px-3 py-2 rounded-md border bg-three focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>

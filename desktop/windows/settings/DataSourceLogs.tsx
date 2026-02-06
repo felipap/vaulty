@@ -109,7 +109,7 @@ const DataSourceLogItem = forwardRef<HTMLTableRowElement, ItemProps>(
         <tr
           ref={ref}
           onClick={() => setExpanded(!expanded)}
-          className={`border-b border-one hover:bg-threecursor-pointer ${
+          className={`border-b border-one hover:bg-three cursor-pointer ${
             highlighted ? 'bg-blue-50 dark:bg-blue-900/20' : ''
           }`}
         >

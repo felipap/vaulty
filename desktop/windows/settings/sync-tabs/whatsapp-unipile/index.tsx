@@ -118,7 +118,7 @@ export const WhatsappUnipileSyncTab = withBoundary(
               value={apiBaseUrl}
               onChange={(e) => setApiBaseUrl(e.target.value)}
               onBlur={handleApiBaseUrlBlur}
-              className="w-full px-3 py-2 rounded-md border bg-threefocus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 rounded-md border bg-three focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="https://api16.unipile.com:14645"
             />
           </div>
@@ -132,7 +132,7 @@ export const WhatsappUnipileSyncTab = withBoundary(
               value={apiToken}
               onChange={(e) => setApiToken(e.target.value)}
               onBlur={handleApiTokenBlur}
-              className="w-full px-3 py-2 rounded-md border bg-threefocus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 rounded-md border bg-three focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Your Unipile API token"
             />
           </div>
@@ -146,7 +146,7 @@ export const WhatsappUnipileSyncTab = withBoundary(
               value={accountId}
               onChange={(e) => setAccountId(e.target.value)}
               onBlur={handleAccountIdBlur}
-              className="w-full px-3 py-2 rounded-md border bg-threefocus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 rounded-md border bg-three focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Your Unipile account ID"
             />
             <p className="text-xs text-secondary mt-1">

@@ -1,4 +1,5 @@
 import { forwardRef, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 import { SyncLog, SyncLogSource } from '../../electron'
 
 function formatTimestamp(timestamp: number): string {
@@ -57,9 +58,10 @@ export const SyncLogItem = forwardRef<HTMLTableRowElement, Props>(
         <tr
           ref={ref}
           onClick={() => setExpanded(!expanded)}
-          className={`border-b border-one hover:bg-threecursor-pointer ${
-            highlighted ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-          }`}
+          className={twMerge(
+            'border-b border-one hover:bg-three cursor-pointer',
+            highlighted ? 'bg-blue-50 dark:bg-blue-900/20' : '',
+          )}
         >
           <td className="py-2.5 font-mono text-xs">
             {showDate && (
