@@ -1,8 +1,14 @@
 "use client"
 
+import { SortSelector } from "@/ui/SortSelector"
 import { type SortBy } from "./actions"
 import { useMessageList } from "./useMessageList"
 import { MessagesTable } from "./MessagesTable"
+
+const SORT_OPTIONS: { value: SortBy; label: string }[] = [
+  { value: "syncTime", label: "Time received" },
+  { value: "timestamp", label: "Message date" },
+]
 
 export default function Page() {
   const {
@@ -30,7 +36,11 @@ export default function Page() {
         <span className="text-sm text-zinc-500">
           {total.toLocaleString()} total messages
         </span>
-        <SortSelector sortBy={sortBy} onChange={setSortBy} />
+        <SortSelector
+          value={sortBy}
+          onChange={setSortBy}
+          options={SORT_OPTIONS}
+        />
       </div>
       <MessagesTable
         messages={messages}
@@ -40,27 +50,5 @@ export default function Page() {
         sortBy={sortBy}
       />
     </>
-  )
-}
-
-function SortSelector({
-  sortBy,
-  onChange,
-}: {
-  sortBy: SortBy
-  onChange: (sortBy: SortBy) => void
-}) {
-  return (
-    <div className="flex items-center gap-2 text-sm">
-      <span className="text-zinc-500">Sort by:</span>
-      <select
-        value={sortBy}
-        onChange={(e) => onChange(e.target.value as SortBy)}
-        className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-      >
-        <option value="syncTime">Time received</option>
-        <option value="timestamp">Message date</option>
-      </select>
-    </div>
   )
 }

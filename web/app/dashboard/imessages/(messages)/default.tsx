@@ -1,8 +1,14 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
+import { SortSelector } from "@/ui/SortSelector"
 import { getMessages, type Message, type SortBy } from "./actions"
 import { getContactLookup, type ContactLookup } from "../chats/actions"
+
+const SORT_OPTIONS: { value: SortBy; label: string }[] = [
+  { value: "syncTime", label: "Time received" },
+  { value: "date", label: "Message date" },
+]
 import { decryptText, isEncrypted, getEncryptionKey } from "@/lib/encryption"
 import { MessagesTable, type DecryptedMessage } from "./MessagesTable"
 
@@ -71,7 +77,11 @@ export default function Page() {
         <span className="text-sm text-zinc-500">
           {total.toLocaleString()} total messages
         </span>
-        <SortSelector sortBy={sortBy} onChange={handleSortChange} />
+        <SortSelector
+          value={sortBy}
+          onChange={handleSortChange}
+          options={SORT_OPTIONS}
+        />
       </div>
       <MessagesTable
         messages={messages}
@@ -82,27 +92,5 @@ export default function Page() {
         sortBy={sortBy}
       />
     </>
-  )
-}
-
-function SortSelector({
-  sortBy,
-  onChange,
-}: {
-  sortBy: SortBy
-  onChange: (sortBy: SortBy) => void
-}) {
-  return (
-    <div className="flex items-center gap-2 text-sm">
-      <span className="text-zinc-500">Sort by:</span>
-      <select
-        value={sortBy}
-        onChange={(e) => onChange(e.target.value as SortBy)}
-        className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-      >
-        <option value="syncTime">Time received</option>
-        <option value="date">Message date</option>
-      </select>
-    </div>
   )
 }
