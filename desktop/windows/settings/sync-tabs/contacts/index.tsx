@@ -1,17 +1,13 @@
 import { useState, useEffect } from 'react'
-import { ServiceConfig } from '../../../../electron'
+import { ServiceConfig } from '../../../electron'
 import { FullDiskPermission } from '../FullDiskPermission'
-import { withBoundary } from '../../../../shared/ui/withBoundary'
-import {
-  ServiceContainer,
-  ServiceDescription,
-  ToggleRow,
-  IntervalSelect,
-  LoadingSkeleton,
-} from '../shared'
+import { withBoundary } from '../../../shared/ui/withBoundary'
+import { DataSourceLogs } from '../../DataSourceLogs'
+import { SyncTab, ToggleRow, IntervalSelect, LoadingSkeleton, useSyncLogs } from '../shared'
 
 type Props = {
   onEnabledChange: (enabled: boolean) => void
+  highlightSyncId?: string | null
 }
 
 const INTERVAL_OPTIONS = [
@@ -22,10 +18,12 @@ const INTERVAL_OPTIONS = [
   { value: 1440, label: 'Every 24 hours' },
 ]
 
-export const ContactsConfig = withBoundary(function ContactsConfig({
+export const ContactsSyncTab = withBoundary(function ContactsSyncTab({
   onEnabledChange,
+  highlightSyncId,
 }: Props) {
   const [config, setConfig] = useState<ServiceConfig | null>(null)
+  const logs = useSyncLogs('contacts')
 
   useEffect(() => {
     window.electron.getContactsSyncConfig().then(setConfig)
@@ -54,11 +52,17 @@ export const ContactsConfig = withBoundary(function ContactsConfig({
   }
 
   return (
-    <ServiceContainer>
-      <ServiceDescription>
-        Sync your contacts to the server.
-      </ServiceDescription>
-
+    <SyncTab
+      title="Contacts Sync"
+      description="Sync your contacts to the server."
+      footer={
+        <DataSourceLogs
+          logs={logs}
+          highlightSyncId={highlightSyncId}
+          sourceLabel="Contacts Sync"
+        />
+      }
+    >
       <FullDiskPermission description="Contacts sync requires Full Disk Access to read your contacts database." />
 
       <ToggleRow
@@ -73,6 +77,6 @@ export const ContactsConfig = withBoundary(function ContactsConfig({
         onChange={handleIntervalChange}
         disabled={!config.enabled}
       />
-    </ServiceContainer>
+    </SyncTab>
   )
 })

@@ -2,14 +2,13 @@ import { useEffect, useState, useMemo } from 'react'
 import { GeneralSettings } from './GeneralSettings'
 import { LogsTab } from './log-viewer/LogsTab'
 import { McpServerTab } from './mcp/McpServerTab'
-import { DataSourceLogs } from './DataSourceLogs'
 import { Sidebar, ActiveTab, DataSourceInfo } from './Sidebar'
-import { ScreenshotsConfig } from './main/services/screenshots'
-import { IMessageConfig } from './main/services/imessage'
-import { ContactsConfig } from './main/services/contacts'
-import { SqliteConfig } from './main/services/whatsapp-sqlite'
-import { UnipileConfigPanel } from './main/services/whatsapp-unipile'
-import { SyncLog, SyncLogSource } from '../electron'
+import { ScreenshotsSyncTab } from './sync-tabs/screenshots'
+import { IMessageSyncTab } from './sync-tabs/imessage'
+import { ContactsSyncTab } from './sync-tabs/contacts'
+import { WhatsappSqliteSyncTab } from './sync-tabs/whatsapp-sqlite'
+import { WhatsappUnipileSyncTab } from './sync-tabs/whatsapp-unipile'
+import { SyncLogSource } from '../electron'
 
 const SOURCE_LABELS: Record<SyncLogSource, string> = {
   screenshots: 'Screen Capture',
@@ -38,7 +37,6 @@ export function Settings() {
   const [highlightSyncId, setHighlightSyncId] = useState<string | null>(
     getHighlightSyncId,
   )
-  const [logs, setLogs] = useState<SyncLog[]>([])
   const [dataSourceInfos, setDataSourceInfos] = useState<DataSourceInfo[]>([])
 
   // Load data source configs and logs
@@ -59,8 +57,6 @@ export function Settings() {
         window.electron.getWhatsappUnipileConfig(),
         window.electron.getSyncLogs(),
       ])
-
-      setLogs(syncLogs)
 
       // Find last sync status for each source
       const lastSyncStatus: Record<SyncLogSource, boolean> = {
@@ -174,11 +170,6 @@ export function Settings() {
     )
   }
 
-  const isSourceTab = !['general', 'logs', 'mcp'].includes(activeTab)
-  const filteredLogs = isSourceTab
-    ? logs.filter((log) => log.source === activeTab)
-    : logs
-
   return (
     <div className="h-screen flex bg-[var(--background-color-one)]">
       <Sidebar
@@ -193,58 +184,45 @@ export function Settings() {
         {activeTab === 'general' && <GeneralSettings />}
         {activeTab === 'logs' && <LogsTab highlightSyncId={highlightSyncId} />}
         {activeTab === 'mcp' && <McpServerTab />}
-        {isSourceTab && (
-          <div className="space-y-6">
-            <h2 className="text-lg font-semibold">
-              {SOURCE_LABELS[activeTab as SyncLogSource]}
-            </h2>
-
-            <div className="max-w-lg">
-              {activeTab === 'screenshots' && (
-                <ScreenshotsConfig
-                  onEnabledChange={(enabled) =>
-                    handleSourceEnabledChange('screenshots', enabled)
-                  }
-                />
-              )}
-              {activeTab === 'imessage' && (
-                <IMessageConfig
-                  onEnabledChange={(enabled) =>
-                    handleSourceEnabledChange('imessage', enabled)
-                  }
-                />
-              )}
-              {activeTab === 'contacts' && (
-                <ContactsConfig
-                  onEnabledChange={(enabled) =>
-                    handleSourceEnabledChange('contacts', enabled)
-                  }
-                />
-              )}
-              {activeTab === 'whatsapp-sqlite' && (
-                <SqliteConfig
-                  onEnabledChange={(enabled) =>
-                    handleSourceEnabledChange('whatsapp-sqlite', enabled)
-                  }
-                />
-              )}
-              {activeTab === 'whatsapp-unipile' && (
-                <UnipileConfigPanel
-                  onEnabledChange={(enabled) =>
-                    handleSourceEnabledChange('whatsapp-unipile', enabled)
-                  }
-                />
-              )}
-            </div>
-
-            <div className="border-t pt-6">
-              <DataSourceLogs
-                logs={filteredLogs}
-                highlightSyncId={highlightSyncId}
-                sourceLabel={SOURCE_LABELS[activeTab as SyncLogSource]}
-              />
-            </div>
-          </div>
+        {activeTab === 'screenshots' && (
+          <ScreenshotsSyncTab
+            onEnabledChange={(enabled) =>
+              handleSourceEnabledChange('screenshots', enabled)
+            }
+            highlightSyncId={highlightSyncId}
+          />
+        )}
+        {activeTab === 'imessage' && (
+          <IMessageSyncTab
+            onEnabledChange={(enabled) =>
+              handleSourceEnabledChange('imessage', enabled)
+            }
+            highlightSyncId={highlightSyncId}
+          />
+        )}
+        {activeTab === 'contacts' && (
+          <ContactsSyncTab
+            onEnabledChange={(enabled) =>
+              handleSourceEnabledChange('contacts', enabled)
+            }
+            highlightSyncId={highlightSyncId}
+          />
+        )}
+        {activeTab === 'whatsapp-sqlite' && (
+          <WhatsappSqliteSyncTab
+            onEnabledChange={(enabled) =>
+              handleSourceEnabledChange('whatsapp-sqlite', enabled)
+            }
+            highlightSyncId={highlightSyncId}
+          />
+        )}
+        {activeTab === 'whatsapp-unipile' && (
+          <WhatsappUnipileSyncTab
+            onEnabledChange={(enabled) =>
+              handleSourceEnabledChange('whatsapp-unipile', enabled)
+            }
+            highlightSyncId={highlightSyncId}
+          />
         )}
       </div>
     </div>

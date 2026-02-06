@@ -1,19 +1,15 @@
 import { useState, useEffect } from 'react'
-import { IMessageExportConfig } from '../../../../electron'
+import { IMessageExportConfig } from '../../../electron'
 import { FullDiskPermission } from '../FullDiskPermission'
 import { HistoricalBackfill } from './HistoricalBackfill'
-import { withBoundary } from '../../../../shared/ui/withBoundary'
-import { InfoCircleIcon } from '../../../../shared/ui/icons'
-import {
-  ServiceContainer,
-  ServiceDescription,
-  ToggleRow,
-  IntervalSelect,
-  LoadingSkeleton,
-} from '../shared'
+import { withBoundary } from '../../../shared/ui/withBoundary'
+import { InfoCircleIcon } from '../../../shared/ui/icons'
+import { DataSourceLogs } from '../../DataSourceLogs'
+import { SyncTab, ToggleRow, IntervalSelect, LoadingSkeleton, useSyncLogs } from '../shared'
 
 type Props = {
   onEnabledChange: (enabled: boolean) => void
+  highlightSyncId?: string | null
 }
 
 const INTERVAL_OPTIONS = [
@@ -39,10 +35,12 @@ function AttachmentNotice({ enabled }: { enabled: boolean }) {
   )
 }
 
-export const IMessageConfig = withBoundary(function IMessageConfig({
+export const IMessageSyncTab = withBoundary(function IMessageSyncTab({
   onEnabledChange,
+  highlightSyncId,
 }: Props) {
   const [config, setConfig] = useState<IMessageExportConfig | null>(null)
+  const logs = useSyncLogs('imessage')
 
   useEffect(() => {
     window.electron.getIMessageExportConfig().then(setConfig)
@@ -82,11 +80,17 @@ export const IMessageConfig = withBoundary(function IMessageConfig({
   }
 
   return (
-    <ServiceContainer>
-      <ServiceDescription>
-        Export iMessage conversations to the server.
-      </ServiceDescription>
-
+    <SyncTab
+      title="iMessage Export"
+      description="Export iMessage conversations to the server."
+      footer={
+        <DataSourceLogs
+          logs={logs}
+          highlightSyncId={highlightSyncId}
+          sourceLabel="iMessage Export"
+        />
+      }
+    >
       <FullDiskPermission description="iMessage export requires Full Disk Access to read your messages database." />
 
       <ToggleRow
@@ -111,6 +115,6 @@ export const IMessageConfig = withBoundary(function IMessageConfig({
       />
 
       <HistoricalBackfill />
-    </ServiceContainer>
+    </SyncTab>
   )
 })

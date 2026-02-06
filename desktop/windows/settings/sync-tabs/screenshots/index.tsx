@@ -1,17 +1,13 @@
 import { useState, useEffect } from 'react'
-import { ServiceConfig } from '../../../../electron'
+import { ServiceConfig } from '../../../electron'
 import { ScreenRecordingPermission } from '../ScreenRecordingPermission'
-import { withBoundary } from '../../../../shared/ui/withBoundary'
-import {
-  ServiceContainer,
-  ServiceDescription,
-  ToggleRow,
-  IntervalSelect,
-  LoadingSkeleton,
-} from '../shared'
+import { withBoundary } from '../../../shared/ui/withBoundary'
+import { DataSourceLogs } from '../../DataSourceLogs'
+import { SyncTab, ToggleRow, IntervalSelect, LoadingSkeleton, useSyncLogs } from '../shared'
 
 type Props = {
   onEnabledChange: (enabled: boolean) => void
+  highlightSyncId: string | null
 }
 
 const INTERVAL_OPTIONS = [
@@ -23,10 +19,12 @@ const INTERVAL_OPTIONS = [
   { value: 30, label: 'Every 30 minutes' },
 ]
 
-export const ScreenshotsConfig = withBoundary(function ScreenshotsConfig({
+export const ScreenshotsSyncTab = withBoundary(function ScreenshotsSyncTab({
   onEnabledChange,
+  highlightSyncId,
 }: Props) {
   const [config, setConfig] = useState<ServiceConfig | null>(null)
+  const logs = useSyncLogs('screenshots')
 
   useEffect(() => {
     window.electron.getScreenCaptureConfig().then(setConfig)
@@ -55,11 +53,17 @@ export const ScreenshotsConfig = withBoundary(function ScreenshotsConfig({
   }
 
   return (
-    <ServiceContainer>
-      <ServiceDescription>
-        Automatically capture screenshots at regular intervals.
-      </ServiceDescription>
-
+    <SyncTab
+      title="Screen Capture"
+      description="Automatically capture screenshots at regular intervals."
+      footer={
+        <DataSourceLogs
+          logs={logs}
+          highlightSyncId={highlightSyncId}
+          sourceLabel="Screen Capture"
+        />
+      }
+    >
       <ScreenRecordingPermission />
 
       <ToggleRow
@@ -74,6 +78,6 @@ export const ScreenshotsConfig = withBoundary(function ScreenshotsConfig({
         onChange={handleIntervalChange}
         disabled={!config.enabled}
       />
-    </ServiceContainer>
+    </SyncTab>
   )
 })

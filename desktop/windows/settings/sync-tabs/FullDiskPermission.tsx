@@ -1,20 +1,18 @@
 import { useState, useEffect } from 'react'
-import {
-  CheckCircleIcon,
-  WarningIcon,
-} from '../../../shared/ui/icons'
+import { CheckCircleIcon, WarningIcon } from '../../shared/ui/icons'
 
 type Props = {
+  description: string
   onPermissionChange?: (hasAccess: boolean) => void
 }
 
-export function ScreenRecordingPermission({ onPermissionChange }: Props) {
+export function FullDiskPermission({ description, onPermissionChange }: Props) {
   const [hasAccess, setHasAccess] = useState<boolean | null>(null)
   const [isChecking, setIsChecking] = useState(true)
 
   const checkAccess = async () => {
     setIsChecking(true)
-    const result = await window.electron.checkScreenRecordingAccess()
+    const result = await window.electron.checkFullDiskAccess()
     setHasAccess(result.hasAccess)
     setIsChecking(false)
     onPermissionChange?.(result.hasAccess)
@@ -25,7 +23,7 @@ export function ScreenRecordingPermission({ onPermissionChange }: Props) {
   }, [])
 
   const handleOpenSettings = () => {
-    window.electron.openScreenRecordingSettings()
+    window.electron.openFullDiskAccessSettings()
   }
 
   if (isChecking) {
@@ -41,7 +39,7 @@ export function ScreenRecordingPermission({ onPermissionChange }: Props) {
       <div className="flex items-center gap-2 text-sm">
         <CheckCircleIcon className="text-green-600 dark:text-green-400" />
         <span className="text-green-600 dark:text-green-400">
-          Screen Recording granted
+          Full Disk Access granted
         </span>
       </div>
     )
@@ -53,11 +51,10 @@ export function ScreenRecordingPermission({ onPermissionChange }: Props) {
         <WarningIcon className="text-amber-600 dark:text-amber-400 shrink-0" />
         <div className="flex-1">
           <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-            Screen Recording Required
+            Full Disk Access Required
           </p>
           <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
-            Screen capture requires Screen Recording permission to take
-            screenshots.
+            {description}
           </p>
         </div>
       </div>

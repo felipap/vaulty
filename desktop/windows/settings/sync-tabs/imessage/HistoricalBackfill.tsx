@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
-import { BackfillProgress } from '../../../../electron'
-import { Button } from '../../../../shared/ui/Button'
+import { BackfillProgress } from '../../../electron'
+import { Button } from '../../../shared/ui/Button'
 import {
   HistoryIcon,
   CheckCircleIcon,
   LoadingSpinnerIcon,
-} from '../../../../shared/ui/icons'
+} from '../../../shared/ui/icons'
 
 const DEFAULT_BACKFILL_DAYS = 50
 
@@ -80,7 +80,9 @@ export function HistoricalBackfill() {
 
       timerRef.current = setInterval(() => {
         if (startTimeRef.current) {
-          setElapsedSeconds(Math.floor((Date.now() - startTimeRef.current) / 1000))
+          setElapsedSeconds(
+            Math.floor((Date.now() - startTimeRef.current) / 1000),
+          )
         }
       }, 1000)
     } else {

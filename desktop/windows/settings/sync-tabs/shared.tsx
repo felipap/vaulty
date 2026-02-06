@@ -1,4 +1,21 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState, useEffect } from 'react'
+import { SyncLog, SyncLogSource } from '../../electron'
+
+export function useSyncLogs(source: SyncLogSource) {
+  const [logs, setLogs] = useState<SyncLog[]>([])
+
+  useEffect(() => {
+    async function load() {
+      const allLogs = await window.electron.getSyncLogs()
+      setLogs(allLogs.filter((l) => l.source === source))
+    }
+    load()
+    const interval = setInterval(load, 2000)
+    return () => clearInterval(interval)
+  }, [source])
+
+  return logs
+}
 
 type ToggleProps = {
   enabled: boolean
@@ -74,21 +91,25 @@ export function IntervalSelect({
   )
 }
 
-type ServiceContainerProps = {
+type SyncTabProps = {
+  title: string
+  description: string
   children: ReactNode
+  footer?: ReactNode
 }
 
-export function ServiceContainer({ children }: ServiceContainerProps) {
-  return <div className="space-y-4">{children}</div>
-}
-
-type ServiceDescriptionProps = {
-  children: ReactNode
-}
-
-export function ServiceDescription({ children }: ServiceDescriptionProps) {
+export function SyncTab({ title, description, children, footer }: SyncTabProps) {
   return (
-    <p className="text-sm text-[var(--text-color-secondary)]">{children}</p>
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">{title}</h2>
+      <div className="max-w-lg space-y-4">
+        <p className="text-sm text-[var(--text-color-secondary)]">
+          {description}
+        </p>
+        {children}
+      </div>
+      {footer && <div className="border-t pt-6">{footer}</div>}
+    </div>
   )
 }
 

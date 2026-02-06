@@ -1,18 +1,14 @@
 import { useState, useEffect } from 'react'
-import { WhatsappSqliteConfig } from '../../../../../shared-types'
+import { WhatsappSqliteConfig } from '../../../../shared-types'
 import { FullDiskPermission } from '../FullDiskPermission'
 import { HistoricalBackfill } from './HistoricalBackfill'
-import { withBoundary } from '../../../../shared/ui/withBoundary'
-import {
-  ServiceContainer,
-  ServiceDescription,
-  ToggleRow,
-  IntervalSelect,
-  LoadingSkeleton,
-} from '../shared'
+import { withBoundary } from '../../../shared/ui/withBoundary'
+import { DataSourceLogs } from '../../DataSourceLogs'
+import { SyncTab, ToggleRow, IntervalSelect, LoadingSkeleton, useSyncLogs } from '../shared'
 
 type Props = {
   onEnabledChange: (enabled: boolean) => void
+  highlightSyncId?: string | null
 }
 
 const INTERVAL_OPTIONS = [
@@ -23,11 +19,13 @@ const INTERVAL_OPTIONS = [
   { value: 60, label: 'Every hour' },
 ]
 
-export const SqliteConfig = withBoundary(function SqliteConfig({
+export const WhatsappSqliteSyncTab = withBoundary(function WhatsappSqliteSyncTab({
   onEnabledChange,
+  highlightSyncId,
 }: Props) {
   const [config, setConfig] = useState<WhatsappSqliteConfig | null>(null)
   const [newIgnoredId, setNewIgnoredId] = useState('')
+  const logs = useSyncLogs('whatsapp-sqlite')
 
   useEffect(() => {
     window.electron.getWhatsappSqliteConfig().then(setConfig)
@@ -84,12 +82,17 @@ export const SqliteConfig = withBoundary(function SqliteConfig({
   }
 
   return (
-    <ServiceContainer>
-      <ServiceDescription>
-        Sync WhatsApp messages directly from the WhatsApp Desktop app database.
-        Requires WhatsApp Desktop to be installed.
-      </ServiceDescription>
-
+    <SyncTab
+      title="WhatsApp (SQLite)"
+      description="Sync WhatsApp messages directly from the WhatsApp Desktop app database. Requires WhatsApp Desktop to be installed."
+      footer={
+        <DataSourceLogs
+          logs={logs}
+          highlightSyncId={highlightSyncId}
+          sourceLabel="WhatsApp (SQLite)"
+        />
+      }
+    >
       <FullDiskPermission description="WhatsApp SQLite sync requires Full Disk Access to read the WhatsApp database." />
 
       <ToggleRow
@@ -155,6 +158,6 @@ export const SqliteConfig = withBoundary(function SqliteConfig({
       </div>
 
       <HistoricalBackfill />
-    </ServiceContainer>
+    </SyncTab>
   )
 })

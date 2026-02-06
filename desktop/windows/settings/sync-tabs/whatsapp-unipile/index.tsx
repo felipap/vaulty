@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react'
-import { WhatsappUnipileConfig } from '../../../../../shared-types'
-import { withBoundary } from '../../../../shared/ui/withBoundary'
-import {
-  ServiceContainer,
-  ServiceDescription,
-  ToggleRow,
-  IntervalSelect,
-  LoadingSkeleton,
-} from '../shared'
+import { WhatsappUnipileConfig } from '../../../../shared-types'
+import { withBoundary } from '../../../shared/ui/withBoundary'
+import { DataSourceLogs } from '../../DataSourceLogs'
+import { SyncTab, ToggleRow, IntervalSelect, LoadingSkeleton, useSyncLogs } from '../shared'
 
 type Props = {
   onEnabledChange: (enabled: boolean) => void
+  highlightSyncId?: string | null
 }
 
 const INTERVAL_OPTIONS = [
@@ -21,13 +17,15 @@ const INTERVAL_OPTIONS = [
   { value: 60, label: 'Every hour' },
 ]
 
-export const UnipileConfigPanel = withBoundary(function UnipileConfigPanel({
+export const WhatsappUnipileSyncTab = withBoundary(function WhatsappUnipileSyncTab({
   onEnabledChange,
+  highlightSyncId,
 }: Props) {
   const [config, setConfig] = useState<WhatsappUnipileConfig | null>(null)
   const [apiBaseUrl, setApiBaseUrl] = useState('')
   const [apiToken, setApiToken] = useState('')
   const [accountId, setAccountId] = useState('')
+  const logs = useSyncLogs('whatsapp-unipile')
 
   useEffect(() => {
     window.electron.getWhatsappUnipileConfig().then((c) => {
@@ -84,15 +82,22 @@ export const UnipileConfigPanel = withBoundary(function UnipileConfigPanel({
   const isConfigured = apiBaseUrl && apiToken && accountId
 
   return (
-    <ServiceContainer>
-      <ServiceDescription>
-        Sync WhatsApp messages via Unipile API.
-      </ServiceDescription>
-
+    <SyncTab
+      title="WhatsApp (Unipile)"
+      description="Sync WhatsApp messages via Unipile API."
+      footer={
+        <DataSourceLogs
+          logs={logs}
+          highlightSyncId={highlightSyncId}
+          sourceLabel="WhatsApp (Unipile)"
+        />
+      }
+    >
       {!isConfigured && (
         <div className="rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-4 py-3">
           <p className="text-sm text-amber-800 dark:text-amber-200">
-            Configure your Unipile API credentials below to enable WhatsApp sync.
+            Configure your Unipile API credentials below to enable WhatsApp
+            sync.
           </p>
         </div>
       )}
@@ -113,9 +118,7 @@ export const UnipileConfigPanel = withBoundary(function UnipileConfigPanel({
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1.5">
-            API Token
-          </label>
+          <label className="block text-sm font-medium mb-1.5">API Token</label>
           <input
             type="password"
             value={apiToken}
@@ -127,9 +130,7 @@ export const UnipileConfigPanel = withBoundary(function UnipileConfigPanel({
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1.5">
-            Account ID
-          </label>
+          <label className="block text-sm font-medium mb-1.5">Account ID</label>
           <input
             type="text"
             value={accountId}
@@ -156,6 +157,6 @@ export const UnipileConfigPanel = withBoundary(function UnipileConfigPanel({
         onChange={handleIntervalChange}
         disabled={!config.enabled}
       />
-    </ServiceContainer>
+    </SyncTab>
   )
 })

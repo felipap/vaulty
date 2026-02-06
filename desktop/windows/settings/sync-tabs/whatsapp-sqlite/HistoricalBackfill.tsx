@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
-import { BackfillProgress } from '../../../../electron'
-import { Button } from '../../../../shared/ui/Button'
+import { BackfillProgress } from '../../../electron'
+import { Button } from '../../../shared/ui/Button'
 import {
   HistoryIcon,
   CheckCircleIcon,
   LoadingSpinnerIcon,
-} from '../../../../shared/ui/icons'
+} from '../../../shared/ui/icons'
 
 const DEFAULT_BACKFILL_DAYS = 50
 
