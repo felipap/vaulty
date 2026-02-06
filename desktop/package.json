@@ -1,7 +1,7 @@
 {
   "name": "context-desktop",
   "productName": "Context",
-  "version": "0.1.11",
+  "version": "0.2.1",
   "description": "Context desktop app",
   "main": "dist/backend/main.js",
   "license": "MIT",
