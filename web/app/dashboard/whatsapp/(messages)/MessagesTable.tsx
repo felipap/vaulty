@@ -8,7 +8,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowDownIcon, ArrowUpIcon, LockIcon } from "@/ui/icons"
+import { ArrowDownIcon, ArrowUpIcon, LockIcon, WhatsappIcon } from "@/ui/icons"
 import { Pagination } from "@/ui/Pagination"
 import { isEncrypted } from "@/lib/encryption"
 import { type WhatsappMessage, type SortBy } from "./actions"
@@ -236,16 +236,5 @@ function DirectionBadge({ isFromMe }: { isFromMe: boolean }) {
       <ArrowDownIcon />
       Received
     </span>
-  )
-}
-
-function WhatsappIcon() {
-  return (
-    <div
-      className="flex h-6 w-6 items-center justify-center rounded-full bg-green-500 text-xs font-medium text-white"
-      title="WhatsApp"
-    >
-      W
-    </div>
   )
 }

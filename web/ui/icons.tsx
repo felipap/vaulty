@@ -1,3 +1,5 @@
+import { twMerge } from "tailwind-merge"
+
 type Props = {
   size?: number
   className?: string
@@ -332,5 +334,16 @@ export function MoonIcon({ size = 14, className }: Props) {
     >
       <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
     </svg>
+  )
+}
+
+export function WhatsappIcon({ className }: Props) {
+  return (
+    <div
+      className={twMerge("flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-500 text-xs font-medium text-white", className)}
+      title="WhatsApp"
+    >
+      W
+    </div>
   )
 }
