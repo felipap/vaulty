@@ -2,6 +2,7 @@ export type WhatsappSqliteMessage = {
   id: string
   chatId: string
   chatName: string | null
+  chatIsGroupChat: boolean
   text: string | null
   senderJid: string | null
   senderName: string | null

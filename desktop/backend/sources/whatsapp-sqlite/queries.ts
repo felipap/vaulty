@@ -202,6 +202,7 @@ export function fetchMessages(
       id: String(row.id),
       chatId: row.chatJid ?? String(row.chatSessionId),
       chatName: row.chatName,
+      chatIsGroupChat: isGroup,
       text: row.text,
       senderJid,
       senderName,

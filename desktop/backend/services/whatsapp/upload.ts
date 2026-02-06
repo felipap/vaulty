@@ -16,6 +16,9 @@ function encryptMessages(
     senderName: msg.senderName
       ? encryptText(msg.senderName, encryptionKey)
       : msg.senderName,
+    senderPhoneNumber: msg.senderPhoneNumber
+      ? encryptText(msg.senderPhoneNumber, encryptionKey)
+      : msg.senderPhoneNumber,
   }))
 }
 
