@@ -73,29 +73,30 @@ function createColumns(contactLookup: ContactLookup) {
     columnHelper.display({
       id: "lastMessage",
       header: "Last Message",
+      size: 220,
       cell: ({ row }) => {
         const chat = row.original
         const isChatEncrypted = isEncrypted(chat.lastMessageText)
         const displayText = chat.decryptedLastMessage
 
         return (
-          <div className="max-w-[200px] truncate text-sm text-zinc-600 dark:text-zinc-400">
+          <div className="flex max-w-[200px] min-w-0 items-center gap-0.5 text-sm text-zinc-600 dark:text-zinc-400">
             {displayText ? (
               <>
                 {chat.lastMessageFromMe && (
-                  <span className="text-zinc-400 dark:text-zinc-500">
+                  <span className="shrink-0 text-zinc-400 dark:text-zinc-500">
                     You:{" "}
                   </span>
                 )}
                 {isChatEncrypted && (
                   <span
-                    className="mr-0.5 inline-flex items-center text-green-500"
+                    className="shrink-0 inline-flex items-center text-green-500"
                     title="Decrypted"
                   >
                     <LockIcon size={10} />
                   </span>
                 )}
-                {displayText}
+                <span className="min-w-0 truncate">{displayText}</span>
               </>
             ) : isChatEncrypted ? (
               <span className="flex items-center gap-1 italic text-amber-500">
@@ -111,6 +112,7 @@ function createColumns(contactLookup: ContactLookup) {
     }),
     columnHelper.accessor("lastMessageDate", {
       header: "Date",
+      size: 120,
       cell: (info) => {
         const date = info.getValue()
         return (
@@ -122,6 +124,7 @@ function createColumns(contactLookup: ContactLookup) {
     }),
     columnHelper.accessor("messageCount", {
       header: "Count",
+      size: 90,
       cell: (info) => (
         <span className="tabular-nums">{info.getValue().toLocaleString()}</span>
       ),
@@ -160,6 +163,8 @@ export function ChatsTable({
         getRowHref={(row) =>
           `/dashboard/imessages/chats/${encodeURIComponent(row.original.chatId)}`
         }
+        tableClassName="table-fixed"
+        getTdClassName={() => "overflow-hidden"}
         getTdStyle={(cell) => ({
           maxWidth: cell.column.getSize(),
           width: cell.column.getSize(),

@@ -19,15 +19,21 @@ export default function Page() {
 
   return (
     <>
-      <div className="mb-4 flex items-center gap-4">
-        <SearchInput
-          placeholder="Search by phone number..."
-          onChange={setSearch}
-          debounceMs={300}
-        />
-        <span className="text-sm text-zinc-500">
-          {total.toLocaleString()} {search ? "matching" : "total"} chats
-        </span>
+      <div className="mb-4 flex flex-col gap-1">
+        <div className="flex items-center gap-4">
+          <SearchInput
+            placeholder="Search by phone number..."
+            onChange={setSearch}
+            debounceMs={300}
+          />
+          <span className="text-sm text-zinc-500">
+            {total.toLocaleString()} {search ? "matching" : "total"} chats
+          </span>
+        </div>
+        <p className="text-xs text-zinc-400">
+          Phone: full number with country code (e.g. +1234567890), no spaces or
+          dashes. Chat name: lowercase, no punctuation.
+        </p>
       </div>
 
       {loading ? (

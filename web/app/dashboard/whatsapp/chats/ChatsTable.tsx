@@ -94,6 +94,7 @@ const columns = [
   }),
   columnHelper.accessor("lastMessageDate", {
     header: "Date",
+    size: 120,
     cell: (info) => {
       const date = info.getValue()
       return (
@@ -105,6 +106,7 @@ const columns = [
   }),
   columnHelper.accessor("messageCount", {
     header: "Count",
+    size: 90,
     cell: (info) => (
       <span className="tabular-nums">{info.getValue().toLocaleString()}</span>
     ),
@@ -133,7 +135,7 @@ export function ChatsTable({ chats, page, totalPages, onPageChange }: Props) {
         getRowHref={(row) =>
           `/dashboard/whatsapp/chats/${encodeURIComponent(row.original.chatId)}`
         }
-        tableClassName="w-full table-fixed"
+        tableClassName="table-fixed"
         getTdClassName={() => "overflow-hidden"}
         getTdStyle={(cell) => ({
           maxWidth: cell.column.getSize(),

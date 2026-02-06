@@ -1,8 +1,9 @@
 import { db } from "@/db"
 import { DEFAULT_USER_ID } from "@/db/schema"
+import { logRead } from "@/lib/activity-log"
+import { normalizePhoneForSearch } from "@/lib/search-normalize"
 import { sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
-import { logRead } from "@/lib/activity-log"
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -28,8 +29,8 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  // Partial match on sender column: strip non-digits and match
-  const normalizedSender = sender.replace(/\D/g, "")
+  // Use same normalization as desktop when building phone index (see search-normalize.ts)
+  const normalizedSender = normalizePhoneForSearch(sender).replace(/\D/g, "")
 
   if (normalizedSender.length === 0 && !senderPhoneNumberIndex) {
     return Response.json(

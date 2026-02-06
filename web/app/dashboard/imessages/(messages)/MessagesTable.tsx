@@ -39,10 +39,12 @@ export function MessagesTable({
     () => [
       columnHelper.accessor("isFromMe", {
         header: "Direction",
+        size: 100,
         cell: (info) => <DirectionBadge isFromMe={info.getValue()} />,
       }),
       columnHelper.accessor("contact", {
         header: "Contact",
+        size: 180,
         cell: (info) => {
           const contact = info.getValue()
           const resolvedName = resolveContactName(contact, contactLookup)
@@ -64,12 +66,15 @@ export function MessagesTable({
         },
       }),
       columnHelper.accessor("text", {
+        id: "text",
         header: "Message",
+        size: 320,
         cell: (info) => <SharedMessageCell message={info.row.original} />,
       }),
       columnHelper.accessor(sortBy === "syncTime" ? "syncTime" : "date", {
         id: "dateColumn",
         header: sortBy === "syncTime" ? "Received" : "Message Date",
+        size: 200,
         cell: (info) => {
           const msg = info.row.original
           const primaryDate = sortBy === "syncTime" ? msg.syncTime : msg.date
@@ -100,9 +105,12 @@ export function MessagesTable({
       <DataTable
         table={table}
         getRowHref={(row) => `/dashboard/imessages/${row.id}`}
-        getTdClassName={(cell) =>
-          cell.column.id === "text" ? "max-w-[300px] truncate" : ""
-        }
+        tableClassName="table-fixed"
+        getTdClassName={() => "overflow-hidden"}
+        getTdStyle={(cell) => ({
+          maxWidth: cell.column.getSize(),
+          width: cell.column.getSize(),
+        })}
       />
 
       <Pagination

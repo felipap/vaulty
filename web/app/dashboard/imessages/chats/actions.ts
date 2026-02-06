@@ -3,6 +3,7 @@
 import { isAuthenticated } from "@/lib/admin-auth"
 import { db } from "@/db"
 import { Contacts, DEFAULT_USER_ID } from "@/db/schema"
+import { normalizePhoneForSearch } from "@/lib/search-normalize"
 import { eq, sql } from "drizzle-orm"
 import { unauthorized } from "next/navigation"
 
@@ -35,7 +36,8 @@ export async function getChats(
   }
 
   const offset = (page - 1) * pageSize
-  const normalizedSearch = search.replace(/\D/g, "")
+  // Use same normalization as search-normalize (see lib/search-normalize.ts)
+  const normalizedSearch = normalizePhoneForSearch(search).replace(/\D/g, "")
   const hasSearch = normalizedSearch.length > 0
 
   const [countResult] = await db.execute<{ count: number }>(sql`

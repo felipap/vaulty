@@ -127,7 +127,7 @@ export function MessagesTable({
       <DataTable
         table={table}
         getRowHref={(row) => `/dashboard/whatsapp/${row.id}`}
-        tableClassName="w-full table-fixed"
+        tableClassName="table-fixed"
         getTdClassName={() => "overflow-hidden"}
         getTdStyle={(cell) => ({
           maxWidth: cell.column.getSize(),

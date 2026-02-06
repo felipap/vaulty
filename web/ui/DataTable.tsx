@@ -40,26 +40,37 @@ export function DataTable<TData>({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800">
-      <table className={tableClassName}>
+    <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800">
+      <table
+        className={tableClassName}
+        style={getTdStyle ? { tableLayout: "fixed" } : undefined}
+      >
         <thead className="bg-zinc-50 dark:bg-zinc-900">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th
-                  key={header.id}
-                  className="px-4 py-3 text-left text-sm font-medium text-zinc-500"
-                >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </th>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="px-4 py-3 text-left text-sm font-medium text-zinc-500"
+                      style={
+                        getTdStyle
+                          ? {
+                              width: header.getSize(),
+                              maxWidth: header.getSize(),
+                            }
+                          : undefined
+                      }
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </th>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
         </thead>
         <tbody className="divide-y divide-zinc-200 bg-white dark:divide-zinc-800 dark:bg-zinc-950">
           {table.getRowModel().rows.map((row) => (
