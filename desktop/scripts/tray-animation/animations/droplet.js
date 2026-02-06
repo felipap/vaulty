@@ -79,7 +79,7 @@ export function getDeformForFrame(frame, totalFrames, mode, intensity) {
         wobble: cycle2 * 2 * intensity,
       }
 
-    case 'drip':
+    case 'drip': {
       // Elongate and squish in a dripping motion
       const dripPhase = (t * 2) % 1
       const squish = Math.sin(dripPhase * Math.PI)
@@ -88,8 +88,9 @@ export function getDeformForFrame(frame, totalFrames, mode, intensity) {
         scaleY: 1 + squish * 0.2 * intensity,
         offsetY: squish * 2 * intensity,
       }
+    }
 
-    case 'bounce':
+    case 'bounce': {
       // Bouncing with squash and stretch
       const bounceT = Math.abs(Math.sin(t * Math.PI))
       const squash = bounceT
@@ -98,6 +99,7 @@ export function getDeformForFrame(frame, totalFrames, mode, intensity) {
         scaleY: 1 - squash * 0.1 * intensity,
         offsetY: -bounceT * 3 * intensity,
       }
+    }
 
     default:
       return {}

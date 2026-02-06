@@ -69,7 +69,7 @@ export class WhatsAppHeadlessClient extends EventEmitter {
     let LocalAuth: unknown
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
       const wwjs = require('whatsapp-web.js')
       Client = wwjs.Client
       LocalAuth = wwjs.LocalAuth
@@ -224,7 +224,7 @@ type WhatsAppWebClient = {
 // Helper to display QR code in terminal (for setup)
 export function displayQrCode(qrCode: string): void {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
     const qrcodeTerminal = require('qrcode-terminal') as {
       generate: (qr: string, options: { small: boolean }) => void
     }

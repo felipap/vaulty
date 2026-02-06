@@ -142,7 +142,7 @@ export function getDeformForFrame(frame, totalFrames, mode, intensity) {
         innerScale: 1 + cycle * 0.2 * intensity,
       }
 
-    case 'wild':
+    case 'wild': {
       // Erratic, windblown flame
       const noise1 = Math.sin(t * Math.PI * 6)
       const noise2 = Math.cos(t * Math.PI * 5)
@@ -153,6 +153,7 @@ export function getDeformForFrame(frame, totalFrames, mode, intensity) {
         tipOffset: (noise1 * 2 + cycle2) * intensity,
         innerScale: 1 + noise1 * 0.2 * intensity,
       }
+    }
 
     default:
       return {}

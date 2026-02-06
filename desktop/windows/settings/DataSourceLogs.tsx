@@ -1,6 +1,7 @@
-import { useRef, useEffect } from 'react'
+import { forwardRef, useEffect, useRef, useState } from 'react'
 import { SyncLog } from '../electron'
-import { SyncLogItem, formatDate } from './log-viewer/Item'
+import { withBoundary } from '../shared/ui/withBoundary'
+import { formatDate } from './log-viewer/Item'
 
 type Props = {
   logs: SyncLog[]
@@ -8,12 +9,19 @@ type Props = {
   sourceLabel: string
 }
 
-export function DataSourceLogs({ logs, highlightSyncId, sourceLabel }: Props) {
+export const DataSourceLogs = withBoundary(function DataSourceLogs({
+  logs,
+  highlightSyncId,
+  sourceLabel,
+}: Props) {
   const highlightRef = useRef<HTMLTableRowElement>(null)
 
   useEffect(() => {
     if (highlightSyncId && highlightRef.current) {
-      highlightRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      highlightRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
     }
   }, [highlightSyncId, logs])
 
@@ -39,7 +47,8 @@ export function DataSourceLogs({ logs, highlightSyncId, sourceLabel }: Props) {
               {logs.slice(0, 20).map((log, index) => {
                 const showDate =
                   index === 0 ||
-                  formatDate(log.timestamp) !== formatDate(logs[index - 1].timestamp)
+                  formatDate(log.timestamp) !==
+                    formatDate(logs[index - 1].timestamp)
                 const isHighlighted = log.id === highlightSyncId
 
                 return (
@@ -58,9 +67,7 @@ export function DataSourceLogs({ logs, highlightSyncId, sourceLabel }: Props) {
       )}
     </div>
   )
-}
-
-import { forwardRef, useState } from 'react'
+})
 
 function formatTimestamp(timestamp: number): string {
   const date = new Date(timestamp)

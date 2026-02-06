@@ -29,18 +29,23 @@ export async function convertHeicToJpeg(inputBuffer: Buffer): Promise<Buffer> {
 
   try {
     await execFileAsync('/usr/bin/sips', [
-      '-s', 'format', 'jpeg',
-      '-s', 'formatOptions', '90', // quality 0-100
+      '-s',
+      'format',
+      'jpeg',
+      '-s',
+      'formatOptions',
+      '90', // quality 0-100
       inputPath,
-      '--out', outputPath,
+      '--out',
+      outputPath,
     ])
 
     return await readFile(outputPath)
   } finally {
-    // Clean up temp files
+    // Clean up temp files (ignore errors if files don't exist)
     await Promise.all([
-      unlink(inputPath).catch(() => { }),
-      unlink(outputPath).catch(() => { }),
+      unlink(inputPath).catch(() => {}),
+      unlink(outputPath).catch(() => {}),
     ])
   }
 }

@@ -155,7 +155,9 @@ async function asyncCheckForUpdatesAndDownload(
 
       try {
         onAvailableAndDownloading?.()
-      } catch {}
+      } catch {
+        // Ignore callback errors
+      }
       onDownload(() => {
         resolve('downloaded')
       })
