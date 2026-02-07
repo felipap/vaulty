@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.5](https://github.com/felipap/vaulty/compare/v0.2.4...v0.2.5) (2026-02-07)
+
+
+### Features
+
+* add vault-rotation tray animation and make it the default ([2498ea8](https://github.com/felipap/vaulty/commit/2498ea8d96d63e1653d90d3dd750d4b9760f2757))
+
 ### [0.2.4](https://github.com/felipap/vaulty/compare/v0.2.3...v0.2.4) (2026-02-07)
 
 
