@@ -113,8 +113,9 @@ app.whenReady().then(async () => {
   registerIpcHandlers()
   initTray()
 
-  // Only show settings window if configuration is needed
-  if (needsConfiguration()) {
+  // Show settings window for onboarding or if configuration is needed
+  const onboardingCompleted = store.get('onboardingCompleted')
+  if (!onboardingCompleted || needsConfiguration()) {
     createSettingsWindow()
   }
 

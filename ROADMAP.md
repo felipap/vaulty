@@ -2,7 +2,6 @@
 
 ## Now
 
-- [ ] Better name?
 - [ ] Explore WhatsApp via Unipile
 - [ ] Expose via MCP
 - [ ] Better request logs
@@ -27,6 +26,7 @@
 
 ## Done
 
+- [x] Better name?
 - [x] Improve logger (electron-log?)
 - [x] Encrypt locations
 - [x] Feat: /api/locations/latest endpoint

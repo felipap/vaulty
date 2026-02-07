@@ -17,6 +17,7 @@ export type SyncLog = {
 }
 
 export type StoreSchema = {
+  onboardingCompleted: boolean
   deviceId: string | null
   deviceSecret: string | null
   encryptionKey: string | null
@@ -61,6 +62,7 @@ export type StoreSchema = {
 }
 
 export const DEFAULT_STATE: StoreSchema = {
+  onboardingCompleted: false,
   deviceId: randomUUID(),
   deviceSecret: null,
   encryptionKey: null,

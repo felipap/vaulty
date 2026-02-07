@@ -1,33 +1,37 @@
+<img src="desktop/assets/icons/original.png" alt="vaulty" width="120" />
+
 # vaulty
 
-A Next.js app that exposes your personal data for AI agents to use, and an Electron app that pulls that data from your machine.
+A self-hosted system that makes your personal data available to AI agents. It consists of a macOS desktop app that collects data from your machine, and a Next.js web app that stores it and exposes it via API.
 
-Meant for self-hosting.
+Your data is end-to-end encrypted. The server never sees plaintext — encryption and decryption happen on your devices. See [SECURITY.md](./SECURITY.md) for details.
 
-# Deploy
+## Download
 
-To deploy the web app, you can either:
+Download the latest macOS desktop app from [GitHub Releases](https://github.com/felipap/vaulty/releases).
 
-### One-Click Deploy to Vercel
+## What it collects
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/felipap/vaulty&root-directory=web&env=DATABASE_URL,DASHBOARD_SECRET,API_WRITE_SECRET,API_READ_SECRET&envDescription=Required%20environment%20variables%20for%20Vaulty&envLink=https://github.com/felipap/vaulty/blob/main/web/README.md%23setup)
+The desktop app runs in your menu bar and syncs the following to your server:
 
-Required environment variables:
+- **iMessages** — your full message history and attachments
+- **WhatsApp messages** — via local SQLite database or Unipile
+- **Contacts** — from macOS AddressBook
+- **Screenshots** — periodic screen captures (auto-deleted after 24h)
+- **Locations** — GPS coordinates
 
-- `DATABASE_URL` — PostgreSQL connection string (you can use [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres) or [Neon](https://neon.tech))
-- `DASHBOARD_SECRET` — Passphrase to access the web dashboard
-- `API_WRITE_SECRET` — Secret for authenticating the Electron app when writing data
-- `API_READ_SECRET` — Secret for authenticating API read requests
-- `CRON_SECRET` — Secret for Vercel cron jobs (screenshot cleanup)
+## Web dashboard
 
-Optional environment variables:
+The web app gives you a dashboard to browse all your synced data, and an API that AI agents can query with access tokens.
 
-- `DASHBOARD_IP_WHITELIST` — Comma-separated IPs allowed to access the dashboard
-- `API_WRITE_IP_WHITELIST` — Comma-separated IPs allowed to write data
-- `API_READ_IP_WHITELIST` — Comma-separated IPs allowed to read data
+## Deploy
 
-For rate limiting and other security considerations, see [SECURITY.md](./SECURITY.md).
+See [web/README.md](./web/README.md) for deployment instructions (includes one-click Vercel deploy).
 
-# License
+## Roadmap
+
+See [ROADMAP.md](./ROADMAP.md).
+
+## License
 
 MIT

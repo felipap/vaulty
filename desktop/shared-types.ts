@@ -64,6 +64,10 @@ export interface McpServerStatus {
 export interface ElectronAPI {
   platform: string
 
+  // Onboarding
+  getOnboardingCompleted: () => Promise<boolean>
+  setOnboardingCompleted: (completed: boolean) => Promise<void>
+
   // Sync logs
   getSyncLogs: () => Promise<SyncLog[]>
   clearSyncLogs: () => Promise<void>
@@ -134,4 +138,7 @@ export interface ElectronAPI {
   getMcpServerStatus: () => Promise<McpServerStatus>
   startMcpServer: () => Promise<number>
   stopMcpServer: () => Promise<void>
+
+  // Utility
+  openUrl: (url: string) => Promise<void>
 }

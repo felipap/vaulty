@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react'
-import { EyeIcon, EyeOffIcon } from '../shared/ui/icons'
+import { EyeIcon, EyeOffIcon, DiceIcon } from '../shared/ui/icons'
 import { twMerge } from 'tailwind-merge'
+
+function generatePassword(length = 40): string {
+  const charset =
+    'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  const array = new Uint8Array(length)
+  crypto.getRandomValues(array)
+  return Array.from(array, (byte) => charset[byte % charset.length]).join('')
+}
 
 type PasswordInputProps = {
   value: string
@@ -8,6 +16,7 @@ type PasswordInputProps = {
   onBlur: () => void
   placeholder: string
   hasError?: boolean
+  onGenerate?: () => void
 }
 
 function PasswordInput({
@@ -16,29 +25,43 @@ function PasswordInput({
   onBlur,
   placeholder,
   hasError,
+  onGenerate,
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false)
 
   return (
-    <div className="relative">
-      <input
-        type={showPassword ? 'text' : 'password'}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={onBlur}
-        className={twMerge(
-          'w-full px-3 py-2 pr-10 rounded-md border bg-three focus:outline-none focus:ring-2 focus:ring-blue-500',
-          hasError ? 'border-red-500' : '',
-        )}
-        placeholder={placeholder}
-      />
-      <button
-        type="button"
-        onClick={() => setShowPassword(!showPassword)}
-        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-secondary hover:text-contrast transition-colors"
-      >
-        {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
-      </button>
+    <div className="flex gap-2 items-center">
+      <div className="relative flex-1">
+        <input
+          type={showPassword ? 'text' : 'password'}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
+          className={twMerge(
+            'w-full px-3 py-2 pr-10 rounded-md border bg-three focus:outline-none focus:ring-2 focus:ring-blue-500',
+            hasError ? 'border-red-500' : '',
+          )}
+          placeholder={placeholder}
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-secondary hover:text-contrast transition-colors"
+        >
+          {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+        </button>
+      </div>
+      {onGenerate && (
+        <button
+          type="button"
+          onClick={onGenerate}
+          className="flex items-center gap-1 px-2.5 py-2 rounded-md border text-sm text-secondary hover:text-contrast hover:bg-(--surface-hover) transition-colors shrink-0"
+          title="Generate a random value"
+        >
+          <DiceIcon size={15} />
+          <span>Generate</span>
+        </button>
+      )}
     </div>
   )
 }
@@ -151,13 +174,18 @@ export function GeneralSettings() {
               onChange={setDeviceSecret}
               onBlur={handleDeviceSecretBlur}
               placeholder="Enter the secret from your server"
+              onGenerate={() => {
+                const password = generatePassword()
+                setDeviceSecret(password)
+                window.electron.setDeviceSecret(password)
+              }}
             />
             <p className="text-xs text-secondary mt-1">
               Must match API_WRITE_SECRET on the server
             </p>
           </div>
 
-          <div>
+          <div className="space-y-2">
             <label className="block text-sm font-medium mb-1.5">
               Encryption Key (E2E) <span className="text-red-500">*</span>
             </label>
@@ -167,6 +195,11 @@ export function GeneralSettings() {
               onBlur={handleEncryptionKeyBlur}
               placeholder="Required: passphrase for E2E encryption"
               hasError={!hasEncryptionKey}
+              onGenerate={() => {
+                const password = generatePassword()
+                setEncryptionKey(password)
+                window.electron.setEncryptionKey(password)
+              }}
             />
             <p className="text-xs text-secondary mt-1">
               All data is encrypted before upload. Use the same key on the

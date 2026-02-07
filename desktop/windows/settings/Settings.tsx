@@ -2,12 +2,12 @@ import { useEffect, useState, useMemo } from 'react'
 import { GeneralSettings } from './GeneralSettings'
 import { LogsTab } from './log-viewer/LogsTab'
 import { McpServerTab } from './mcp/McpServerTab'
+import { Onboarding } from './Onboarding/index'
 import { Sidebar, ActiveTab, DataSourceInfo } from './Sidebar'
 import { ScreenshotsSyncTab } from './sync-tabs/screenshots'
 import { IMessageSyncTab } from './sync-tabs/imessage'
 import { ContactsSyncTab } from './sync-tabs/contacts'
 import { WhatsappSqliteSyncTab } from './sync-tabs/whatsapp-sqlite'
-import { WhatsappUnipileSyncTab } from './sync-tabs/whatsapp-unipile'
 import { SyncLogSource } from '../electron'
 
 const SOURCE_LABELS: Record<SyncLogSource, string> = {
@@ -33,6 +33,32 @@ function getHighlightSyncId(): string | null {
 }
 
 export function Settings() {
+  const [onboardingCompleted, setOnboardingCompleted] = useState<
+    boolean | null
+  >(null)
+
+  // Check onboarding state
+  useEffect(() => {
+    window.electron.getOnboardingCompleted().then(setOnboardingCompleted)
+  }, [])
+
+  // Show onboarding if not completed
+  if (onboardingCompleted === null) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-[var(--background-color-one)]">
+        <p className="text-secondary text-sm">Loading...</p>
+      </div>
+    )
+  }
+
+  if (!onboardingCompleted) {
+    return <Onboarding onComplete={() => setOnboardingCompleted(true)} />
+  }
+
+  return <SettingsPanel />
+}
+
+function SettingsPanel() {
   const [activeTab, setActiveTab] = useState<ActiveTab>(getInitialTab)
   const [highlightSyncId, setHighlightSyncId] = useState<string | null>(
     getHighlightSyncId,
@@ -42,21 +68,14 @@ export function Settings() {
   // Load data source configs and logs
   useEffect(() => {
     async function loadDataSources() {
-      const [
-        screenshots,
-        imessage,
-        contacts,
-        whatsappSqlite,
-        whatsappUnipile,
-        syncLogs,
-      ] = await Promise.all([
-        window.electron.getScreenCaptureConfig(),
-        window.electron.getIMessageExportConfig(),
-        window.electron.getContactsSyncConfig(),
-        window.electron.getWhatsappSqliteConfig(),
-        window.electron.getWhatsappUnipileConfig(),
-        window.electron.getSyncLogs(),
-      ])
+      const [screenshots, imessage, contacts, whatsappSqlite, syncLogs] =
+        await Promise.all([
+          window.electron.getScreenCaptureConfig(),
+          window.electron.getIMessageExportConfig(),
+          window.electron.getContactsSyncConfig(),
+          window.electron.getWhatsappSqliteConfig(),
+          window.electron.getSyncLogs(),
+        ])
 
       // Find last sync status for each source
       const lastSyncStatus: Record<SyncLogSource, boolean> = {
@@ -106,12 +125,6 @@ export function Settings() {
           label: SOURCE_LABELS['whatsapp-sqlite'],
           enabled: whatsappSqlite.enabled,
           lastSyncFailed: lastSyncStatus['whatsapp-sqlite'],
-        },
-        {
-          source: 'whatsapp-unipile',
-          label: SOURCE_LABELS['whatsapp-unipile'],
-          enabled: whatsappUnipile.enabled,
-          lastSyncFailed: lastSyncStatus['whatsapp-unipile'],
         },
       ])
     }
@@ -212,14 +225,6 @@ export function Settings() {
           <WhatsappSqliteSyncTab
             onEnabledChange={(enabled) =>
               handleSourceEnabledChange('whatsapp-sqlite', enabled)
-            }
-            highlightSyncId={highlightSyncId}
-          />
-        )}
-        {activeTab === 'whatsapp-unipile' && (
-          <WhatsappUnipileSyncTab
-            onEnabledChange={(enabled) =>
-              handleSourceEnabledChange('whatsapp-unipile', enabled)
             }
             highlightSyncId={highlightSyncId}
           />

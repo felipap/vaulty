@@ -18,6 +18,15 @@ import {
 } from './store'
 
 export function registerIpcHandlers(): void {
+  // Onboarding
+  ipcMain.handle('get-onboarding-completed', () => {
+    return store.get('onboardingCompleted')
+  })
+
+  ipcMain.handle('set-onboarding-completed', (_event, completed: boolean) => {
+    store.set('onboardingCompleted', completed)
+  })
+
   ipcMain.handle('get-sync-logs', () => {
     return getSyncLogs()
   })
@@ -263,5 +272,10 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('stop-mcp-server', () => {
     stopMcpServer()
+  })
+
+  // Utility
+  ipcMain.handle('open-url', (_event, url: string) => {
+    shell.openExternal(url)
   })
 }

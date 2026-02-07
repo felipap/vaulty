@@ -4,6 +4,11 @@ import type { ElectronAPI } from '../shared-types'
 const api = {
   platform: process.platform,
 
+  // Onboarding
+  getOnboardingCompleted: () => ipcRenderer.invoke('get-onboarding-completed'),
+  setOnboardingCompleted: (completed: boolean) =>
+    ipcRenderer.invoke('set-onboarding-completed', completed),
+
   // Sync logs
   getSyncLogs: () => ipcRenderer.invoke('get-sync-logs'),
   clearSyncLogs: () => ipcRenderer.invoke('clear-sync-logs'),
@@ -101,6 +106,8 @@ const api = {
   getMcpServerStatus: () => ipcRenderer.invoke('get-mcp-server-status'),
   startMcpServer: () => ipcRenderer.invoke('start-mcp-server'),
   stopMcpServer: () => ipcRenderer.invoke('stop-mcp-server'),
+  // Utility
+  openUrl: (url: string) => ipcRenderer.invoke('open-url', url),
 } satisfies ElectronAPI
 
 contextBridge.exposeInMainWorld('electron', api)
