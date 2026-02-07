@@ -80,7 +80,7 @@ export function McpServerTab() {
             type="number"
             value={config.port}
             onChange={(e) => handlePortChange(parseInt(e.target.value, 10))}
-            className="w-32 px-3 py-2 rounded-md border bg-three focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-32 px-3 py-2 rounded-md border bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
             min={1024}
             max={65535}
           />
@@ -107,7 +107,7 @@ export function McpServerTab() {
         <p className="text-sm text-secondary mb-3">
           Add this to your Cursor MCP settings to connect:
         </p>
-        <pre className="text-xs bg-three p-3 rounded-md overflow-x-auto">
+        <pre className="text-xs bg-input p-3 rounded-md overflow-x-auto">
           {`{
   "mcpServers": {
     "contexter": {

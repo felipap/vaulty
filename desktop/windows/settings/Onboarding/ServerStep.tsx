@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { ExternalLinkIcon } from '../../shared/ui/icons'
+import { useState, useEffect } from 'react'
 import { Button } from '../../shared/ui/Button'
+import { Label } from '../../shared/ui/forms'
 import { PasswordInput } from '../../shared/ui/PasswordInput'
 
 function generatePassword(length = 40): string {
@@ -22,6 +22,20 @@ export function ServerStep({ onNext, onBack }: Props) {
   const [encryptionKey, setEncryptionKey] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function load() {
+      const [url, secret, key] = await Promise.all([
+        window.electron.getServerUrl(),
+        window.electron.getDeviceSecret(),
+        window.electron.getEncryptionKey(),
+      ])
+      setServerUrl(url ?? '')
+      setDeviceSecret(secret ?? '')
+      setEncryptionKey(key ?? '')
+    }
+    load()
+  }, [])
 
   const canContinue =
     serverUrl.trim().length > 0 &&
@@ -46,11 +60,9 @@ export function ServerStep({ onNext, onBack }: Props) {
   return (
     <div className="flex flex-col h-full px-6 py-8">
       <div className="mb-6">
-        <h2 className="text-lg font-medium track-10 mb-1">
-          Connect to your server
-        </h2>
+        <h2 className="text-lg font- track-10 mb-1">Connect to your vault</h2>
         <p className="text-secondary text-md font-text leading-normal">
-          Enter your Vaulty server details to start syncing data. Follow the{' '}
+          Enter your server details to start syncing data. Follow the{' '}
           <button
             type="button"
             onClick={() =>
@@ -60,16 +72,15 @@ export function ServerStep({ onNext, onBack }: Props) {
             }
             className="inline-flex items-center gap-0.5 underline underline-offset-2 hover:text-contrast transition-colors"
           >
-            setup guide on GitHub
-            <ExternalLinkIcon size={12} />
+            setup guide
           </button>{' '}
-          if you need help, or reach out at{' '}
+          or reach out to Felipe at{' '}
           <button
             type="button"
-            onClick={() => window.electron.openUrl('mailto:felipe@vaulty.dev')}
+            onClick={() => window.electron.openUrl('mailto:faragaop@gmail.com')}
             className="underline underline-offset-2 hover:text-contrast transition-colors"
           >
-            felipe@vaulty.dev
+            faragaop@gmail.com
           </button>
           .
         </p>
@@ -83,36 +94,32 @@ export function ServerStep({ onNext, onBack }: Props) {
 
       <div className="space-y-5 flex-1">
         <div>
-          <label className="block text-sm font-medium mb-1.5">Server URL</label>
+          <Label>Server URL</Label>
           <input
             type="url"
             value={serverUrl}
             onChange={(e) => setServerUrl(e.target.value)}
-            className="text-md w-full px-3 py-2 rounded-md border bg-three focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="https://context.yourdomain.com"
+            className="text-md w-full px-3 py-2 rounded-md border bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="https://vault.yourdomain.com"
             autoFocus
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1.5">
-            API Write Secret
-          </label>
+        <div className="space-y-2">
+          <Label>API Write Secret</Label>
           <PasswordInput
             value={deviceSecret}
             onChange={setDeviceSecret}
             placeholder="The secret from your server"
             onGenerate={() => setDeviceSecret(generatePassword())}
           />
-          <p className="text-xs text-secondary mt-1">
+          <p className="font-text text-xs text-secondary mt-1 track-10">
             Must match API_WRITE_SECRET on the server.
           </p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1.5">
-            Encryption Key
-          </label>
+        <div className="space-y-2">
+          <Label>Encryption Key</Label>
           <PasswordInput
             value={encryptionKey}
             onChange={setEncryptionKey}
@@ -120,7 +127,7 @@ export function ServerStep({ onNext, onBack }: Props) {
             hasError={false}
             onGenerate={() => setEncryptionKey(generatePassword())}
           />
-          <p className="text-xs text-secondary mt-1">
+          <p className="font-text text-xs text-secondary mt-1 track-10">
             All data is encrypted before upload. Use the same key on the
             dashboard to decrypt.
           </p>

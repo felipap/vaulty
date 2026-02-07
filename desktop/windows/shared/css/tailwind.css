@@ -5,7 +5,7 @@
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/preflight.css' layer(base);
 @import 'tailwindcss/utilities.css' layer(utilities);
-@plugin '@tailwindcss/forms';
+/* @plugin '@tailwindcss/forms'; */
 
 /* https://tailwindcss.com/docs/dark-mode */
 /* @custom-variant dark (&:where(.dark, .dark *)); */
@@ -37,11 +37,11 @@
 @theme {
   /* Colors */
   --color-contrast: #000;
-  --text-color-secondary: #888;
+  --text-color-secondary: #aaa;
   --text-color-inverted: #fff;
   --background-color-one: #f4f6f6;
   --background-color-two: #eee;
-  --background-color-three: #fff;
+  --background-color-input: #fff;
   --highlight-color: #3b82f6;
   --twitter-blue: #1da1f2;
   --text-color-link: #007aff;
@@ -68,7 +68,7 @@
 
     --background-color-one: #202020;
     --background-color-two: #161616;
-    --background-color-three: #111;
+    --background-color-input: #222;
 
     --border-color-one: #333;
     --border-color-two: #555;
@@ -81,7 +81,7 @@
   *,
   ::before,
   ::after {
-    @apply dark:border-[#000] border-[#eee];
+    @apply dark:border-[#2a2a2a] border-[#eee];
   }
 
   /* 50 is too bold and 400 is too light, so antialiased is a little hack here. */
@@ -125,6 +125,7 @@ textarea {
 
 input {
   font-family: var(--font-text);
+  @apply transition-all duration-200;
   /* letter-spacing: 0.01rem !important; */
 }
 

@@ -37,7 +37,7 @@ export function IgnoredChatIds({ ignoredChatIds, onAdd, onRemove }: Props) {
             }
           }}
           placeholder="Group ID (e.g., 123456789@g.us)"
-          className="flex-1 px-3 py-2 rounded-md border bg-three focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          className="flex-1 px-3 py-2 rounded-md border bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         />
         <button
           onClick={handleAdd}

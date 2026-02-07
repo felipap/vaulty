@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { EyeIcon, EyeOffIcon, DiceIcon } from '../shared/ui/icons'
+import { Label } from '../shared/ui/forms'
 import { twMerge } from 'tailwind-merge'
 
 function generatePassword(length = 40): string {
@@ -38,7 +39,7 @@ function PasswordInput({
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
           className={twMerge(
-            'w-full px-3 py-2 pr-10 rounded-md border bg-three focus:outline-none focus:ring-2 focus:ring-blue-500',
+            'w-full px-3 py-2 pr-10 rounded-md border bg-input focus:outline-none focus:ring-2 focus:ring-blue-500',
             hasError ? 'border-red-500' : '',
           )}
           placeholder={placeholder}
@@ -152,23 +153,19 @@ export function GeneralSettings() {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1.5">
-              Server URL
-            </label>
+            <Label>Server URL</Label>
             <input
               type="url"
               value={serverUrl}
               onChange={(e) => setServerUrl(e.target.value)}
               onBlur={handleServerUrlBlur}
-              className="w-full px-3 py-2 rounded-md border bg-three focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 rounded-md border bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="http://context.yourdomain.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5">
-              API Write Secret
-            </label>
+            <Label>API Write Secret</Label>
             <PasswordInput
               value={deviceSecret}
               onChange={setDeviceSecret}
@@ -186,9 +183,9 @@ export function GeneralSettings() {
           </div>
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium mb-1.5">
+            <Label>
               Encryption Key (E2E) <span className="text-red-500">*</span>
-            </label>
+            </Label>
             <PasswordInput
               value={encryptionKey}
               onChange={setEncryptionKey}

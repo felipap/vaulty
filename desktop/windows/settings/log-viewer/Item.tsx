@@ -59,7 +59,7 @@ export const SyncLogItem = forwardRef<HTMLTableRowElement, Props>(
           ref={ref}
           onClick={() => setExpanded(!expanded)}
           className={twMerge(
-            'border-b border-one hover:bg-three cursor-pointer',
+            'border-b border-one hover:bg-input cursor-pointer',
             highlighted ? 'bg-blue-50 dark:bg-blue-900/20' : '',
           )}
         >

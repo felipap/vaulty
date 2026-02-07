@@ -3,23 +3,24 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { twMerge } from 'tailwind-merge'
 
 const buttonVariants = cva(
-  'rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
+  'rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
   {
     variants: {
       variant: {
-        primary: 'bg-blue-500 text-white hover:bg-blue-600',
-        secondary: 'bg-two hover:bg-one border border-one',
+        primary:
+          'bg-blue-500 dark:bg-[#2a9af6] text-white hover:not-disabled:bg-blue-600',
+        secondary: 'bg-input hover:bg-one border border-one dark:antialiased',
         danger:
           'border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-800/30',
       },
       size: {
-        default: 'px-3 h-8 text-sm',
+        default: 'px-3 h-9 text-md track-10',
         sm: 'px-2.5 h-6 text-xs',
         lg: 'px-5 h-9 text-base',
       },
     },
     defaultVariants: {
-      variant: 'primary',
+      variant: 'secondary',
       size: 'default',
     },
   },
