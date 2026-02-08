@@ -15,7 +15,7 @@ the place for AI slop, or legaleeze.
 
 ## Authentication
 
-There are two auth flows: one for the admin dashboard, one for devices (Electron app).
+There are three auth flows: admin dashboard, device writes (Electron app), and API reads (access tokens).
 
 ### Admin Dashboard
 
@@ -39,6 +39,18 @@ Devices authenticate via a shared secret:
 4. Server rejects requests where the token doesn't match
 
 If `API_WRITE_SECRET` is unset on the server, device auth is bypassed (for development).
+
+### Access Tokens (API Read)
+
+API read endpoints are authenticated via DB-backed access tokens, managed in the dashboard settings page.
+
+1. User creates a token in the dashboard (with optional expiration)
+2. Server generates a `ctx_`-prefixed token, stores only its SHA-256 hash
+3. The full token is shown once — the user must copy it
+4. API consumers send it as `Authorization: Bearer ctx_...` header
+5. Server hashes the token and looks it up in the `access_tokens` table
+6. Tokens can be revoked from the dashboard (soft delete via `revoked_at`)
+7. `last_used_at` is updated on each successful validation
 
 ## Server security
 

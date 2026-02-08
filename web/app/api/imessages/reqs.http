@@ -1,17 +1,18 @@
-@readSecret = {{$dotenv API_READ_SECRET}}
+# Create an access token in the dashboard settings page
+@accessToken = ctx_your_access_token_here
 @host = {{$dotenv WEBSITE_HOST}}
 
 ###
 
 GET {{host}}/api/imessages/chats
-Authorization: Bearer {{readSecret}}
+Authorization: Bearer {{accessToken}}
 
 ###
 
 GET {{host}}/api/imessages/chats/+18573319216/messages
-Authorization: Bearer {{readSecret}}
+Authorization: Bearer {{accessToken}}
 
 ###
 
 GET {{host}}/api/imessages/latest?within_min=60
-Authorization: Bearer {{readSecret}}
+Authorization: Bearer {{accessToken}}

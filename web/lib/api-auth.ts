@@ -1,7 +1,6 @@
 import { validateAccessToken } from "./access-tokens"
 import { secureCompare } from "./auth-utils"
 
-const API_READ_SECRET = process.env.API_READ_SECRET || ""
 const API_WRITE_SECRET = process.env.API_WRITE_SECRET || ""
 
 function getBearerToken(request: Request): string | null {
@@ -21,17 +20,9 @@ export async function requireReadAuth(
     return Response.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  // Static API read secret (used by the desktop app)
-  if (API_READ_SECRET && secureCompare(token, API_READ_SECRET)) {
+  const accessToken = await validateAccessToken(token)
+  if (accessToken) {
     return null
-  }
-
-  // DB-backed access token
-  if (token.startsWith("ctx_")) {
-    const accessToken = await validateAccessToken(token)
-    if (accessToken) {
-      return null
-    }
   }
 
   return Response.json({ error: "Unauthorized" }, { status: 401 })

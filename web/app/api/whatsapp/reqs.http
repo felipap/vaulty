@@ -1,25 +1,26 @@
-@readSecret = {{$dotenv API_READ_SECRET}}
+# Create an access token in the dashboard settings page
+@accessToken = ctx_your_access_token_here
 # @host = {{$dotenv WEBSITE_HOST}}
 @host = http://localhost:3030
 
 ###
 
 GET {{host}}/api/whatsapp/chats
-Authorization: Bearer {{readSecret}}
+Authorization: Bearer {{accessToken}}
 
 ###
 
 GET {{host}}/api/whatsapp/chats/5521985351968-1427149878@g.us/messages
-Authorization: Bearer {{readSecret}}
+Authorization: Bearer {{accessToken}}
 
 ###
 
 GET {{host}}/api/whatsapp/latest?within_min=60
-Authorization: Bearer {{readSecret}}
+Authorization: Bearer {{accessToken}}
 
 ###
 
 GET {{host}}/api/whatsapp/chats/search?senderPhoneNumberIndex=f6b2583f59d23e929b522be19dd6874352fe19959bbfdb8b76387e72bf7b5f70
-Authorization: Bearer {{readSecret}}
+Authorization: Bearer {{accessToken}}
 
 ####

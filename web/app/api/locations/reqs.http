@@ -1,17 +1,18 @@
-@readSecret = {{$dotenv API_READ_SECRET}}
+# Create an access token in the dashboard settings page
+@accessToken = ctx_your_access_token_here
 @host = {{$dotenv WEBSITE_HOST}}
 
 ###
 
 GET {{host}}/api/locations/latest
-Authorization: Bearer {{readSecret}}
+Authorization: Bearer {{accessToken}}
 
 ###
 
 GET {{host}}/api/locations/latest?within_min=50000
-Authorization: Bearer {{readSecret}}
+Authorization: Bearer {{accessToken}}
 
 ###
 
 GET {{host}}/api/locations/latest?within_min=60
-Authorization: Bearer {{readSecret}}
+Authorization: Bearer {{accessToken}}

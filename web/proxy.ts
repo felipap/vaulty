@@ -1,6 +1,7 @@
-// Dashboard can be protected by DASHBOARD_IP_WHITELIST. api/ MUST be protected
-// by API_WRITE_IP_WHITELIST, if write endpoint, or API_READ_IP_WHITELIST,
-// otherwise.
+// Dashboard can be protected by DASHBOARD_IP_WHITELIST. Write endpoints MUST be
+// protected by API_WRITE_IP_WHITELIST. Read endpoints use DB-backed access
+// tokens validated in route handlers, optionally protected by
+// API_READ_IP_WHITELIST.
 
 import {
   getClientIp,
@@ -33,12 +34,6 @@ if (!API_WRITE_SECRET) {
   throw Error("API_WRITE_SECRET is not set")
 }
 assert(API_WRITE_SECRET.length > 10, "API_WRITE_SECRET is too short")
-
-const API_READ_SECRET = process.env.API_READ_SECRET || ""
-if (!API_READ_SECRET) {
-  throw Error("API_READ_SECRET is not set")
-}
-assert(API_READ_SECRET.length > 10, "API_READ_SECRET is too short")
 
 const DASHBOARD_SECRET = process.env.DASHBOARD_SECRET || ""
 if (!DASHBOARD_SECRET) {
@@ -103,22 +98,18 @@ export function proxy(request: NextRequest) {
     // We check the token after because we treat whitelists first, to give back
     // the smallest amount of information possible.
 
-    const token = getBearerToken(request)
-    if (!token) {
-      return makeNonWhitelistedResponse()
-    }
-
     if (isWriteEndpoint) {
+      const token = getBearerToken(request)
+      if (!token) {
+        return makeNonWhitelistedResponse()
+      }
       if (!secureCompare(token, API_WRITE_SECRET)) {
         console.debug(`/api: Unauthorized (token mismatch)`)
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
       }
-    } else {
-      if (!secureCompare(token, API_READ_SECRET)) {
-        console.debug(`/api: Unauthorized (token mismatch)`)
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-      }
     }
+    // Read endpoints use DB-backed access tokens, validated in route handlers
+    // via requireReadAuth()
 
     return NextResponse.next()
   }
