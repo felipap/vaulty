@@ -1,5 +1,5 @@
 # Create an access token in the dashboard settings page
-@accessToken = ctx_your_access_token_here
+@accessToken = vault_58b9cbcdfa58dd203847cf21e47b824857db61da302fafc365
 @host = {{$dotenv WEBSITE_HOST}}
 
 ###
