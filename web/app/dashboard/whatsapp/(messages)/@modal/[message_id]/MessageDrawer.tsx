@@ -4,6 +4,8 @@ import { Decrypted } from "@/ui/Decrypted"
 import { Drawer } from "@/ui/Drawer"
 import { InfoRow } from "@/ui/InfoRow"
 import { RawJson } from "@/ui/RawJson"
+import { type Route } from "next"
+import Link from "next/link"
 import { type WhatsappMessageDetail } from "../../actions"
 
 type Props = {
@@ -11,6 +13,9 @@ type Props = {
 }
 
 export function MessageDrawer({ message }: Props) {
+  const chatHref =
+    `/dashboard/whatsapp/chats/${encodeURIComponent(message.chatId)}` as Route
+
   return (
     <Drawer title="Message Details">
       <div className="space-y-4">
@@ -26,7 +31,21 @@ export function MessageDrawer({ message }: Props) {
           label="Direction"
           value={message.isFromMe ? "Sent" : "Received"}
         />
-        <InfoRow label="Chat ID" value={message.chatId} copyable />
+        <div>
+          <label className="mb-1 block text-sm font-medium text-zinc-500">
+            Chat
+          </label>
+          <Link
+            href={chatHref}
+            className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+          >
+            {message.chatName ? (
+              <Decrypted>{message.chatName}</Decrypted>
+            ) : (
+              message.chatId
+            )}
+          </Link>
+        </div>
         <InfoRow
           label="Date"
           value={new Date(message.timestamp).toLocaleString()}

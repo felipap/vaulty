@@ -1,21 +1,12 @@
 "use client"
 
-import { CopyIcon, CheckIcon, PlusIcon, TrashIcon, KeyIcon } from "@/ui/icons"
-import { useEffect, useState } from "react"
-import { createToken, getAccessTokens, revokeToken } from "./actions"
-
-type TokenInfo = {
-  id: string
-  name: string
-  tokenPrefix: string
-  expiresAt: string | null
-  lastUsedAt: string | null
-  createdAt: string
-}
+import { CopyIcon, CheckIcon, PlusIcon, KeyIcon } from "@/ui/icons"
+import { useState } from "react"
+import { TokenRow } from "./TokenRow"
+import { useAccessTokens } from "./useAccessTokens"
 
 export function AccessTokens() {
-  const [tokens, setTokens] = useState<TokenInfo[]>([])
-  const [loading, setLoading] = useState(true)
+  const { tokens, loading, create, revoke } = useAccessTokens()
   const [showCreate, setShowCreate] = useState(false)
   const [newTokenName, setNewTokenName] = useState("")
   const [expiresInDays, setExpiresInDays] = useState<string>("")
@@ -23,35 +14,18 @@ export function AccessTokens() {
   const [revealedToken, setRevealedToken] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
-  useEffect(() => {
-    loadTokens()
-  }, [])
-
-  async function loadTokens() {
-    setLoading(true)
-    const result = await getAccessTokens()
-    setTokens(result)
-    setLoading(false)
-  }
-
   async function handleCreate() {
     if (!newTokenName.trim()) {
       return
     }
     setCreating(true)
     const days = expiresInDays ? parseInt(expiresInDays, 10) : undefined
-    const result = await createToken(newTokenName.trim(), days)
-    setRevealedToken(result.token)
+    const token = await create(newTokenName.trim(), days)
+    setRevealedToken(token)
     setNewTokenName("")
     setExpiresInDays("")
     setShowCreate(false)
     setCreating(false)
-    await loadTokens()
-  }
-
-  async function handleRevoke(id: string) {
-    await revokeToken(id)
-    await loadTokens()
   }
 
   function handleCopy(text: string) {
@@ -173,7 +147,7 @@ export function AccessTokens() {
               <TokenRow
                 key={token.id}
                 token={token}
-                onRevoke={() => handleRevoke(token.id)}
+                onRevoke={() => revoke(token.id)}
               />
             ))}
           </div>
@@ -181,104 +155,4 @@ export function AccessTokens() {
       </div>
     </section>
   )
-}
-
-function TokenRow({
-  token,
-  onRevoke,
-}: {
-  token: TokenInfo
-  onRevoke: () => void
-}) {
-  const [confirming, setConfirming] = useState(false)
-
-  const isExpired =
-    token.expiresAt && new Date(token.expiresAt).getTime() < Date.now()
-
-  return (
-    <div className="flex items-center justify-between px-4 py-3">
-      <div className="flex flex-col gap-0.5">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">{token.name}</span>
-          {isExpired && (
-            <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs text-red-700 dark:bg-red-900/30 dark:text-red-400">
-              Expired
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400">
-          <code>{token.tokenPrefix}...</code>
-          <span>Created {formatRelative(token.createdAt)}</span>
-          {token.lastUsedAt && (
-            <span>Last used {formatRelative(token.lastUsedAt)}</span>
-          )}
-          {token.expiresAt && !isExpired && (
-            <span>Expires {formatRelative(token.expiresAt)}</span>
-          )}
-        </div>
-      </div>
-      <div>
-        {confirming ? (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-500">Revoke?</span>
-            <button
-              onClick={() => {
-                onRevoke()
-                setConfirming(false)
-              }}
-              className="rounded-md bg-red-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-red-700"
-            >
-              Yes
-            </button>
-            <button
-              onClick={() => setConfirming(false)}
-              className="rounded-md border border-zinc-200 px-2.5 py-1 text-xs hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
-            >
-              No
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setConfirming(true)}
-            className="flex items-center gap-1 rounded-md border border-zinc-200 px-2.5 py-1 text-xs text-zinc-500 hover:border-red-300 hover:text-red-600 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-red-700 dark:hover:text-red-400"
-          >
-            <TrashIcon size={12} />
-            Revoke
-          </button>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function formatRelative(dateString: string): string {
-  const date = new Date(dateString)
-  const now = Date.now()
-  const diff = now - date.getTime()
-
-  if (diff < 0) {
-    // Future date
-    const absDiff = Math.abs(diff)
-    if (absDiff < 60_000) {
-      return "in less than a minute"
-    }
-    if (absDiff < 3600_000) {
-      return `in ${Math.floor(absDiff / 60_000)}m`
-    }
-    if (absDiff < 86400_000) {
-      return `in ${Math.floor(absDiff / 3600_000)}h`
-    }
-    return `in ${Math.floor(absDiff / 86400_000)}d`
-  }
-
-  if (diff < 60_000) {
-    return "just now"
-  }
-  if (diff < 3600_000) {
-    return `${Math.floor(diff / 60_000)}m ago`
-  }
-  if (diff < 86400_000) {
-    return `${Math.floor(diff / 3600_000)}h ago`
-  }
-  return `${Math.floor(diff / 86400_000)}d ago`
 }
