@@ -6,6 +6,18 @@ import {
   revokeAccessToken,
 } from "@/lib/access-tokens"
 import { isAuthenticated } from "@/lib/admin-auth"
+import { db } from "@/db"
+import {
+  Screenshots,
+  iMessages,
+  iMessageAttachments,
+  Contacts,
+  Locations,
+  WhatsappMessages,
+  WriteLogs,
+  ReadLogs,
+  AccessTokens,
+} from "@/db/schema"
 
 export async function getAccessTokens() {
   if (!(await isAuthenticated())) {
@@ -55,4 +67,67 @@ export async function revokeToken(id: string) {
   }
 
   return { success: true }
+}
+
+export async function deleteEverything() {
+  if (!(await isAuthenticated())) {
+    throw new Error("Unauthorized")
+  }
+
+  const [screenshots] = await db
+    .delete(Screenshots)
+    .returning({ id: Screenshots.id })
+    .then((rows) => [rows.length])
+
+  const [attachments] = await db
+    .delete(iMessageAttachments)
+    .returning({ id: iMessageAttachments.id })
+    .then((rows) => [rows.length])
+
+  const [messages] = await db
+    .delete(iMessages)
+    .returning({ id: iMessages.id })
+    .then((rows) => [rows.length])
+
+  const [contacts] = await db
+    .delete(Contacts)
+    .returning({ id: Contacts.id })
+    .then((rows) => [rows.length])
+
+  const [locations] = await db
+    .delete(Locations)
+    .returning({ id: Locations.id })
+    .then((rows) => [rows.length])
+
+  const [whatsapp] = await db
+    .delete(WhatsappMessages)
+    .returning({ id: WhatsappMessages.id })
+    .then((rows) => [rows.length])
+
+  const [writeLogs] = await db
+    .delete(WriteLogs)
+    .returning({ id: WriteLogs.id })
+    .then((rows) => [rows.length])
+
+  const [readLogs] = await db
+    .delete(ReadLogs)
+    .returning({ id: ReadLogs.id })
+    .then((rows) => [rows.length])
+
+  const [tokens] = await db
+    .delete(AccessTokens)
+    .returning({ id: AccessTokens.id })
+    .then((rows) => [rows.length])
+
+  return {
+    screenshots,
+    attachments,
+    messages,
+    contacts,
+    locations,
+    whatsapp,
+    writeLogs,
+    readLogs,
+    tokens,
+  }
 }
