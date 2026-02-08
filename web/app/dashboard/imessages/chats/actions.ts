@@ -26,28 +26,37 @@ export type ChatsPage = {
   totalPages: number
 }
 
+export type ChatSearchParams = {
+  contact?: string
+  chatId?: string
+}
+
 export async function getChats(
   page: number = 1,
   pageSize: number = 20,
-  search: string = ""
+  search: ChatSearchParams = {}
 ): Promise<ChatsPage> {
   if (!(await isAuthenticated())) {
     unauthorized()
   }
 
   const offset = (page - 1) * pageSize
-  // Use same normalization as search-normalize (see lib/search-normalize.ts)
-  const normalizedSearch = normalizePhoneForSearch(search).replace(/\D/g, "")
-  const hasSearch = normalizedSearch.length > 0
+  const normalizedContact = search.contact
+    ? normalizePhoneForSearch(search.contact).replace(/\D/g, "")
+    : ""
+  const hasContactSearch = normalizedContact.length > 0
+  const hasChatIdSearch = !!search.chatId
 
   const [countResult] = await db.execute<{ count: number }>(sql`
     SELECT COUNT(DISTINCT COALESCE(chat_id, contact))::int as count
     FROM imessages
     WHERE user_id = ${DEFAULT_USER_ID}
-      ${hasSearch ? sql`AND REGEXP_REPLACE(contact, '[^0-9]', '', 'g') LIKE '%' || ${normalizedSearch} || '%'` : sql``}
+      ${hasContactSearch ? sql`AND REGEXP_REPLACE(contact, '[^0-9]', '', 'g') LIKE '%' || ${normalizedContact} || '%'` : sql``}
+      ${hasChatIdSearch ? sql`AND COALESCE(chat_id, contact) LIKE '%' || ${search.chatId} || '%'` : sql``}
   `)
 
   const total = countResult.count
+  const hasSearch = hasContactSearch || hasChatIdSearch
 
   const result = await db.execute<{
     chat_id: string
@@ -88,7 +97,8 @@ export async function getChats(
       SELECT DISTINCT COALESCE(chat_id, contact) as effective_chat_id
       FROM imessages
       WHERE user_id = ${DEFAULT_USER_ID}
-        ${hasSearch ? sql`AND REGEXP_REPLACE(contact, '[^0-9]', '', 'g') LIKE '%' || ${normalizedSearch} || '%'` : sql``}
+        ${hasContactSearch ? sql`AND REGEXP_REPLACE(contact, '[^0-9]', '', 'g') LIKE '%' || ${normalizedContact} || '%'` : sql``}
+        ${hasChatIdSearch ? sql`AND COALESCE(chat_id, contact) LIKE '%' || ${search.chatId} || '%'` : sql``}
     )
     SELECT
       rm.effective_chat_id as chat_id,
