@@ -19,9 +19,18 @@ export async function GET(request: NextRequest) {
   const limit = parseInt(limitParam, 10)
   const offset = offsetParam ? parseInt(offsetParam, 10) : 0
 
+  const MAX_LIMIT = 50
+
   if (isNaN(limit) || limit < 1) {
     return Response.json(
       { error: "limit must be a positive integer" },
+      { status: 400 }
+    )
+  }
+
+  if (limit > MAX_LIMIT) {
+    return Response.json(
+      { error: `limit must not exceed ${MAX_LIMIT}` },
       { status: 400 }
     )
   }
