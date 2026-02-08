@@ -16,9 +16,11 @@ export function TokenRow({ token, onRevoke }: Props) {
   const isExpired =
     token.expiresAt && new Date(token.expiresAt).getTime() < Date.now()
 
+  const scopeLabels = token.scopes.length === 0 ? ["All access"] : token.scopes
+
   return (
     <div className="flex items-center justify-between px-4 py-3">
-      <div className="flex flex-col gap-0.5">
+      <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">{token.name}</span>
           {isExpired && (
@@ -26,6 +28,16 @@ export function TokenRow({ token, onRevoke }: Props) {
               Expired
             </span>
           )}
+        </div>
+        <div className="flex flex-wrap items-center gap-1">
+          {scopeLabels.map((scope) => (
+            <span
+              key={scope}
+              className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
+            >
+              {scope}
+            </span>
+          ))}
         </div>
         <div className="flex items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400">
           <code>{token.tokenPrefix}...</code>

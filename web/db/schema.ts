@@ -269,6 +269,7 @@ export const AccessTokens = pgTable("access_tokens", {
   name: text("name").notNull(),
   tokenHash: text("token_hash").notNull().unique(),
   tokenPrefix: text("token_prefix").notNull(), // e.g. "ctx_a1b2c3d4" for display
+  scopes: text("scopes").array().notNull().default([]),
   expiresAt: timestamp("expires_at"),
   lastUsedAt: timestamp("last_used_at"),
   revokedAt: timestamp("revoked_at"),

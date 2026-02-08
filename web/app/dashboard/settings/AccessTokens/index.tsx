@@ -2,28 +2,55 @@
 
 import { CopyIcon, CheckIcon, PlusIcon, KeyIcon } from "@/ui/icons"
 import { useState } from "react"
+import { VALID_SCOPES } from "@/lib/access-tokens.shared"
 import { TokenRow } from "./TokenRow"
 import { useAccessTokens } from "./useAccessTokens"
+
+const SCOPE_LABELS: Record<string, string> = {
+  contacts: "Contacts",
+  imessages: "iMessages",
+  whatsapp: "WhatsApp",
+  screenshots: "Screenshots",
+  locations: "Locations",
+}
 
 export function AccessTokens() {
   const { tokens, loading, create, revoke } = useAccessTokens()
   const [showCreate, setShowCreate] = useState(false)
   const [newTokenName, setNewTokenName] = useState("")
   const [expiresInDays, setExpiresInDays] = useState<string>("")
+  const [selectedScopes, setSelectedScopes] = useState<Set<string>>(
+    new Set(VALID_SCOPES)
+  )
   const [creating, setCreating] = useState(false)
   const [revealedToken, setRevealedToken] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
+  function toggleScope(scope: string) {
+    setSelectedScopes((prev) => {
+      const next = new Set(prev)
+      if (next.has(scope)) {
+        next.delete(scope)
+      } else {
+        next.add(scope)
+      }
+      return next
+    })
+  }
+
   async function handleCreate() {
-    if (!newTokenName.trim()) {
+    if (!newTokenName.trim() || selectedScopes.size === 0) {
       return
     }
     setCreating(true)
     const days = expiresInDays ? parseInt(expiresInDays, 10) : undefined
-    const token = await create(newTokenName.trim(), days)
+    const allSelected = selectedScopes.size === VALID_SCOPES.length
+    const scopes = allSelected ? [] : [...selectedScopes]
+    const token = await create(newTokenName.trim(), days, scopes)
     setRevealedToken(token)
     setNewTokenName("")
     setExpiresInDays("")
+    setSelectedScopes(new Set(VALID_SCOPES))
     setShowCreate(false)
     setCreating(false)
   }
@@ -109,10 +136,36 @@ export function AccessTokens() {
                 className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-700"
               />
             </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">Scopes</label>
+              <div className="flex flex-wrap gap-2">
+                {VALID_SCOPES.map((scope) => (
+                  <label
+                    key={scope}
+                    className="flex cursor-pointer items-center gap-1.5 rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm select-none hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedScopes.has(scope)}
+                      onChange={() => toggleScope(scope)}
+                      className="rounded"
+                    />
+                    {SCOPE_LABELS[scope] ?? scope}
+                  </label>
+                ))}
+              </div>
+              {selectedScopes.size === 0 && (
+                <p className="mt-1 text-xs text-red-500">
+                  Select at least one scope
+                </p>
+              )}
+            </div>
             <div className="flex gap-2">
               <button
                 onClick={handleCreate}
-                disabled={!newTokenName.trim() || creating}
+                disabled={
+                  !newTokenName.trim() || selectedScopes.size === 0 || creating
+                }
                 className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
               >
                 {creating ? "Creating..." : "Create"}

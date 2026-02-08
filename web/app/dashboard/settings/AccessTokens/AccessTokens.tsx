@@ -9,6 +9,7 @@ export type TokenInfo = {
   id: string
   name: string
   tokenPrefix: string
+  scopes: string[]
   expiresAt: string | null
   lastUsedAt: string | null
   createdAt: string

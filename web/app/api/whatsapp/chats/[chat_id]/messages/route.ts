@@ -8,7 +8,7 @@ import { NextRequest } from "next/server"
 type RouteParams = { params: Promise<{ chat_id: string }> }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
-  const auth = await requireReadAuth(request)
+  const auth = await requireReadAuth(request, "whatsapp")
   if (!auth.authorized) { return auth.response }
 
   const { chat_id } = await params

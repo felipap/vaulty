@@ -7,7 +7,7 @@ import { sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 
 export async function GET(request: NextRequest) {
-  const auth = await requireReadAuth(request)
+  const auth = await requireReadAuth(request, "whatsapp")
   if (!auth.authorized) { return auth.response }
 
   const { searchParams } = new URL(request.url)

@@ -6,7 +6,7 @@ import { logRead } from "@/lib/activity-log"
 import { requireReadAuth } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
-  const auth = await requireReadAuth(request)
+  const auth = await requireReadAuth(request, "whatsapp")
   if (!auth.authorized) { return auth.response }
 
   const { searchParams } = new URL(request.url)

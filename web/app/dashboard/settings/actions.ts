@@ -5,6 +5,7 @@ import {
   listAccessTokens,
   revokeAccessToken,
 } from "@/lib/access-tokens"
+import type { Scope } from "@/lib/access-tokens.shared"
 import { isAuthenticated } from "@/lib/admin-auth"
 import { db } from "@/db"
 import {
@@ -29,13 +30,18 @@ export async function getAccessTokens() {
     id: t.id,
     name: t.name,
     tokenPrefix: t.tokenPrefix,
+    scopes: t.scopes ?? [],
     expiresAt: t.expiresAt?.toISOString() ?? null,
     lastUsedAt: t.lastUsedAt?.toISOString() ?? null,
     createdAt: t.createdAt.toISOString(),
   }))
 }
 
-export async function createToken(name: string, expiresInDays?: number) {
+export async function createToken(
+  name: string,
+  expiresInDays?: number,
+  scopes?: string[]
+) {
   if (!(await isAuthenticated())) {
     throw new Error("Unauthorized")
   }
@@ -44,13 +50,18 @@ export async function createToken(name: string, expiresInDays?: number) {
     ? new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000)
     : undefined
 
-  const { token, record } = await createAccessToken(name, expiresAt)
+  const { token, record } = await createAccessToken(
+    name,
+    expiresAt,
+    scopes as Scope[]
+  )
 
   return {
     token,
     id: record.id,
     name: record.name,
     tokenPrefix: record.tokenPrefix,
+    scopes: record.scopes ?? [],
     expiresAt: record.expiresAt?.toISOString() ?? null,
     createdAt: record.createdAt.toISOString(),
   }

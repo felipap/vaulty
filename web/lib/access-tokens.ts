@@ -2,6 +2,8 @@ import { db } from "@/db"
 import { AccessTokens } from "@/db/schema"
 import { and, eq, gt, isNull, or } from "drizzle-orm"
 import { createHash, randomBytes } from "crypto"
+export type { Scope } from "./access-tokens.shared"
+import type { Scope } from "./access-tokens.shared"
 
 const TOKEN_PREFIX = "vault_"
 const DISPLAY_PREFIX_LENGTH = 14 // "vault_" + 8 hex chars
@@ -12,7 +14,8 @@ function hashToken(token: string): string {
 
 export function generateAccessToken(
   name: string,
-  expiresAt?: Date
+  expiresAt?: Date,
+  scopes?: Scope[]
 ): { rawToken: string; values: typeof AccessTokens.$inferInsert } {
   const randomPart = randomBytes(25).toString("hex")
   const rawToken = `${TOKEN_PREFIX}${randomPart}`
@@ -25,13 +28,18 @@ export function generateAccessToken(
       name,
       tokenHash,
       tokenPrefix,
+      scopes: scopes ?? [],
       expiresAt: expiresAt ?? null,
     },
   }
 }
 
-export async function createAccessToken(name: string, expiresAt?: Date) {
-  const { rawToken, values } = generateAccessToken(name, expiresAt)
+export async function createAccessToken(
+  name: string,
+  expiresAt?: Date,
+  scopes?: Scope[]
+) {
+  const { rawToken, values } = generateAccessToken(name, expiresAt, scopes)
 
   const [record] = await db.insert(AccessTokens).values(values).returning()
 

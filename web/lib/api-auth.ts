@@ -1,4 +1,5 @@
 import { validateAccessToken } from "./access-tokens"
+import type { Scope } from "./access-tokens.shared"
 import { secureCompare } from "./auth-utils"
 
 const API_WRITE_SECRET = process.env.API_WRITE_SECRET || ""
@@ -6,6 +7,7 @@ const API_WRITE_SECRET = process.env.API_WRITE_SECRET || ""
 export type TokenIdentity = {
   accessTokenId: string
   tokenPrefix: string
+  scopes: string[]
 }
 
 type AuthResult =
@@ -39,7 +41,30 @@ function authError(message: string, status = 401) {
   )
 }
 
-export async function requireReadAuth(request: Request): Promise<AuthResult> {
+function scopeError(scope: Scope) {
+  return Response.json(
+    {
+      error: {
+        message: `This token does not have the "${scope}" scope required to access this resource.`,
+        type: "insufficient_scope",
+      },
+    },
+    { status: 403 }
+  )
+}
+
+function hasScope(tokenScopes: string[], requiredScope: Scope): boolean {
+  // Empty scopes = all access (backward compatibility)
+  if (tokenScopes.length === 0) {
+    return true
+  }
+  return tokenScopes.includes(requiredScope)
+}
+
+export async function requireReadAuth(
+  request: Request,
+  scope?: Scope
+): Promise<AuthResult> {
   const token = getBearerToken(request)
   if (!token) {
     return {
@@ -51,19 +76,29 @@ export async function requireReadAuth(request: Request): Promise<AuthResult> {
   }
 
   const accessToken = await validateAccessToken(token)
-  if (accessToken) {
+  if (!accessToken) {
     return {
-      authorized: true,
-      token: {
-        accessTokenId: accessToken.id,
-        tokenPrefix: accessToken.tokenPrefix,
-      },
+      authorized: false,
+      response: authError(`Invalid API key provided: ${maskToken(token)}`),
+    }
+  }
+
+  const tokenScopes = accessToken.scopes ?? []
+
+  if (scope && !hasScope(tokenScopes, scope)) {
+    return {
+      authorized: false,
+      response: scopeError(scope),
     }
   }
 
   return {
-    authorized: false,
-    response: authError(`Invalid API key provided: ${maskToken(token)}`),
+    authorized: true,
+    token: {
+      accessTokenId: accessToken.id,
+      tokenPrefix: accessToken.tokenPrefix,
+      scopes: tokenScopes,
+    },
   }
 }
 

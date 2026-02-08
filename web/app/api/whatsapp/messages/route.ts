@@ -56,7 +56,7 @@ const PostSchema = z.object({
 const MAX_LIMIT = 50
 
 export async function GET(request: NextRequest) {
-  const auth = await requireReadAuth(request)
+  const auth = await requireReadAuth(request, "whatsapp")
   if (!auth.authorized) { return auth.response }
 
   console.log("GET /api/whatsapp/messages")
