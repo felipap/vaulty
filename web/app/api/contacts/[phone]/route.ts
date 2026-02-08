@@ -1,6 +1,6 @@
 import { db } from "@/db"
 import { Contacts, DEFAULT_USER_ID } from "@/db/schema"
-import { eq } from "drizzle-orm"
+import { and, eq, sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
 import { requireReadAuth } from "@/lib/api-auth"
@@ -19,13 +19,14 @@ export async function GET(request: NextRequest) {
   const decodedPhone = decodeURIComponent(phone)
   const normalizedPhone = normalizePhone(decodedPhone)
 
-  const contacts = await db.query.Contacts.findMany({
-    where: eq(Contacts.userId, DEFAULT_USER_ID),
-  })
-
-  const matchingContact = contacts.find((contact) => {
-    const phoneNumbers = JSON.parse(contact.phoneNumbers) as string[]
-    return phoneNumbers.some((p) => normalizePhone(p) === normalizedPhone)
+  const matchingContact = await db.query.Contacts.findFirst({
+    where: and(
+      eq(Contacts.userId, DEFAULT_USER_ID),
+      sql`EXISTS (
+        SELECT 1 FROM jsonb_array_elements_text(${Contacts.phoneNumbers}::jsonb) AS elem
+        WHERE regexp_replace(elem, '[^0-9]', '', 'g') = ${normalizedPhone}
+      )`
+    ),
   })
 
   if (!matchingContact) {
