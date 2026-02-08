@@ -6,8 +6,8 @@ import { logRead } from "@/lib/activity-log"
 import { requireReadAuth } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
-  const authError = await requireReadAuth(request)
-  if (authError) { return authError }
+  const auth = await requireReadAuth(request)
+  if (!auth.authorized) { return auth.response }
 
   const searchParams = request.nextUrl.searchParams
   const query = searchParams.get("q")?.trim() || ""
@@ -83,6 +83,7 @@ export async function GET(request: NextRequest) {
     type: "contact",
     description: `Searched contacts for "${query}"`,
     count: parsed.length,
+    token: auth.token,
   })
 
   return Response.json({

@@ -45,9 +45,9 @@ const LLMS_TXT = `# Vaulty API
 import { requireReadAuth } from "@/lib/api-auth"
 
 export async function GET(request: Request) {
-  const authError = await requireReadAuth(request)
-  if (authError) {
-    return authError
+  const auth = await requireReadAuth(request)
+  if (!auth.authorized) {
+    return auth.response
   }
 
   return new Response(LLMS_TXT, {

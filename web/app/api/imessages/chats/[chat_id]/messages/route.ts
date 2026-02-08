@@ -8,8 +8,8 @@ import { NextRequest } from "next/server"
 type RouteParams = { params: Promise<{ chat_id: string }> }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
-  const authError = await requireReadAuth(request)
-  if (authError) { return authError }
+  const auth = await requireReadAuth(request)
+  if (!auth.authorized) { return auth.response }
 
   const { chat_id } = await params
   const chatId = decodeURIComponent(chat_id)
@@ -48,6 +48,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     type: "imessage",
     description: `Fetched messages for chat ${chatId}`,
     count: messages.length,
+    token: auth.token,
   })
 
   return Response.json({

@@ -1,5 +1,6 @@
 import { db } from "@/db"
 import { WriteLogs, ReadLogs } from "@/db/schema"
+import { TokenIdentity } from "./api-auth"
 
 export type WriteLogType = "screenshot" | "imessage" | "attachment" | "contact" | "whatsapp"
 export type ReadLogType =
@@ -16,6 +17,7 @@ type LogWriteParams = {
   description: string
   count?: number
   metadata?: Record<string, unknown>
+  token?: TokenIdentity
 }
 
 export async function logWrite({
@@ -23,12 +25,15 @@ export async function logWrite({
   description,
   count = 1,
   metadata,
+  token,
 }: LogWriteParams) {
   await db.insert(WriteLogs).values({
     type,
     description,
     count,
     metadata: metadata ? JSON.stringify(metadata) : null,
+    accessTokenId: token?.accessTokenId ?? null,
+    tokenPrefix: token?.tokenPrefix ?? null,
   })
 }
 
@@ -37,6 +42,7 @@ type LogReadParams = {
   description: string
   count?: number
   metadata?: Record<string, unknown>
+  token?: TokenIdentity
 }
 
 export async function logRead({
@@ -44,11 +50,14 @@ export async function logRead({
   description,
   count,
   metadata,
+  token,
 }: LogReadParams) {
   await db.insert(ReadLogs).values({
     type,
     description,
     count,
     metadata: metadata ? JSON.stringify(metadata) : null,
+    accessTokenId: token?.accessTokenId ?? null,
+    tokenPrefix: token?.tokenPrefix ?? null,
   })
 }

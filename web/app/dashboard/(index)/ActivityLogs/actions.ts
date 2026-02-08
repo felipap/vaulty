@@ -10,6 +10,7 @@ export type WriteLogEntry = {
   description: string
   count: number
   metadata: string | null
+  tokenPrefix: string | null
   createdAt: Date
 }
 
@@ -19,6 +20,7 @@ export type ReadLogEntry = {
   description: string
   count: number | null
   metadata: string | null
+  tokenPrefix: string | null
   createdAt: Date
 }
 

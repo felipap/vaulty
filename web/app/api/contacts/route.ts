@@ -7,8 +7,8 @@ import { logRead, logWrite } from "@/lib/activity-log"
 import { requireReadAuth } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
-  const authError = await requireReadAuth(request)
-  if (authError) { return authError }
+  const auth = await requireReadAuth(request)
+  if (!auth.authorized) { return auth.response }
 
   console.log("GET /api/contacts")
 
@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
     type: "contact",
     description: "Fetched contacts",
     count: parsed.length,
+    token: auth.token,
   })
 
   return Response.json({

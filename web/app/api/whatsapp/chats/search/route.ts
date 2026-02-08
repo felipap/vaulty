@@ -7,8 +7,8 @@ import { sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 
 export async function GET(request: NextRequest) {
-  const authError = await requireReadAuth(request)
-  if (authError) { return authError }
+  const auth = await requireReadAuth(request)
+  if (!auth.authorized) { return auth.response }
 
   const { searchParams } = new URL(request.url)
   const sender = searchParams.get("sender") || ""
@@ -55,6 +55,7 @@ export async function GET(request: NextRequest) {
       ? `Searched WhatsApp chats by phone index`
       : `Searched WhatsApp chats by sender: ${sender}`,
     count: chats.length,
+    token: auth.token,
   })
 
   return Response.json({

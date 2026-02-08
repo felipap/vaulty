@@ -106,6 +106,10 @@ export const WriteLogs = pgTable(
     description: text("description").notNull(),
     count: integer("count").notNull().default(1),
     metadata: text("metadata"), // JSON string for extra info
+    accessTokenId: uuid("access_token_id").references(() => AccessTokens.id, {
+      onDelete: "set null",
+    }),
+    tokenPrefix: text("token_prefix"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [index("write_logs_created_at_idx").on(table.createdAt)]
@@ -127,6 +131,10 @@ export const ReadLogs = pgTable(
     description: text("description").notNull(),
     count: integer("count"), // number of items returned
     metadata: text("metadata"), // JSON string for extra info
+    accessTokenId: uuid("access_token_id").references(() => AccessTokens.id, {
+      onDelete: "set null",
+    }),
+    tokenPrefix: text("token_prefix"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [index("read_logs_created_at_idx").on(table.createdAt)]

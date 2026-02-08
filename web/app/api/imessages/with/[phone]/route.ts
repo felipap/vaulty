@@ -6,8 +6,8 @@ import { logRead } from "@/lib/activity-log"
 import { requireReadAuth } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
-  const authError = await requireReadAuth(request)
-  if (authError) { return authError }
+  const auth = await requireReadAuth(request)
+  if (!auth.authorized) { return auth.response }
 
   const url = new URL(request.url)
   const phone = url.pathname.split("/").pop()
@@ -51,6 +51,7 @@ export async function GET(request: NextRequest) {
     type: "imessage",
     description: `Fetched conversation with ${decodedPhone}`,
     count: messages.length,
+    token: auth.token,
   })
 
   return Response.json({

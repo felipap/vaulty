@@ -6,8 +6,8 @@ import { logRead } from "@/lib/activity-log"
 import { requireReadAuth } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
-  const authError = await requireReadAuth(request)
-  if (authError) { return authError }
+  const auth = await requireReadAuth(request)
+  if (!auth.authorized) { return auth.response }
 
   const url = new URL(request.url)
   const phone = url.pathname.split("/").pop()
@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
       type: "contact",
       description: `Contact not found for phone: ${decodedPhone}`,
       count: 0,
+      token: auth.token,
     })
 
     return Response.json(
@@ -58,6 +59,7 @@ export async function GET(request: NextRequest) {
     type: "contact",
     description: `Fetched contact by phone: ${decodedPhone}`,
     count: 1,
+    token: auth.token,
   })
 
   return Response.json({

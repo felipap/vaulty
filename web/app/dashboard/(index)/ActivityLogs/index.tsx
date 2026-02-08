@@ -73,6 +73,9 @@ function WriteLogsTable({ logs }: { logs: WriteLogEntry[] }) {
               Count
             </th>
             <th className="px-4 py-3 text-left text-sm font-medium text-zinc-500">
+              Token
+            </th>
+            <th className="px-4 py-3 text-left text-sm font-medium text-zinc-500">
               Time
             </th>
           </tr>
@@ -89,6 +92,9 @@ function WriteLogsTable({ logs }: { logs: WriteLogEntry[] }) {
               <td className="px-4 py-3 text-sm">{log.description}</td>
               <td className="px-4 py-3 text-sm tabular-nums">
                 {log.count.toLocaleString()}
+              </td>
+              <td className="px-4 py-3">
+                <TokenLabel prefix={log.tokenPrefix} />
               </td>
               <td className="px-4 py-3 text-sm text-zinc-500">
                 {formatRelativeTime(new Date(log.createdAt))}
@@ -121,6 +127,9 @@ function ReadLogsTable({ logs }: { logs: ReadLogEntry[] }) {
               Items
             </th>
             <th className="px-4 py-3 text-left text-sm font-medium text-zinc-500">
+              Token
+            </th>
+            <th className="px-4 py-3 text-left text-sm font-medium text-zinc-500">
               Time
             </th>
           </tr>
@@ -138,6 +147,9 @@ function ReadLogsTable({ logs }: { logs: ReadLogEntry[] }) {
               <td className="px-4 py-3 text-sm tabular-nums">
                 {log.count?.toLocaleString() ?? "—"}
               </td>
+              <td className="px-4 py-3">
+                <TokenLabel prefix={log.tokenPrefix} />
+              </td>
               <td className="px-4 py-3 text-sm text-zinc-500">
                 {formatRelativeTime(new Date(log.createdAt))}
               </td>
@@ -152,6 +164,17 @@ function ReadLogsTable({ logs }: { logs: ReadLogEntry[] }) {
 type TypeBadgeProps = {
   type: string
   variant: "write" | "read"
+}
+
+function TokenLabel({ prefix }: { prefix: string | null }) {
+  if (!prefix) {
+    return <span className="text-xs text-zinc-400">—</span>
+  }
+  return (
+    <code className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+      {prefix}...
+    </code>
+  )
 }
 
 function TypeBadge({ type, variant }: TypeBadgeProps) {

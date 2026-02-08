@@ -6,8 +6,8 @@ import { logRead } from "@/lib/activity-log"
 import { requireReadAuth } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
-  const authError = await requireReadAuth(request)
-  if (authError) { return authError }
+  const auth = await requireReadAuth(request)
+  if (!auth.authorized) { return auth.response }
 
   const { searchParams } = new URL(request.url)
   const limitParam = searchParams.get("limit") || "20"
@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
     type: "whatsapp",
     description: "Fetched WhatsApp chat list",
     count: chats.length,
+    token: auth.token,
   })
 
   return Response.json({

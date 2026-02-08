@@ -6,8 +6,8 @@ import { desc, gte } from "drizzle-orm"
 import { NextRequest } from "next/server"
 
 export async function GET(request: NextRequest) {
-  const authError = await requireReadAuth(request)
-  if (authError) { return authError }
+  const auth = await requireReadAuth(request)
+  if (!auth.authorized) { return auth.response }
 
   const { searchParams } = new URL(request.url)
   const withinMinParam = searchParams.get("within_min")
@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
     type: "location",
     description: "Fetched latest location",
     count: latest ? 1 : 0,
+    token: auth.token,
   })
 
   if (!latest) {

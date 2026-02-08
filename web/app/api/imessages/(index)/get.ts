@@ -8,8 +8,8 @@ import { NextRequest } from "next/server"
 const MAX_LIMIT = 50
 
 export async function GET(request: NextRequest) {
-  const authError = await requireReadAuth(request)
-  if (authError) { return authError }
+  const auth = await requireReadAuth(request)
+  if (!auth.authorized) { return auth.response }
 
   console.log("GET /api/imessages")
 
@@ -77,6 +77,7 @@ export async function GET(request: NextRequest) {
       ? `Fetched messages for ${contactParam}`
       : "Fetched messages",
     count: messages.length,
+    token: auth.token,
   })
 
   return Response.json({
