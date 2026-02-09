@@ -9,23 +9,24 @@
 
 ## Later
 
-- [ ] Desktop: Whatsapp Sqlite import shouldn't load all into memory
 - [ ] Upgrade ESLint to v9 (requires flat config migration)
-- [ ] Install via npm.
-- [ ] Ability to emit read keys
-- [x] llms.txt - requires authentication
-- [ ] Button to delete all data
+- [ ] Rate-limit access tokens?
+- [ ] Install via npm?
 - [ ] Fix: providing the wrong key breaks the dashboard (stays in "Loading...")
 - [ ] LaunchAgent to awake during darkwakes?
 - [ ] Feat: implement an onboarding with info
 - [ ] Feat: whitelist or blacklist messages from particular numbers
 - [ ] Feat: Allow expire data after certain time
 - [ ] Think about real-time authentication by asking user directly
-- [ ] Feat: blur the texts in screenshots
+- [ ] Desktop: Feat: blur the texts in screenshots
 - [ ] Ability to rotate keys?
 
 ## Done
 
+- [x] Dashboard: Button to delete all data
+- [x] Ability to emit read keys
+- [x] Desktop: Whatsapp Sqlite import shouldn't load all into memory
+- [x] llms.txt - requires authentication
 - [x] Better name?
 - [x] Improve logger (electron-log?)
 - [x] Encrypt locations

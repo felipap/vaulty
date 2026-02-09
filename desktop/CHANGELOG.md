@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.6](https://github.com/felipap/vaulty/compare/v0.2.5...v0.2.6) (2026-02-08)
+
+
+### Features
+
+* add copy-to-clipboard buttons to dashboard detail drawers ([b36941e](https://github.com/felipap/vaulty/commit/b36941e9ac2bfaed45711b4053c21d5c07e7a7ce))
+* multi-field search for iMessage chats ([6977e01](https://github.com/felipap/vaulty/commit/6977e01b8e81dbee9590ee67f129ac0581e83986))
+* multi-field search for WhatsApp chats ([72f6061](https://github.com/felipap/vaulty/commit/72f60618f6dd211352e45712d105aa544a7abcaf))
+
+
+### Bug Fixes
+
+* normalize server URL to include protocol prefix ([af7b972](https://github.com/felipap/vaulty/commit/af7b97233377bfe420e5224c0bc1b5365a82a3f4))
+
 ### [0.2.5](https://github.com/felipap/vaulty/compare/v0.2.4...v0.2.5) (2026-02-07)
 
 
