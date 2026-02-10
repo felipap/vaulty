@@ -3,6 +3,7 @@
 import { useMemo } from "react"
 import { twMerge } from "tailwind-merge"
 import { DataTable } from "@/ui/DataTable"
+import { DemoBlur } from "@/ui/DemoBlur"
 import { GroupIcon, LockIcon } from "@/ui/icons"
 import { Pagination } from "@/ui/Pagination"
 import { type Chat, type ContactLookup } from "./actions"
@@ -38,12 +39,14 @@ function createColumns(contactLookup: ContactLookup) {
                 <span className="text-sm font-medium">
                   Group ({chat.participantCount})
                 </span>
-                <span
-                  className="truncate text-xs text-zinc-500"
-                  title={participantNames}
-                >
-                  {participantNames}
-                </span>
+                <DemoBlur>
+                  <span
+                    className="truncate text-xs text-zinc-500"
+                    title={participantNames}
+                  >
+                    {participantNames}
+                  </span>
+                </DemoBlur>
               </div>
             </div>
           )
@@ -56,16 +59,18 @@ function createColumns(contactLookup: ContactLookup) {
         return (
           <div className="flex min-w-0 items-center gap-2">
             <ContactAvatar name={resolvedName} isGroup={false} />
-            <div className="flex min-w-0 flex-col">
-              <span className="truncate text-sm font-medium">
-                {resolvedName}
-              </span>
-              {hasContactName && (
-                <span className="truncate text-xs text-zinc-500">
-                  {formatContact(participant)}
+            <DemoBlur>
+              <div className="flex min-w-0 flex-col">
+                <span className="truncate text-sm font-medium">
+                  {resolvedName}
                 </span>
-              )}
-            </div>
+                {hasContactName && (
+                  <span className="truncate text-xs text-zinc-500">
+                    {formatContact(participant)}
+                  </span>
+                )}
+              </div>
+            </DemoBlur>
           </div>
         )
       },

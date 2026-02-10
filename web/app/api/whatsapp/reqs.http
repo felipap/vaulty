@@ -1,5 +1,5 @@
 # Create an access token in the dashboard settings page
-@accessToken = ctx_your_access_token_here
+@accessToken = vault_7ebbf837e9676f3e6d9256f2e567ac3577c01d6af8abf20f49
 # @host = {{$dotenv WEBSITE_HOST}}
 @host = http://localhost:3030
 
@@ -7,6 +7,37 @@
 
 GET {{host}}/api/whatsapp/chats
 Authorization: Bearer {{accessToken}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ###
 

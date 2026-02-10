@@ -1,6 +1,7 @@
 "use client"
 
 import { twMerge } from "tailwind-merge"
+import { DemoBlur } from "@/ui/DemoBlur"
 import { LockIcon, LoaderIcon, CheckIcon } from "@/ui/icons"
 import { isEncrypted } from "@/lib/encryption"
 import { type ChatMessage, type ContactLookup } from "../../../actions"
@@ -93,7 +94,7 @@ function MessageBubble({
       >
         {!message.isFromMe && (
           <p className="mb-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            {resolveContactName(message.contact, contactLookup)}
+            <DemoBlur>{resolveContactName(message.contact, contactLookup)}</DemoBlur>
           </p>
         )}
         <div className="flex items-start gap-1.5">

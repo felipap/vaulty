@@ -1,6 +1,7 @@
 "use client"
 
 import { Decrypted } from "@/ui/Decrypted"
+import { DemoBlur } from "@/ui/DemoBlur"
 import { Drawer } from "@/ui/Drawer"
 import { InfoRow } from "@/ui/InfoRow"
 import { RawJson } from "@/ui/RawJson"
@@ -20,12 +21,16 @@ export function MessageDrawer({ message }: Props) {
     <Drawer title="Message Details">
       <div className="space-y-4">
         <InfoRow label="Message ID" value={message.messageId} copyable />
-        <InfoRow
-          label="Sender"
-          value={message.senderName ?? message.senderJid ?? ""}
-        />
+        <DemoBlur>
+          <InfoRow
+            label="Sender"
+            value={message.senderName ?? message.senderJid ?? ""}
+          />
+        </DemoBlur>
         {message.senderName && message.senderJid && (
-          <InfoRow label="JID" value={message.senderJid} copyable />
+          <DemoBlur>
+            <InfoRow label="JID" value={message.senderJid} copyable />
+          </DemoBlur>
         )}
         <InfoRow
           label="Direction"

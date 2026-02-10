@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { getContacts, type Contact } from "./actions"
+import { DemoBlur } from "@/ui/DemoBlur"
 import { Pagination } from "@/ui/Pagination"
 import { SearchIcon } from "@/ui/icons"
 
@@ -115,7 +116,7 @@ function ContactCard({ contact }: { contact: Contact }) {
         {initial}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{displayName}</p>
+        <p className="truncate text-sm font-medium"><DemoBlur>{displayName}</DemoBlur></p>
         {contact.organization && (
           <p className="truncate text-xs text-zinc-500">
             {contact.organization}
@@ -128,7 +129,7 @@ function ContactCard({ contact }: { contact: Contact }) {
                 key={i}
                 className="inline-block rounded bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
               >
-                {formatPhone(phone)}
+                <DemoBlur>{formatPhone(phone)}</DemoBlur>
               </span>
             ))}
             {contact.phoneNumbers.length > 2 && (

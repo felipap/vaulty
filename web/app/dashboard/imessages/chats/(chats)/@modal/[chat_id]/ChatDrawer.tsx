@@ -1,5 +1,6 @@
 "use client"
 
+import { DemoBlur } from "@/ui/DemoBlur"
 import { Drawer } from "@/ui/Drawer"
 import { GroupIcon } from "@/ui/icons"
 import { type ChatWithMessages, type ContactLookup } from "../../../actions"
@@ -46,23 +47,29 @@ function ChatInfo({
               <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                 Group Chat ({chat.participantCount} participants)
               </p>
-              <p className="truncate text-xs text-zinc-500">
-                {chat.participants
-                  .map((p) => resolveContactName(p, contactLookup))
-                  .join(", ")}
-              </p>
+              <DemoBlur>
+                <p className="truncate text-xs text-zinc-500">
+                  {chat.participants
+                    .map((p) => resolveContactName(p, contactLookup))
+                    .join(", ")}
+                </p>
+              </DemoBlur>
             </>
           ) : (
             <>
-              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                {resolveContactName(
-                  chat.participants[0] || chat.chatId,
-                  contactLookup
-                )}
-              </p>
-              <p className="text-xs text-zinc-500">
-                {formatContact(chat.participants[0] || chat.chatId)}
-              </p>
+              <DemoBlur>
+                <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                  {resolveContactName(
+                    chat.participants[0] || chat.chatId,
+                    contactLookup
+                  )}
+                </p>
+              </DemoBlur>
+              <DemoBlur>
+                <p className="text-xs text-zinc-500">
+                  {formatContact(chat.participants[0] || chat.chatId)}
+                </p>
+              </DemoBlur>
             </>
           )}
         </div>

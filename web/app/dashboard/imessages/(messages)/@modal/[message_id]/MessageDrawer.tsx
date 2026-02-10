@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Decrypted } from "@/ui/Decrypted"
+import { DemoBlur } from "@/ui/DemoBlur"
 import { Drawer } from "@/ui/Drawer"
 import { InfoRow } from "@/ui/InfoRow"
 import { RawJson } from "@/ui/RawJson"
@@ -56,7 +57,9 @@ export function MessageDrawer({ message }: Props) {
   return (
     <Drawer title="Message Details">
       <div className="space-y-4">
-        <InfoRow label="Contact" value={message.contact} copyable />
+        <DemoBlur>
+          <InfoRow label="Contact" value={message.contact} copyable />
+        </DemoBlur>
         <InfoRow
           label="Direction"
           value={message.isFromMe ? "Sent" : "Received"}

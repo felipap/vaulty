@@ -7,6 +7,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import { DataTable } from "@/ui/DataTable"
+import { DemoBlur } from "@/ui/DemoBlur"
 import { DateCell as SharedDateCell } from "@/ui/DateCell"
 import { DirectionBadge } from "@/ui/DirectionBadge"
 import { MessageCell as SharedMessageCell } from "@/ui/MessageCell"
@@ -53,14 +54,16 @@ export function MessagesTable({
           return (
             <div className="flex items-center gap-2">
               <ServiceIcon service={info.row.original.service} />
-              <div className="flex flex-col">
-                <span className="text-sm">{resolvedName}</span>
-                {hasContactName && (
-                  <span className="text-xs text-zinc-500">
-                    {formatContact(contact)}
-                  </span>
-                )}
-              </div>
+              <DemoBlur>
+                <div className="flex flex-col">
+                  <span className="text-sm">{resolvedName}</span>
+                  {hasContactName && (
+                    <span className="text-xs text-zinc-500">
+                      {formatContact(contact)}
+                    </span>
+                  )}
+                </div>
+              </DemoBlur>
             </div>
           )
         },

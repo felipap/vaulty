@@ -1,5 +1,6 @@
 "use client"
 
+import { DemoBlur } from "@/ui/DemoBlur"
 import { Drawer } from "@/ui/Drawer"
 import { InfoRow } from "@/ui/InfoRow"
 import { RawJson } from "@/ui/RawJson"
@@ -26,7 +27,7 @@ export function ContactDrawer({ contact }: Props) {
           </div>
           <div className="min-w-0">
             <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {displayName}
+              <DemoBlur>{displayName}</DemoBlur>
             </p>
             {contact.organization && displayName !== contact.organization && (
               <p className="text-sm text-zinc-500">{contact.organization}</p>
@@ -47,7 +48,7 @@ export function ContactDrawer({ contact }: Props) {
                 >
                   <PhoneIcon size={16} className="shrink-0 text-zinc-400" />
                   <span className="text-sm text-zinc-800 dark:text-zinc-200">
-                    {formatPhone(phone)}
+                    <DemoBlur>{formatPhone(phone)}</DemoBlur>
                   </span>
                 </div>
               ))}

@@ -9,6 +9,7 @@ import {
 import { WhatsappIcon } from "@/ui/icons"
 import { DataTable } from "@/ui/DataTable"
 import { Decrypted } from "@/ui/Decrypted"
+import { DemoBlur } from "@/ui/DemoBlur"
 import { DateCell as SharedDateCell } from "@/ui/DateCell"
 import { DirectionBadge } from "@/ui/DirectionBadge"
 import { MessageCell as SharedMessageCell } from "@/ui/MessageCell"
@@ -76,14 +77,16 @@ export function MessagesTable({
           }
 
           return (
-            <div className="flex min-w-0 flex-col">
-              <span className="truncate text-sm">
-                <Decrypted>{senderName}</Decrypted>
-              </span>
-              {senderJid && (
-                <span className="truncate text-xs text-zinc-500">{senderJid}</span>
-              )}
-            </div>
+            <DemoBlur>
+              <div className="flex min-w-0 flex-col">
+                <span className="truncate text-sm">
+                  <Decrypted>{senderName}</Decrypted>
+                </span>
+                {senderJid && (
+                  <span className="truncate text-xs text-zinc-500">{senderJid}</span>
+                )}
+              </div>
+            </DemoBlur>
           )
         },
       }),
