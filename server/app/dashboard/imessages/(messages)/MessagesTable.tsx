@@ -14,6 +14,7 @@ import { MessageCell as SharedMessageCell } from "@/ui/MessageCell"
 import { Pagination } from "@/ui/Pagination"
 import { type Message, type SortBy } from "./actions"
 import { type ContactLookup } from "../chats/actions"
+import { ContactAvatar } from "@/ui/ContactAvatar"
 
 export type DecryptedMessage = Message & {
   decryptedText: string | null
@@ -48,7 +49,7 @@ export function MessagesTable({
       }),
       columnHelper.display({
         id: "contact",
-        header: "Contact",
+        header: "Contacts",
         size: 180,
         cell: ({ row }) => {
           const contact = row.original.decryptedContact
@@ -57,7 +58,7 @@ export function MessagesTable({
 
           return (
             <div className="flex items-center gap-2">
-              <ServiceIcon service={row.original.service} />
+              <ContactAvatar name={resolvedName} id={contact} />
               <DemoBlur>
                 <div className="flex flex-col">
                   <span className="text-sm">{resolvedName}</span>
@@ -126,21 +127,6 @@ export function MessagesTable({
         onPageChange={onPageChange}
       />
     </>
-  )
-}
-
-function ServiceIcon({ service }: { service: string }) {
-  const isIMessage = service === "iMessage"
-
-  return (
-    <div
-      className={`flex h-6 w-6 items-center justify-center rounded-full text-xs ${
-        isIMessage ? "bg-blue-500 text-white" : "bg-green-500 text-white"
-      }`}
-      title={service}
-    >
-      {isIMessage ? "i" : "S"}
-    </div>
   )
 }
 

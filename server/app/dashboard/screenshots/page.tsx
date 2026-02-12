@@ -67,7 +67,7 @@ export default function Page() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Screenshots</h1>
+          <h1 className="heading-page">Screenshots</h1>
           {retentionHours !== null && (
             <p className="text-sm text-zinc-500 mt-1">
               Auto-delete after {formatRetention(retentionHours)} (set{" "}

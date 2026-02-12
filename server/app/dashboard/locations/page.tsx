@@ -118,7 +118,7 @@ export default function Page() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Locations</h1>
+        <h1 className="heading-page">Locations</h1>
         <span className="text-sm text-zinc-500">
           {total.toLocaleString()} total
         </span>

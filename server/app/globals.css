@@ -10,6 +10,8 @@ body {
   font-family: var(--font-sans);
   font-size: var(--text-md);
   overflow-x: hidden;
+  /* -webkit-font-smoothing: antialiased; */
+  -moz-osx-font-smoothing: grayscale;
 }
 
 :root {
@@ -21,7 +23,6 @@ body {
   --nav-height: 50px;
   --column-width: 900px;
 
-  /* Fonts */
   --font-sans:
     "SF Pro", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
@@ -33,26 +34,19 @@ body {
     "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
     monospace;
 
-  /* Optional font alternatives (can swap in for --font-mono):
-	--font-mono-menlo: Menlo, Monaco, monospace;
-	--font-mono-jetbrains: 'JetBrains Mono', monospace;
-	--font-mono-fira: 'Fira Code', monospace;
-	--font-mono-ibm: 'IBM Plex Mono', monospace;
-	*/
-
-  /* Colors */
+  /* Colors — restrained B&W palette */
   --background-color-one: #fff;
-  --background-color-two: #f0f0f0;
+  --background-color-two: #fafafa;
   --background-color-input: #fff;
   --background-color-navbar: #000;
   --background-color-card: #fff;
 
-  --color-contrast: #000;
-  --color-secondary: #aaa;
+  --color-contrast: #0a0a0a;
+  --color-secondary: #888;
   --color-inverted: #fff;
-  --color-link: #0087ff;
-  --color-accent: #78c6ff;
-  --color-dangerous: #ef4444;
+  --color-link: #0a0a0a;
+  --color-accent: #e5e5e5;
+  --color-dangerous: #dc2626;
   --color-input: var(--input);
   --color-ring: var(--ring);
 
@@ -66,21 +60,21 @@ body {
 
 .dark {
   color-scheme: dark;
-  --background-color-one: #111;
-  --background-color-two: #212121;
-  --background-color-input: #3a3a3a;
+  --background-color-one: #0a0a0a;
+  --background-color-two: #111;
+  --background-color-input: #1a1a1a;
   --background-color-navbar: #000;
-  --background-color-card: #171717;
+  --background-color-card: #111;
   --border-color-stronger: #222;
 
-  --color-contrast: #fff;
-  --color-secondary: #777;
-  --color-inverted: #000;
+  --color-contrast: #fafafa;
+  --color-secondary: #666;
+  --color-inverted: #0a0a0a;
   --color-primary: #ededed;
-  --color-accent: #2a2a2a;
+  --color-accent: #1a1a1a;
   --color-dangerous: #ef4444;
-  --color-input: #3a3a3a;
-  --color-ring: #444;
+  --color-input: #1a1a1a;
+  --color-ring: #333;
 }
 
 @layer base {
@@ -89,14 +83,13 @@ body {
   ::before,
   ::backdrop,
   ::file-selector-button {
-    @apply dark:border-[#222] border-[#EEE];
-    /* outline-color: blue; */
+    @apply border-neutral-200 dark:border-neutral-800;
   }
 
   input,
   textarea,
   select {
-    @apply !border-[#EEE] dark:border-[#444] transition;
+    @apply !border-neutral-200 dark:!border-neutral-700 transition;
   }
 }
 
@@ -106,12 +99,12 @@ body {
 
 .font-display {
   @apply font-sans;
-  letter-spacing: 0.02em;
+  /* letter-spacing: -0.01em; */
 }
 
 .font-text {
   @apply font-text;
-  letter-spacing: 0em;
+  letter-spacing: 0.015em;
 }
 
 .track-20 {
@@ -120,6 +113,13 @@ body {
 
 .track-10 {
   letter-spacing: 0.01em;
+}
+
+/* Tight tracking for headings */
+h1,
+h2,
+h3 {
+  font-family: var(--font-sans);
 }
 
 button {
@@ -186,6 +186,19 @@ button {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Heading hierarchy */
+.heading-page {
+  @apply text-2xl font-semibold;
+}
+
+.heading-section {
+  @apply text-lg font-semibold;
+}
+
+.heading-label {
+  @apply text-sm font-medium text-neutral-900 dark:text-neutral-100;
 }
 
 .reset-btn {

@@ -3,22 +3,25 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { ButtonHTMLAttributes, forwardRef, ReactNode } from "react"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 border dark:border-white/10 focus-visible:ring-neutral-400 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-contrast text-inverted hover:bg-contrast/90",
-        primary: "bg-link text-white hover:bg-link/90",
-        secondary: "bg-contrast/5 text-contrast hover:bg-contrast/10",
-        link: "text-secondary hover:text-contrast hover:bg-one/5",
-        outline: "border text-contrast hover:bg-contrast/5",
+        default:
+          "bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200 border border-neutral-200 dark:border-neutral-800",
+        primary:
+          "bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200",
+        secondary:
+          "bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700",
+        link: "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100",
+        outline:
+          "border border-neutral-200 text-neutral-700 hover:bg-neutral-50 dark:border-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-900",
         danger:
-          "bg-red-50 dark:bg-red-700 text-red-600 dark:text-red-100 hover:text-red-600 hover:bg-red-100",
+          "bg-red-50 border dark:border-red-400/20 text-red-600 hover:bg-red-100 dark:bg-red-950/50 dark:text-red-400 dark:hover:bg-red-950",
       },
       size: {
-        // I think it makes sense to use hard-coded font sizes
-        sm: "h-7 px-2 text-[12px] rounded-md",
-        md: "h-8 px-3 text-[13px] pb-[1px] rounded-md",
+        sm: "h-7 px-2 text-[13px] rounded-md",
+        md: "h-7 px-3 text-[13px] pb-[1px] rounded-md track-20",
         lg: "h-10 px-5 text-[15px] rounded-md",
       },
     },

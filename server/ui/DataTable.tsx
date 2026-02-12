@@ -17,7 +17,8 @@ type Props<TData> = BaseProps<TData> &
     | { onRowClick: (row: Row<TData>) => void; getRowHref?: never }
   )
 
-const defaultTdClassName = "px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400"
+const defaultTdClassName =
+  "px-4 py-2.5 text-sm text-neutral-600 dark:text-neutral-400"
 
 export function DataTable<TData>({
   table,
@@ -33,51 +34,52 @@ export function DataTable<TData>({
     if (onRowClick) {
       onRowClick(row)
     } else if (getRowHref) {
-      router.push(
-        getRowHref(row) as Parameters<typeof router.push>[0]
-      )
+      router.push(getRowHref(row) as Parameters<typeof router.push>[0])
     }
   }
 
   return (
-    <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800">
+    <div className="min-w-0 overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800">
       <table
         className={twMerge("w-full", tableClassName)}
         style={getTdStyle ? { tableLayout: "fixed" } : undefined}
       >
-        <thead className="bg-zinc-50 dark:bg-zinc-900">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      className="px-4 py-3 text-left text-sm font-medium text-zinc-500"
-                      style={
-                        getTdStyle
-                          ? {
-                              width: header.getSize(),
-                              maxWidth: header.getSize(),
-                            }
-                          : undefined
-                      }
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </th>
-                  ))}
-                </tr>
+        <thead>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <tr
+              key={headerGroup.id}
+              className="border-b border-neutral-200 dark:border-neutral-800"
+            >
+              {headerGroup.headers.map((header) => (
+                <th
+                  key={header.id}
+                  className="px-4 py-2.5 text-left text-sm font-medium text-neutral-400"
+                  style={
+                    getTdStyle
+                      ? {
+                          width: header.getSize(),
+                          maxWidth: header.getSize(),
+                        }
+                      : undefined
+                  }
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </th>
               ))}
+            </tr>
+          ))}
         </thead>
-        <tbody className="divide-y divide-zinc-200 bg-white dark:divide-zinc-800 dark:bg-zinc-950">
+        <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800/50">
           {table.getRowModel().rows.map((row) => (
             <tr
               key={row.id}
               onClick={() => handleRowClick(row)}
-              className="cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
+              className="cursor-pointer transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/50"
             >
               {row.getVisibleCells().map((cell) => (
                 <td

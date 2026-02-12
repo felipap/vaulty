@@ -8,10 +8,10 @@ import { getDashboardStats, type DashboardStats } from "./actions"
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) {
-    return "0 Bytes"
+    return "0 B"
   }
   const k = 1024
-  const sizes = ["Bytes", "KB", "MB", "GB"]
+  const sizes = ["B", "KB", "MB", "GB"]
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
 }
@@ -26,12 +26,14 @@ function StatCard({ label, value, href }: StatCardProps) {
   return (
     <Link
       href={href}
-      className="rounded-xl border border-zinc-200 bg-white p-6 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
+      className="group flex flex-col justify-between rounded-lg border border-neutral-200 p-5 transition-colors hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700"
     >
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">{label}</p>
-      <p className="mt-2 text-3xl font-semibold tracking-tight">{value}</p>
-      <p className="mt-2 text-sm text-zinc-400 dark:text-zinc-500">
-        View all →
+      <p className="text-xs text-neutral-500 dark:text-neutral-400">{label}</p>
+      <p className="mt-3 font-mono text-2xl tracking-tight text-neutral-900 dark:text-neutral-100">
+        {value}
+      </p>
+      <p className="mt-3 text-xs text-neutral-400 transition-colors group-hover:text-neutral-600 dark:text-neutral-600 dark:group-hover:text-neutral-400">
+        View &rarr;
       </p>
     </Link>
   )
@@ -52,11 +54,11 @@ export function DashboardClient() {
   }, [])
 
   if (loading) {
-    return <p className="text-zinc-500">Loading...</p>
+    return <p className="font-mono text-sm text-neutral-400">Loading...</p>
   }
 
   if (error) {
-    return <p className="text-red-500">{error}</p>
+    return <p className="font-mono text-sm text-red-500">{error}</p>
   }
 
   if (!stats) {
@@ -64,42 +66,44 @@ export function DashboardClient() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <div>
-        <h2 className="mb-4 text-lg font-semibold">Overview</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <h2 className="mb-5 heading-label">
+          Overview
+        </h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard
-            label="Total Screenshots"
+            label="Screenshots"
             value={stats.totalScreenshots.toLocaleString()}
             href="/dashboard/screenshots"
           />
           <StatCard
-            label="Screenshot Storage"
+            label="Storage"
             value={formatBytes(stats.totalStorageBytes)}
             href="/dashboard/screenshots"
           />
           <StatCard
-            label="Total iMessages"
+            label="iMessages"
             value={stats.totalMessages.toLocaleString()}
             href="/dashboard/imessages"
           />
           <StatCard
-            label="iMessage Chats"
+            label="Chats"
             value={stats.totalChats.toLocaleString()}
             href="/dashboard/imessages"
           />
           <StatCard
-            label="Total Contacts"
+            label="Contacts"
             value={stats.totalContacts.toLocaleString()}
             href={"/dashboard/icontacts" as Route}
           />
           <StatCard
-            label="Total Locations"
+            label="Locations"
             value={stats.totalLocations.toLocaleString()}
             href="/dashboard/locations"
           />
           <StatCard
-            label="macOS Stickies"
+            label="Stickies"
             value={stats.totalStickies.toLocaleString()}
             href="/dashboard/stickies"
           />
@@ -107,7 +111,9 @@ export function DashboardClient() {
       </div>
 
       <div>
-        <h2 className="mb-4 text-lg font-semibold">Activity</h2>
+        <h2 className="mb-5 heading-label">
+          Activity
+        </h2>
         <ActivityLogs />
       </div>
     </div>

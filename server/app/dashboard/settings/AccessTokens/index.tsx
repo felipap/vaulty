@@ -2,60 +2,26 @@
 
 import { CopyIcon, CheckIcon, PlusIcon, KeyIcon } from "@/ui/icons"
 import { useState } from "react"
-import { VALID_SCOPES } from "@/lib/access-tokens.shared"
 import { TokenRow } from "./TokenRow"
 import { useAccessTokens } from "./useAccessTokens"
-
-const SCOPE_LABELS: Record<string, string> = {
-  contacts: "Contacts",
-  imessages: "iMessages",
-  whatsapp: "WhatsApp",
-  screenshots: "Screenshots",
-  locations: "Locations",
-}
+import { CreationForm } from "./CreationForm"
+import { Button } from "@/ui/Button"
 
 export function AccessTokens() {
   const { tokens, loading, create, revoke } = useAccessTokens()
   const [showCreate, setShowCreate] = useState(false)
-  const [newTokenName, setNewTokenName] = useState("")
-  const [expiresInDays, setExpiresInDays] = useState<string>("")
-  const [dataWindowMs, setDataWindowMs] = useState<string>("")
-  const [selectedScopes, setSelectedScopes] = useState<Set<string>>(
-    new Set(VALID_SCOPES)
-  )
-  const [creating, setCreating] = useState(false)
   const [revealedToken, setRevealedToken] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
-  function toggleScope(scope: string) {
-    setSelectedScopes((prev) => {
-      const next = new Set(prev)
-      if (next.has(scope)) {
-        next.delete(scope)
-      } else {
-        next.add(scope)
-      }
-      return next
-    })
-  }
-
-  async function handleCreate() {
-    if (!newTokenName.trim() || selectedScopes.size === 0) {
-      return
-    }
-    setCreating(true)
-    const days = expiresInDays ? parseInt(expiresInDays, 10) : undefined
-    const windowMs = dataWindowMs ? parseInt(dataWindowMs, 10) : undefined
-    const allSelected = selectedScopes.size === VALID_SCOPES.length
-    const scopes = allSelected ? [] : [...selectedScopes]
-    const token = await create(newTokenName.trim(), days, scopes, windowMs)
+  async function handleCreate(
+    name: string,
+    days: number | undefined,
+    scopes: string[],
+    windowMs: number | undefined
+  ) {
+    const token = await create(name, days, scopes, windowMs)
     setRevealedToken(token)
-    setNewTokenName("")
-    setExpiresInDays("")
-    setDataWindowMs("")
-    setSelectedScopes(new Set(VALID_SCOPES))
     setShowCreate(false)
-    setCreating(false)
   }
 
   function handleCopy(text: string) {
@@ -66,24 +32,26 @@ export function AccessTokens() {
 
   return (
     <section>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <KeyIcon size={18} />
-          <h2 className="text-lg font-semibold">Access Tokens</h2>
+      <header className="mb-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {/* <KeyIcon size={18} /> */}
+            <h2 className="heading-section">Access Tokens</h2>
+          </div>
+          <Button
+            onClick={() => setShowCreate(true)}
+            variant="outline"
+            icon={<PlusIcon size={14} />}
+          >
+            Create Token
+          </Button>
         </div>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
-        >
-          <PlusIcon size={14} />
-          Create Token
-        </button>
-      </div>
 
-      <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-        Tokens grant read access to your data via the API. Use them to connect
-        AI assistants, scripts, or other tools.
-      </p>
+        <p className="mt-1 font-text text-sm text-zinc-500 dark:text-zinc-400">
+          Tokens grant read access to your data via the API. Use them to connect
+          AI assistants, scripts, or other tools.
+        </p>
+      </header>
 
       {revealedToken && (
         <div className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
@@ -112,97 +80,10 @@ export function AccessTokens() {
       )}
 
       {showCreate && (
-        <div className="mt-4 rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
-          <div className="flex flex-col gap-3">
-            <div>
-              <label className="mb-1 block text-sm font-medium">Name</label>
-              <input
-                type="text"
-                value={newTokenName}
-                onChange={(e) => setNewTokenName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-                placeholder='e.g. "Claude Code", "MCP Server"'
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-700"
-                autoFocus
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium">
-                Expires in (days)
-              </label>
-              <input
-                type="number"
-                value={expiresInDays}
-                onChange={(e) => setExpiresInDays(e.target.value)}
-                placeholder="Leave empty for no expiration"
-                min="1"
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-700"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium">
-                Data window (ms)
-              </label>
-              <input
-                type="number"
-                value={dataWindowMs}
-                onChange={(e) => setDataWindowMs(e.target.value)}
-                placeholder="Leave empty for unlimited access"
-                min="1"
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-700"
-              />
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                Restricts reads to data within this many ms from now. e.g. 172800000 = 2 days
-              </p>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">Scopes</label>
-              <div className="flex flex-wrap gap-2">
-                {VALID_SCOPES.map((scope) => (
-                  <label
-                    key={scope}
-                    className="flex cursor-pointer items-center gap-1.5 rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm select-none hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedScopes.has(scope)}
-                      onChange={() => toggleScope(scope)}
-                      className="rounded"
-                    />
-                    {SCOPE_LABELS[scope] ?? scope}
-                  </label>
-                ))}
-              </div>
-              {selectedScopes.size === 0 && (
-                <p className="mt-1 text-xs text-red-500">
-                  Select at least one scope
-                </p>
-              )}
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={handleCreate}
-                disabled={
-                  !newTokenName.trim() || selectedScopes.size === 0 || creating
-                }
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-              >
-                {creating ? "Creating..." : "Create"}
-              </button>
-              <button
-                onClick={() => {
-                  setShowCreate(false)
-                  setNewTokenName("")
-                  setExpiresInDays("")
-                  setDataWindowMs("")
-                }}
-                className="rounded-md border border-zinc-200 px-4 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+        <CreationForm
+          onCreate={handleCreate}
+          onCancel={() => setShowCreate(false)}
+        />
       )}
 
       <div className="mt-4">

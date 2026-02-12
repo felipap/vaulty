@@ -131,29 +131,31 @@ export default function Page() {
   return (
     <div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-semibold">Contacts</h1>
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <SearchIcon
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
-            />
-            <input
-              type="text"
-              placeholder="Search contacts..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="rounded-lg border border-zinc-200 bg-white py-1.5 pl-9 pr-3 text-sm placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-600"
+        <h1 className="heading-page">Contacts</h1>
+        {(total > 0 || debouncedQuery) && (
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <SearchIcon
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+              />
+              <input
+                type="text"
+                placeholder="Search contacts..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="rounded-lg border border-zinc-200 bg-white py-1.5 pl-9 pr-3 text-sm placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-600"
+              />
+            </div>
+            <span className="shrink-0 text-sm text-zinc-500">
+              {total.toLocaleString()} {debouncedQuery ? "matching" : "total"}
+            </span>
+            <DeleteAllButton
+              confirmMessage="Delete all contacts? This will permanently remove all contacts from the database."
+              onDelete={handleDeleteAll}
             />
           </div>
-          <span className="shrink-0 text-sm text-zinc-500">
-            {total.toLocaleString()} {debouncedQuery ? "matching" : "total"}
-          </span>
-          <DeleteAllButton
-            confirmMessage="Delete all contacts? This will permanently remove all contacts from the database."
-            onDelete={handleDeleteAll}
-          />
-        </div>
+        )}
       </div>
 
       {inner}

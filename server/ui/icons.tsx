@@ -1,4 +1,15 @@
-import { twMerge } from "tailwind-merge"
+import { FaLocationDot, FaNoteSticky } from "react-icons/fa6"
+import { GoScreenFull } from "react-icons/go"
+import { IoIosSettings } from "react-icons/io"
+import {
+  TbBrandWhatsapp,
+  TbCamera,
+  TbLayoutDashboard,
+  TbMessageCircle,
+  TbNote,
+  TbUsers,
+} from "react-icons/tb"
+import { TiLocation } from "react-icons/ti"
 
 type Props = {
   size?: number
@@ -122,23 +133,7 @@ export function UnlockIcon({ size = 14 }: Props) {
 }
 
 export function MapPinIcon({ size = 14, className }: Props) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-      <circle cx="12" cy="10" r="3" />
-    </svg>
-  )
+  return <TiLocation size={size} className={className} />
 }
 
 export function FileIcon({ size = 14, className }: Props) {
@@ -458,13 +453,49 @@ export function AlertTriangleIcon({ size = 14, className }: Props) {
   )
 }
 
-export function WhatsappIcon({ className }: Props) {
+export function LayoutDashboardIcon({ size = 14, className }: Props) {
+  return <TbLayoutDashboard size={size} className={className} />
+}
+
+export function IMessageIcon({ size = 14, className }: Props) {
   return (
-    <div
-      className={twMerge("flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-500 text-xs font-medium text-white", className)}
-      title="WhatsApp"
+    <svg
+      width={size}
+      height={size}
+      className={className}
+      fill="currentColor"
+      viewBox="2 2 20 20"
+      xmlns="http://www.w3.org/2000/svg"
     >
-      W
-    </div>
+      <path d="M12 4.154c4.556 0 8.25 3.14 8.25 7.012 0 3.872-3.694 7.012-8.25 7.012-.862 0-1.692-.115-2.473-.328a.357.357 0 0 0-.265.026c-.863.477-2.24 1.074-3.61 1.326-.08.014-.11-.08-.055-.134.353-.347.756-.828.982-1.345a.512.512 0 0 0-.058-.51C5.205 15.858 3.75 14.028 3.75 11.166c0-3.872 3.694-7.012 8.25-7.012Z" />
+    </svg>
   )
+}
+
+export function MessageCircleIcon({ size = 14, className }: Props) {
+  return <TbMessageCircle size={size} className={className} />
+}
+
+export function StickyNoteIcon({ size = 14, className }: Props) {
+  return <FaNoteSticky size={size} className={className} />
+}
+
+export function SettingsIcon({ size = 14, className }: Props) {
+  return <IoIosSettings size={size} className={className} />
+}
+
+export function ScreenshotIcon({ size = 14, className }: Props) {
+  return <GoScreenFull size={size} className={className} />
+}
+
+export function CameraIcon({ size = 14, className }: Props) {
+  return <TbCamera size={size} className={className} />
+}
+
+export function ContactIcon({ size = 14, className }: Props) {
+  return <TbUsers size={size} className={className} />
+}
+
+export function WhatsappIcon({ size = 14, className }: Props) {
+  return <TbBrandWhatsapp size={size} className={className} />
 }

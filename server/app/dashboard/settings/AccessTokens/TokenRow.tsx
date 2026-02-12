@@ -64,7 +64,7 @@ export function TokenRow({ token, onRevoke }: Props) {
             </span>
           )}
         </div>
-        <div className="flex items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400">
+        <div className="flex items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400">
           <code>{token.tokenPrefix}...</code>
           <span>Created {formatRelative(token.createdAt)}</span>
           {token.lastUsedAt && (

@@ -16,10 +16,10 @@ export default async function DashboardLayout({ children }: Props) {
   const isWhitelistEnabled = isDashboardIpWhitelistEnabled()
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
       <DashboardNav />
       {!isWhitelistEnabled && <IpWhitelistWarningBanner />}
-      <main className="mx-auto max-w-5xl px-6 py-8">{children}</main>
+      <main className="mx-auto max-w-5xl px-6 py-10">{children}</main>
     </div>
   )
 }
