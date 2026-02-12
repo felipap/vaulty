@@ -1,5 +1,5 @@
 import { startAnimating, stopAnimating } from '../tray/animate'
-import { fetchContacts, uploadContacts } from '../sources/contacts'
+import { fetchContacts, uploadContacts } from '../sources/icontacts'
 import { createScheduledService } from './scheduler'
 
 function yieldToEventLoop(): Promise<void> {
@@ -29,8 +29,8 @@ async function syncAndUpload(): Promise<void> {
   }
 }
 
-export const contactsService = createScheduledService({
-  name: 'contacts',
-  configKey: 'contactsSync',
+export const iContactsService = createScheduledService({
+  name: 'icontacts',
+  configKey: 'icontactsSync',
   onSync: syncAndUpload,
 })

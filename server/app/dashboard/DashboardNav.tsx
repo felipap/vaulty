@@ -19,7 +19,7 @@ const NAV_ITEMS: Array<{ href: string; label: string }> = [
   { href: "/dashboard/screenshots", label: "Screenshots" },
   { href: "/dashboard/imessages", label: "iMessages" },
   { href: "/dashboard/whatsapp", label: "WhatsApp" },
-  { href: "/dashboard/contacts", label: "Contacts" },
+  { href: "/dashboard/icontacts", label: "Contacts" },
   { href: "/dashboard/locations", label: "Locations" },
   { href: "/dashboard/stickies", label: "Stickies" },
   { href: "/dashboard/settings", label: "Settings" },

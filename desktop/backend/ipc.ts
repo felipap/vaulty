@@ -97,15 +97,15 @@ export function registerIpcHandlers(): void {
   )
 
   ipcMain.handle('get-contacts-sync-config', () => {
-    return store.get('contactsSync')
+    return store.get('icontactsSync')
   })
 
   ipcMain.handle(
     'set-contacts-sync-config',
     (_event, config: { enabled?: boolean; intervalMinutes?: number }) => {
-      const current = store.get('contactsSync')
-      store.set('contactsSync', { ...current, ...config })
-      getService('contacts')?.restart()
+      const current = store.get('icontactsSync')
+      store.set('icontactsSync', { ...current, ...config })
+      getService('icontacts')?.restart()
     },
   )
 

@@ -8,7 +8,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core"
 
-export * from "./syncs"
+export * from "./data"
 
 export const DEFAULT_USER_ID = "default"
 

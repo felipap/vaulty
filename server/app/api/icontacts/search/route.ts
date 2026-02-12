@@ -1,5 +1,5 @@
 import { db } from "@/db"
-import { Contacts, DEFAULT_USER_ID } from "@/db/schema"
+import { AppleContacts, DEFAULT_USER_ID } from "@/db/schema"
 import { and, eq, gte, or, sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
@@ -19,42 +19,49 @@ export async function GET(request: NextRequest) {
 
   if (!firstNameIndex && !lastNameIndex && !phoneNumberIndex) {
     return Response.json(
-      { error: "firstNameIndex, lastNameIndex, or phoneNumberIndex parameter is required" },
+      {
+        error:
+          "firstNameIndex, lastNameIndex, or phoneNumberIndex parameter is required",
+      },
       { status: 400 }
     )
   }
 
   const cutoff = getDataWindowCutoff(auth.token)
   const whereConditions = [
-    eq(Contacts.userId, DEFAULT_USER_ID),
+    eq(AppleContacts.userId, DEFAULT_USER_ID),
     or(
-      firstNameIndex ? eq(Contacts.firstNameIndex, firstNameIndex) : undefined,
-      lastNameIndex ? eq(Contacts.lastNameIndex, lastNameIndex) : undefined,
+      firstNameIndex
+        ? eq(AppleContacts.firstNameIndex, firstNameIndex)
+        : undefined,
+      lastNameIndex
+        ? eq(AppleContacts.lastNameIndex, lastNameIndex)
+        : undefined,
       phoneNumberIndex
-        ? sql`${phoneNumberIndex} = ANY(${Contacts.phoneNumbersIndex})`
+        ? sql`${phoneNumberIndex} = ANY(${AppleContacts.phoneNumbersIndex})`
         : undefined
     ),
   ]
   if (cutoff) {
-    whereConditions.push(gte(Contacts.updatedAt, cutoff))
+    whereConditions.push(gte(AppleContacts.updatedAt, cutoff))
   }
 
   const contacts = await db
     .select({
-      id: Contacts.id,
-      contactId: Contacts.contactId,
-      firstName: Contacts.firstName,
-      lastName: Contacts.lastName,
-      organization: Contacts.organization,
-      emails: Contacts.emails,
-      phoneNumbers: Contacts.phoneNumbers,
-      syncTime: Contacts.syncTime,
-      createdAt: Contacts.createdAt,
-      updatedAt: Contacts.updatedAt,
+      id: AppleContacts.id,
+      contactId: AppleContacts.contactId,
+      firstName: AppleContacts.firstName,
+      lastName: AppleContacts.lastName,
+      organization: AppleContacts.organization,
+      emails: AppleContacts.emails,
+      phoneNumbers: AppleContacts.phoneNumbers,
+      syncTime: AppleContacts.syncTime,
+      createdAt: AppleContacts.createdAt,
+      updatedAt: AppleContacts.updatedAt,
     })
-    .from(Contacts)
+    .from(AppleContacts)
     .where(and(...whereConditions))
-    .orderBy(Contacts.updatedAt)
+    .orderBy(AppleContacts.updatedAt)
     .limit(limit)
 
   const parsed = contacts.map((c) => ({

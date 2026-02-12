@@ -16,14 +16,14 @@ export type Service = {
 
 import { screenshotsService } from './screenshots'
 import { imessageService } from './imessage'
-import { contactsService } from './contacts'
+import { iContactsService } from './icontacts'
 import { whatsappSqliteService } from './whatsapp'
 import { macosStickiesService } from './stickies'
 
 export const SERVICES: Service[] = [
   imessageService,
   screenshotsService,
-  contactsService,
+  iContactsService,
   whatsappSqliteService,
   macosStickiesService,
 ]
@@ -51,7 +51,7 @@ export function getService(name: string): Service | undefined {
 export {
   screenshotsService,
   imessageService,
-  contactsService,
+  iContactsService as contactsService,
   whatsappSqliteService,
   macosStickiesService,
 }

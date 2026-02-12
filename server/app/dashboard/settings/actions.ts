@@ -12,7 +12,7 @@ import {
   Screenshots,
   iMessages,
   iMessageAttachments,
-  Contacts,
+  AppleContacts,
   Locations,
   WhatsappMessages,
   WriteLogs,
@@ -105,8 +105,8 @@ export async function deleteEverything() {
     .then((rows) => [rows.length])
 
   const [contacts] = await db
-    .delete(Contacts)
-    .returning({ id: Contacts.id })
+    .delete(AppleContacts)
+    .returning({ id: AppleContacts.id })
     .then((rows) => [rows.length])
 
   const [locations] = await db

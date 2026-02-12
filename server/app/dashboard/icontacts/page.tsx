@@ -18,6 +18,7 @@ import {
   normalizeStringForSearch,
   normalizePhoneForSearch,
 } from "@/lib/search-normalize"
+import { ContactAvatar } from "@/ui/ContactAvatar"
 import { Decrypted } from "@/ui/Decrypted"
 
 async function buildSearchParams(query: string): Promise<ContactSearchParams> {
@@ -161,31 +162,24 @@ export default function Page() {
 }
 
 function ContactCard({ contact }: { contact: Contact }) {
-  const displayName = getDisplayName(contact)
-  const initial = getInitial(displayName)
-  const bgColor = getAvatarColor(contact.id)
-
   return (
     <Link
-      href={`/dashboard/contacts/${contact.id}`}
+      href={`/dashboard/icontacts/${contact.id}`}
       className="overflow-hidden flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
     >
-      <div
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-medium ${bgColor}`}
-      >
-        {initial}
-      </div>
+      <ContactAvatar id={contact.id} size="md" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">
           <DemoBlur>
-            <Decrypted>{displayName}</Decrypted>
+            <Decrypted>{contact.firstName}</Decrypted>
+            {contact.lastName && (
+              <>
+                {" "}
+                <Decrypted>{contact.lastName}</Decrypted>
+              </>
+            )}
           </DemoBlur>
         </p>
-        {contact.organization && (
-          <p className="truncate text-xs text-zinc-500">
-            {contact.organization}
-          </p>
-        )}
         {contact.phoneNumbers.length > 0 && (
           <div className="mt-1 flex flex-wrap gap-1">
             {contact.phoneNumbers.slice(0, 2).map((phone, i) => (
@@ -193,7 +187,7 @@ function ContactCard({ contact }: { contact: Contact }) {
                 key={i}
                 className="inline-block rounded bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
               >
-                <Decrypted>{formatPhone(phone)}</Decrypted>
+                <Decrypted>{phone}</Decrypted>
               </span>
             ))}
             {contact.phoneNumbers.length > 2 && (
@@ -206,56 +200,4 @@ function ContactCard({ contact }: { contact: Contact }) {
       </div>
     </Link>
   )
-}
-
-function getDisplayName(contact: Contact): string {
-  if (contact.firstName || contact.lastName) {
-    return [contact.firstName, contact.lastName].filter(Boolean).join(" ")
-  }
-  if (contact.organization) {
-    return contact.organization
-  }
-  if (contact.emails && contact.emails.length > 0) {
-    return contact.emails[0]
-  }
-  if (contact.phoneNumbers && contact.phoneNumbers.length > 0) {
-    return contact.phoneNumbers[0]
-  }
-  return "Unknown"
-}
-
-function getInitial(name: string): string {
-  if (name.includes("@")) {
-    return name.charAt(0).toUpperCase()
-  }
-  if (name.startsWith("+") || /^\d/.test(name)) {
-    return "#"
-  }
-  return name.charAt(0).toUpperCase()
-}
-
-function formatPhone(phone: string): string {
-  if (phone.startsWith("+1") && phone.length === 12) {
-    return `(${phone.slice(2, 5)}) ${phone.slice(5, 8)}-${phone.slice(8)}`
-  }
-  return phone
-}
-
-const avatarColors = [
-  "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
-  "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
-  "bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400",
-  "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
-  "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400",
-  "bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400",
-  "bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400",
-  "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400",
-]
-
-function getAvatarColor(id: string): string {
-  let hash = 0
-  for (let i = 0; i < id.length; i++) {
-    hash = id.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  return avatarColors[Math.abs(hash) % avatarColors.length]
 }

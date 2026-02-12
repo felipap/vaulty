@@ -5,7 +5,7 @@ import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js'
 import { createServer, IncomingMessage, ServerResponse } from 'http'
 import { z } from 'zod'
 import { createLogger } from '../lib/logger'
-import { fetchContacts } from '../sources/contacts'
+import { fetchContacts } from '../sources/icontacts'
 import { createIMessageSDK, fetchMessages } from '../sources/imessage'
 import { fetchStickies } from '../sources/stickies'
 
@@ -151,9 +151,7 @@ function setupMcpServer(): McpServer {
       let filtered = stickies
       if (search) {
         const term = search.toLowerCase()
-        filtered = stickies.filter((s) =>
-          s.text.toLowerCase().includes(term),
-        )
+        filtered = stickies.filter((s) => s.text.toLowerCase().includes(term))
       }
 
       return {

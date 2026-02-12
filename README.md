@@ -51,7 +51,7 @@ See [SECURITY.md](./SECURITY.md) for the full breakdown.
 Once your data is synced, agents can access it through bearer-token-authenticated endpoints:
 
 ```
-GET /api/contacts
+GET /api/icontacts
 GET /api/imessages?limit=20&after=2025-01-01T00:00:00Z
 GET /api/imessages/chats
 GET /api/imessages/with/{phone}

@@ -2,14 +2,14 @@
 
 import { isAuthenticated } from "@/lib/admin-auth"
 import { db } from "@/db"
-import { Contacts } from "@/db/schema"
+import { AppleContacts } from "@/db/schema"
 import { and, desc, eq, or, sql } from "drizzle-orm"
 import { unauthorized } from "next/navigation"
 
 export type Contact = {
   id: string
   contactId: string
-  firstName: string | null
+  firstName: string
   lastName: string | null
   organization: string | null
   emails: string[]
@@ -56,26 +56,30 @@ export async function getContacts(
 
   const searchCondition = hasSearch
     ? or(
-        hasFirstNameSearch ? eq(Contacts.firstNameIndex, firstNameIndex) : undefined,
-        hasLastNameSearch ? eq(Contacts.lastNameIndex, lastNameIndex) : undefined,
+        hasFirstNameSearch
+          ? eq(AppleContacts.firstNameIndex, firstNameIndex)
+          : undefined,
+        hasLastNameSearch
+          ? eq(AppleContacts.lastNameIndex, lastNameIndex)
+          : undefined,
         hasPhoneSearch
-          ? sql`${phoneNumberIndex} = ANY(${Contacts.phoneNumbersIndex})`
+          ? sql`${phoneNumberIndex} = ANY(${AppleContacts.phoneNumbersIndex})`
           : undefined
       )
     : undefined
 
   const [countResult] = await db
     .select({ count: sql<number>`count(*)::int` })
-    .from(Contacts)
+    .from(AppleContacts)
     .where(searchCondition)
 
   const total = countResult.count
 
   const results = await db
     .select()
-    .from(Contacts)
+    .from(AppleContacts)
     .where(searchCondition)
-    .orderBy(desc(Contacts.updatedAt))
+    .orderBy(desc(AppleContacts.updatedAt))
     .limit(pageSize)
     .offset(offset)
 
@@ -95,8 +99,8 @@ export async function getContact(id: string): Promise<ContactDetail | null> {
     unauthorized()
   }
 
-  const result = await db.query.Contacts.findFirst({
-    where: eq(Contacts.id, id),
+  const result = await db.query.AppleContacts.findFirst({
+    where: eq(AppleContacts.id, id),
   })
 
   if (!result) {
@@ -117,7 +121,7 @@ export async function getContact(id: string): Promise<ContactDetail | null> {
   return {
     id: result.id,
     contactId: result.contactId,
-    firstName: result.firstName,
+    firstName: result.firstName ?? "",
     lastName: result.lastName,
     organization: result.organization,
     emails,
@@ -134,10 +138,10 @@ export async function deleteAllContacts() {
     unauthorized()
   }
 
-  await db.delete(Contacts)
+  await db.delete(AppleContacts)
 }
 
-function parseContact(row: typeof Contacts.$inferSelect): Contact {
+function parseContact(row: typeof AppleContacts.$inferSelect): Contact {
   let emails: string[] = []
   let phoneNumbers: string[] = []
 
@@ -152,7 +156,7 @@ function parseContact(row: typeof Contacts.$inferSelect): Contact {
   return {
     id: row.id,
     contactId: row.contactId,
-    firstName: row.firstName,
+    firstName: row.firstName ?? "",
     lastName: row.lastName,
     organization: row.organization,
     emails,

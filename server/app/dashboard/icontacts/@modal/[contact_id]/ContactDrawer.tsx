@@ -1,5 +1,6 @@
 "use client"
 
+import { ContactAvatar } from "@/ui/ContactAvatar"
 import { Decrypted } from "@/ui/Decrypted"
 import { DemoBlur } from "@/ui/DemoBlur"
 import { Drawer } from "@/ui/Drawer"
@@ -13,26 +14,24 @@ type Props = {
 }
 
 export function ContactDrawer({ contact }: Props) {
-  const displayName = getDisplayName(contact)
-  const initial = getInitial(displayName)
-  const bgColor = getAvatarColor(contact.id)
-
   return (
     <Drawer title="Contact Details">
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <div
-            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg font-medium ${bgColor}`}
-          >
-            {initial}
-          </div>
+          <ContactAvatar id={contact.id} size="lg" />
           <div className="min-w-0">
             <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               <DemoBlur>
-                <Decrypted>{displayName}</Decrypted>
+                <Decrypted>{contact.firstName}</Decrypted>
+                {contact.lastName && (
+                  <>
+                    {" "}
+                    <Decrypted>{contact.lastName}</Decrypted>
+                  </>
+                )}
               </DemoBlur>
             </p>
-            {contact.organization && displayName !== contact.organization && (
+            {contact.organization && (
               <p className="text-sm text-zinc-500">
                 <Decrypted>{contact.organization}</Decrypted>
               </p>
@@ -106,47 +105,3 @@ export function ContactDrawer({ contact }: Props) {
   )
 }
 
-function getDisplayName(contact: ContactDetail): string {
-  if (contact.firstName || contact.lastName) {
-    return [contact.firstName, contact.lastName].filter(Boolean).join(" ")
-  }
-  if (contact.organization) {
-    return contact.organization
-  }
-  if (contact.emails && contact.emails.length > 0) {
-    return contact.emails[0]
-  }
-  if (contact.phoneNumbers && contact.phoneNumbers.length > 0) {
-    return contact.phoneNumbers[0]
-  }
-  return "Unknown"
-}
-
-function getInitial(name: string): string {
-  if (name.includes("@")) {
-    return name.charAt(0).toUpperCase()
-  }
-  if (name.startsWith("+") || /^\d/.test(name)) {
-    return "#"
-  }
-  return name.charAt(0).toUpperCase()
-}
-
-const avatarColors = [
-  "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
-  "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
-  "bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400",
-  "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
-  "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400",
-  "bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400",
-  "bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400",
-  "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400",
-]
-
-function getAvatarColor(id: string): string {
-  let hash = 0
-  for (let i = 0; i < id.length; i++) {
-    hash = id.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  return avatarColors[Math.abs(hash) % avatarColors.length]
-}

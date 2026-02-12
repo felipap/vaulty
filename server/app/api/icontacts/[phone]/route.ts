@@ -1,5 +1,5 @@
 import { db } from "@/db"
-import { Contacts, DEFAULT_USER_ID } from "@/db/schema"
+import { AppleContacts, DEFAULT_USER_ID } from "@/db/schema"
 import { and, eq, gte, sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
@@ -27,27 +27,27 @@ export async function GET(request: NextRequest) {
   const decodedPhone = phone ? decodeURIComponent(phone) : ""
 
   const cutoff = getDataWindowCutoff(auth.token)
-  const conditions = [eq(Contacts.userId, DEFAULT_USER_ID)]
+  const conditions = [eq(AppleContacts.userId, DEFAULT_USER_ID)]
 
   if (phoneNumberIndex) {
     conditions.push(
-      sql`${phoneNumberIndex} = ANY(${Contacts.phoneNumbersIndex})`
+      sql`${phoneNumberIndex} = ANY(${AppleContacts.phoneNumbersIndex})`
     )
   } else {
     const normalizedPhone = decodedPhone.replace(/\D/g, "")
     conditions.push(
       sql`EXISTS (
-        SELECT 1 FROM jsonb_array_elements_text(${Contacts.phoneNumbers}::jsonb) AS elem
+        SELECT 1 FROM jsonb_array_elements_text(${AppleContacts.phoneNumbers}::jsonb) AS elem
         WHERE regexp_replace(elem, '[^0-9]', '', 'g') = ${normalizedPhone}
       )`
     )
   }
 
   if (cutoff) {
-    conditions.push(gte(Contacts.updatedAt, cutoff))
+    conditions.push(gte(AppleContacts.updatedAt, cutoff))
   }
 
-  const matchingContact = await db.query.Contacts.findFirst({
+  const matchingContact = await db.query.AppleContacts.findFirst({
     where: and(...conditions),
   })
 

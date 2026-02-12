@@ -1,10 +1,10 @@
 "use client"
 
 import { useMemo } from "react"
-import { twMerge } from "tailwind-merge"
+import { ContactAvatar } from "@/ui/ContactAvatar"
 import { DataTable } from "@/ui/DataTable"
 import { DemoBlur } from "@/ui/DemoBlur"
-import { GroupIcon, LockIcon } from "@/ui/icons"
+import { LockIcon } from "@/ui/icons"
 import { Pagination } from "@/ui/Pagination"
 import { type ContactLookup } from "./actions"
 import { type DecryptedChat } from "./useChatList"
@@ -184,22 +184,6 @@ export function ChatsTable({
   )
 }
 
-function ContactAvatar({ name, isGroup }: { name: string; isGroup: boolean }) {
-  const initial = name.charAt(0).toUpperCase()
-
-  return (
-    <div
-      className={twMerge(
-        "flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium",
-        isGroup
-          ? "bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400"
-          : "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
-      )}
-    >
-      {isGroup ? <GroupIcon /> : initial}
-    </div>
-  )
-}
 
 function resolveContactName(
   contact: string,

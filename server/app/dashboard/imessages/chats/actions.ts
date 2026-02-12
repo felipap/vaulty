@@ -2,7 +2,7 @@
 
 import { isAuthenticated } from "@/lib/admin-auth"
 import { db } from "@/db"
-import { Contacts, DEFAULT_USER_ID } from "@/db/schema"
+import { AppleContacts, DEFAULT_USER_ID } from "@/db/schema"
 import { eq, sql } from "drizzle-orm"
 import { unauthorized } from "next/navigation"
 
@@ -138,8 +138,8 @@ export async function getContactLookup(): Promise<ContactLookup> {
     unauthorized()
   }
 
-  const contacts = await db.query.Contacts.findMany({
-    where: eq(Contacts.userId, DEFAULT_USER_ID),
+  const contacts = await db.query.AppleContacts.findMany({
+    where: eq(AppleContacts.userId, DEFAULT_USER_ID),
   })
 
   const lookup: ContactLookup = {}

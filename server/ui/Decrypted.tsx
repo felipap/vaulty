@@ -1,8 +1,8 @@
 "use client"
 
-import { isEncrypted, maybeDecrypt } from "@/lib/encryption"
+import { getEncryptionKey, isEncrypted, maybeDecrypt } from "@/lib/encryption"
 import { useEffect, useState } from "react"
-import { LockIcon } from "./icons"
+import { LockIcon, AlertTriangleIcon } from "./icons"
 
 interface Props {
   children: string | null
@@ -11,17 +11,32 @@ interface Props {
 
 export function Decrypted({ children, showLockIcon }: Props) {
   const [decrypted, setDecrypted] = useState<string | null>(null)
+  const [failed, setFailed] = useState(false)
   const wasEncrypted = children ? isEncrypted(children) : false
 
   useEffect(() => {
+    setDecrypted(null)
+    setFailed(false)
     async function load() {
-      const decrypted = await maybeDecrypt(children)
-      if (decrypted) {
-        setDecrypted(decrypted)
+      const result = await maybeDecrypt(children)
+      if (result) {
+        setDecrypted(result)
+      } else if (wasEncrypted && getEncryptionKey()) {
+        setFailed(true)
+        console.warn("Decryption failed for encrypted field")
       }
     }
     load()
-  }, [children])
+  }, [children, wasEncrypted])
+
+  if (failed) {
+    return (
+      <span className="flex items-center gap-2 text-sm italic text-red-500">
+        <AlertTriangleIcon size={14} />
+        Decryption failed
+      </span>
+    )
+  }
 
   if (decrypted) {
     if (showLockIcon && wasEncrypted) {

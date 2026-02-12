@@ -6,7 +6,7 @@ import type { SyncStatus, Service } from './index'
 type ConfigKey =
   | 'screenCapture'
   | 'imessageExport'
-  | 'contactsSync'
+  | 'icontactsSync'
   | 'whatsappSqlite'
   | 'macosStickiesSync'
 

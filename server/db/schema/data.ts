@@ -78,6 +78,8 @@ export type Message = typeof iMessages.$inferSelect
 // Encrypted: dataBase64
 export const iMessageAttachments = pgTable("imessage_attachments", {
   id: uuid("id").defaultRandom().primaryKey(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  //
   userId: text("user_id").notNull(),
   messageGuid: text("message_guid").notNull(),
   attachmentId: text("attachment_id").notNull().unique(),
@@ -89,7 +91,6 @@ export const iMessageAttachments = pgTable("imessage_attachments", {
   dataBase64: text("data_base64"),
   deviceId: text("device_id").notNull(),
   syncTime: timestamp("sync_time").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
 })
 
 export type NewIMessageAttachment = typeof iMessageAttachments.$inferInsert
@@ -101,14 +102,17 @@ export type IMessageAttachment = typeof iMessageAttachments.$inferSelect
 //
 
 // Encrypted: firstName, lastName, organization, emails, phoneNumbers
-export const Contacts = pgTable(
-  "contacts",
+export const AppleContacts = pgTable(
+  "apple_contacts",
   {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: text("user_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    //
     contactId: text("contact_id").notNull(), // The unique ID from the contacts database
     // encrypted
-    firstName: text("first_name"),
+    firstName: text("first_name").notNull(),
     // encrypted
     lastName: text("last_name"),
     // HMAC blind index for first name search
@@ -125,21 +129,21 @@ export const Contacts = pgTable(
     phoneNumbersIndex: text("phone_numbers_index").array(),
     deviceId: text("device_id").notNull(),
     syncTime: timestamp("sync_time").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
     unique("contacts_user_contact_unique").on(table.userId, table.contactId),
     index("contacts_user_id_idx").on(table.userId),
     index("contacts_first_name_index_idx").on(table.firstNameIndex),
     index("contacts_last_name_index_idx").on(table.lastNameIndex),
-    index("contacts_phone_numbers_index_idx")
-      .using("gin", table.phoneNumbersIndex),
+    index("contacts_phone_numbers_index_idx").using(
+      "gin",
+      table.phoneNumbersIndex
+    ),
   ]
 )
 
-export type NewContact = typeof Contacts.$inferInsert
-export type Contact = typeof Contacts.$inferSelect
+export type NewAppleContact = typeof AppleContacts.$inferInsert
+export type AppleContact = typeof AppleContacts.$inferSelect
 
 //
 //

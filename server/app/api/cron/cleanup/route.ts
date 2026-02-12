@@ -1,6 +1,6 @@
 import { db } from "@/db"
 import {
-  Contacts,
+  AppleContacts,
   iMessageAttachments,
   iMessages,
   Locations,
@@ -119,9 +119,9 @@ export async function GET(request: Request) {
   if (CONTACT_RETENTION_HOURS > 0) {
     const cutoff = cutoffFromHours(CONTACT_RETENTION_HOURS)
     const deleted = await db
-      .delete(Contacts)
-      .where(lt(Contacts.createdAt, cutoff))
-      .returning({ id: Contacts.id })
+      .delete(AppleContacts)
+      .where(lt(AppleContacts.createdAt, cutoff))
+      .returning({ id: AppleContacts.id })
     results.contacts = {
       deletedCount: deleted.length,
       retentionHours: CONTACT_RETENTION_HOURS,

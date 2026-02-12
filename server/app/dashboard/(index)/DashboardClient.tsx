@@ -91,7 +91,7 @@ export function DashboardClient() {
           <StatCard
             label="Total Contacts"
             value={stats.totalContacts.toLocaleString()}
-            href="/dashboard/contacts"
+            href={"/dashboard/icontacts" as Route}
           />
           <StatCard
             label="Total Locations"
