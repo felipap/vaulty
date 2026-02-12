@@ -1,11 +1,15 @@
+import {
+  SyncErrorResponse,
+  SyncSuccessResponse,
+  formatZodError,
+} from "@/app/api/types"
 import { db } from "@/db"
 import { Contacts, DEFAULT_USER_ID } from "@/db/schema"
+import { logRead, logWrite } from "@/lib/activity-log"
+import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 import { and, eq, gte, sql } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
-import { logRead, logWrite } from "@/lib/activity-log"
-import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
-import { SyncSuccessResponse, SyncErrorResponse, formatZodError } from "@/app/api/types"
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "contacts")
@@ -76,6 +80,13 @@ const PostSchema = z.object({
   deviceId: z.string().optional(),
 })
 
+type ValidatedContact = z.infer<typeof ContactSchema>
+
+type InsertResult = {
+  insertedCount: number
+  updatedCount: number
+}
+
 export async function POST(request: NextRequest) {
   console.log("POST /api/contacts")
 
@@ -109,11 +120,55 @@ export async function POST(request: NextRequest) {
     })
   }
 
+  let insertedCount: number
+  let updatedCount: number
+  try {
+    const result = await insertContactsInBatches(contacts, deviceId, syncTime)
+    insertedCount = result.insertedCount
+    updatedCount = result.updatedCount
+  } catch (error) {
+    console.error("Failed to insert contacts:", error)
+    return NextResponse.json<SyncErrorResponse>(
+      { error: "Failed to insert contacts" },
+      { status: 500 }
+    )
+  }
+
+  console.info(
+    `Synced contacts: ${insertedCount} inserted, ${updatedCount} updated`
+  )
+
+  if (insertedCount > 0 || updatedCount > 0) {
+    await logWrite({
+      type: "contact",
+      description: `Synced contacts from ${deviceId}`,
+      count: insertedCount + updatedCount,
+      metadata: { updatedCount },
+    })
+  }
+
+  return NextResponse.json<SyncSuccessResponse>({
+    success: true,
+    syncedAt: new Date().toISOString(),
+    insertedCount,
+    updatedCount,
+    rejectedCount: 0,
+    skippedCount: 0,
+  })
+}
+
+async function insertContactsInBatches(
+  contacts: ValidatedContact[],
+  deviceId: string,
+  syncTime: string
+): Promise<InsertResult> {
   const BATCH_SIZE = 50
   let insertedCount = 0
+  let updatedCount = 0
 
   for (let i = 0; i < contacts.length; i += BATCH_SIZE) {
     const batch = contacts.slice(i, i + BATCH_SIZE)
+    const batchCreatedAt = new Date()
     const batchValues = batch.map((c) => ({
       userId: DEFAULT_USER_ID,
       contactId: c.id,
@@ -127,6 +182,7 @@ export async function POST(request: NextRequest) {
       phoneNumbersIndex: c.phoneNumbersIndex ?? null,
       deviceId,
       syncTime: new Date(syncTime),
+      createdAt: batchCreatedAt,
     }))
 
     const result = await db
@@ -150,25 +206,14 @@ export async function POST(request: NextRequest) {
       })
       .returning()
 
-    insertedCount += result.length
+    for (const row of result) {
+      if (row.createdAt.getTime() === batchCreatedAt.getTime()) {
+        insertedCount++
+      } else {
+        updatedCount++
+      }
+    }
   }
 
-  console.info(`Synced ${insertedCount} contacts`)
-
-  if (insertedCount > 0) {
-    await logWrite({
-      type: "contact",
-      description: `Synced contacts from ${deviceId}`,
-      count: insertedCount,
-    })
-  }
-
-  return NextResponse.json<SyncSuccessResponse>({
-    success: true,
-    syncedAt: new Date().toISOString(),
-    insertedCount,
-    updatedCount: 0,
-    rejectedCount: 0,
-    skippedCount: 0,
-  })
+  return { insertedCount, updatedCount }
 }
