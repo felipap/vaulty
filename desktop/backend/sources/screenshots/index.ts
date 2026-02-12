@@ -70,21 +70,20 @@ export async function uploadScreenshot(imageBuffer: Buffer): Promise<void> {
   const width = metadata.width || 0
   const height = metadata.height || 0
 
-  // Encrypt if key is set
   const encryptionKey = getEncryptionKey()
-  const finalBuffer = encryptionKey
-    ? encryptBuffer(resizedBuffer, encryptionKey)
-    : resizedBuffer
+  if (!encryptionKey) {
+    return
+  }
+  const finalBuffer = encryptBuffer(resizedBuffer, encryptionKey)
 
-  const isEncrypted = encryptionKey !== null
-  const mimeType = isEncrypted ? 'application/octet-stream' : 'image/webp'
-  const extension = isEncrypted ? 'enc' : 'webp'
+  const mimeType = 'application/octet-stream'
+  const extension = 'enc'
 
   const formData = new FormData()
   const uint8Array = new Uint8Array(finalBuffer)
   const blob = new Blob([uint8Array], { type: mimeType })
   formData.append('screenshot', blob, `screenshot-${Date.now()}.${extension}`)
-  formData.append('encrypted', isEncrypted ? 'true' : 'false')
+  formData.append('encrypted', 'true')
   formData.append('width', String(width))
   formData.append('height', String(height))
 
@@ -93,5 +92,5 @@ export async function uploadScreenshot(imageBuffer: Buffer): Promise<void> {
     formData,
   })
 
-  console.log(`Screenshot uploaded successfully (encrypted: ${isEncrypted})`)
+  console.log('Screenshot uploaded successfully')
 }

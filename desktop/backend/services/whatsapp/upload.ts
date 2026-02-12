@@ -5,6 +5,7 @@ import {
   normalizePhoneForSearch,
 } from '../../lib/search-index-utils'
 import { getDeviceId, getEncryptionKey } from '../../store'
+import { log } from './index'
 import type { WhatsAppMessage } from './types'
 
 type EncryptedWhatsAppMessage = WhatsAppMessage & {
@@ -59,9 +60,10 @@ export async function uploadWhatsAppMessages(
   }
 
   const encryptionKey = getEncryptionKey()
-  const messagesToUpload = encryptionKey
-    ? encryptMessages(messages, encryptionKey)
-    : messages
+  if (!encryptionKey) {
+    return { error: 'Encryption key not set' }
+  }
+  const messagesToUpload = encryptMessages(messages, encryptionKey)
 
   const res = await apiRequest({
     path: '/api/whatsapp/messages',
@@ -78,8 +80,6 @@ export async function uploadWhatsAppMessages(
     return { error: res.error }
   }
 
-  console.log(
-    `[whatsapp-${source}] Uploaded ${messages.length} messages successfully`,
-  )
+  log.info(`Uploaded ${messages.length} messages successfully`)
   return {}
 }

@@ -172,9 +172,10 @@ export async function uploadContacts(contacts: AppleContact[]): Promise<void> {
   }
 
   const encryptionKey = getEncryptionKey()
-  const contactsToUpload = encryptionKey
-    ? encryptContacts(contacts, encryptionKey)
-    : contacts
+  if (!encryptionKey) {
+    return
+  }
+  const contactsToUpload = encryptContacts(contacts, encryptionKey)
 
   const syncTime = new Date().toISOString()
   const deviceId = getDeviceId()
