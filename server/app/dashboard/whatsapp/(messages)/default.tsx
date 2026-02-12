@@ -1,6 +1,7 @@
 "use client"
 
 import { SortSelector } from "@/ui/SortSelector"
+import { PageCount, EmptyState, LoadingState } from "@/ui/PageHeader"
 import { type SortBy } from "./actions"
 import { useMessageList } from "./useMessageList"
 import { MessagesTable } from "./MessagesTable"
@@ -23,19 +24,17 @@ export default function Page() {
   } = useMessageList()
 
   if (loading) {
-    return <p className="text-secondary">Loading...</p>
+    return <LoadingState />
   }
 
   if (messages.length === 0) {
-    return <p className="text-secondary">No WhatsApp messages yet.</p>
+    return <EmptyState message="No WhatsApp messages yet." />
   }
 
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
-        <span className="text-sm text-secondary">
-          {total.toLocaleString()} total messages
-        </span>
+        <PageCount total={total} />
         <SortSelector
           value={sortBy}
           onChange={setSortBy}

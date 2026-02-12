@@ -4,6 +4,12 @@ import { useEffect, useState } from "react"
 import { getStickies, type StickyNote } from "./actions"
 import { Pagination } from "@/ui/Pagination"
 import { maybeDecrypt } from "@/lib/encryption"
+import {
+  PageHeader,
+  PageCount,
+  EmptyState,
+  LoadingState,
+} from "@/ui/PageHeader"
 
 export default function Page() {
   const [stickies, setStickies] = useState<StickyNote[]>([])
@@ -35,9 +41,9 @@ export default function Page() {
 
   let inner
   if (loading) {
-    inner = <p className="text-secondary">Loading...</p>
+    inner = <LoadingState />
   } else if (stickies.length === 0) {
-    inner = <p className="text-secondary">No macOS stickies yet.</p>
+    inner = <EmptyState message="No stickies yet." />
   } else {
     inner = (
       <>
@@ -62,12 +68,9 @@ export default function Page() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="heading-page">macOS Stickies</h1>
-        <span className="text-sm text-secondary">
-          {total.toLocaleString()} total
-        </span>
-      </div>
+      <PageHeader title="Stickies">
+        {total > 0 && <PageCount total={total} />}
+      </PageHeader>
 
       {inner}
     </div>

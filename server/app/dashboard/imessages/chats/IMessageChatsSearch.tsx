@@ -3,6 +3,7 @@
 import { SearchIcon, CloseIcon } from "@/ui/icons"
 import { useEffect, useRef, useState } from "react"
 import { twMerge } from "tailwind-merge"
+import { PageCount } from "@/ui/PageHeader"
 import type { ChatFilters } from "./useChatList"
 
 type Props = {
@@ -39,10 +40,7 @@ export function IMessageChatsSearch({
           {searchOpen ? <CloseIcon size={14} /> : <SearchIcon size={14} />}
           {searchOpen ? "Close search" : "Search"}
         </button>
-        <span className="text-sm text-secondary">
-          {total.toLocaleString()} {hasActiveFilters ? "matching" : "total"}{" "}
-          chats
-        </span>
+        <PageCount total={total} filtered={hasActiveFilters} />
       </div>
 
       {searchOpen && (

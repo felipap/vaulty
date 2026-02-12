@@ -11,6 +11,7 @@ const SORT_OPTIONS: { value: SortBy; label: string }[] = [
 ]
 import { decryptText, isEncrypted, getEncryptionKey } from "@/lib/encryption"
 import { MessagesTable, type DecryptedMessage } from "./MessagesTable"
+import { PageCount, EmptyState, LoadingState } from "@/ui/PageHeader"
 
 export default function Page() {
   const [messages, setMessages] = useState<DecryptedMessage[]>([])
@@ -70,19 +71,17 @@ export default function Page() {
   }
 
   if (loading) {
-    return <p className="text-secondary">Loading...</p>
+    return <LoadingState />
   }
 
   if (messages.length === 0) {
-    return <p className="text-secondary">No messages yet.</p>
+    return <EmptyState message="No iMessages yet." />
   }
 
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
-        <span className="text-sm text-secondary">
-          {total.toLocaleString()} total messages
-        </span>
+        <PageCount total={total} />
         <SortSelector
           value={sortBy}
           onChange={handleSortChange}

@@ -13,6 +13,12 @@ import { DemoBlur } from "@/ui/DemoBlur"
 import { Pagination } from "@/ui/Pagination"
 import { DeleteAllButton } from "@/ui/DeleteAllButton"
 import { SearchIcon } from "@/ui/icons"
+import {
+  PageHeader,
+  PageCount,
+  EmptyState,
+  LoadingState,
+} from "@/ui/PageHeader"
 import { computeSearchIndex, getEncryptionKey } from "@/lib/encryption"
 import {
   normalizeStringForSearch,
@@ -101,14 +107,16 @@ export default function Page() {
 
   let inner
   if (loading) {
-    inner = <p className="text-secondary">Loading...</p>
+    inner = <LoadingState />
   } else if (contacts.length === 0) {
     inner = (
-      <p className="text-secondary">
-        {debouncedQuery
-          ? "No contacts matching your search."
-          : "No contacts yet."}
-      </p>
+      <EmptyState
+        message={
+          debouncedQuery
+            ? "No contacts matching your search."
+            : "No contacts yet."
+        }
+      />
     )
   } else {
     inner = (
@@ -130,10 +138,9 @@ export default function Page() {
 
   return (
     <div>
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="heading-page">Contacts</h1>
+      <PageHeader title="Contacts">
         {(total > 0 || debouncedQuery) && (
-          <div className="flex items-center gap-4">
+          <>
             <div className="relative">
               <SearchIcon
                 size={16}
@@ -147,16 +154,14 @@ export default function Page() {
                 className="rounded-lg border border-zinc-200 bg-white py-1.5 pl-9 pr-3 text-sm placeholder:text-secondary focus:border-zinc-400 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-600"
               />
             </div>
-            <span className="shrink-0 text-sm text-secondary">
-              {total.toLocaleString()} {debouncedQuery ? "matching" : "total"}
-            </span>
+            <PageCount total={total} filtered={!!debouncedQuery} />
             <DeleteAllButton
               confirmMessage="Delete all contacts? This will permanently remove all contacts from the database."
               onDelete={handleDeleteAll}
             />
-          </div>
+          </>
         )}
-      </div>
+      </PageHeader>
 
       {inner}
     </div>

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import { DeleteAllButton } from "@/ui/DeleteAllButton"
 import { NavTabs } from "@/ui/NavTabs"
+import { PageHeader } from "@/ui/PageHeader"
 import { deleteAllIMessages } from "./(messages)/actions"
 
 const subTabs = [
@@ -20,13 +21,12 @@ export function IMessagesNav() {
 
   return (
     <>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="heading-page">iMessages</h1>
+      <PageHeader title="iMessages">
         <DeleteAllButton
           confirmMessage="Delete all iMessages data? This will permanently delete all iMessages and attachments from the database."
           onDelete={handleDeleteAll}
         />
-      </div>
+      </PageHeader>
 
       <NavTabs tabs={subTabs} rootHref="/dashboard/imessages" />
     </>

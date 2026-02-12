@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import { EmptyState, LoadingState } from "@/ui/PageHeader"
 import { ChatsTable } from "./ChatsTable"
 import { useChatList } from "./useChatList"
 import { WhatsappChatsSearch } from "./WhatsappChatsSearch"
@@ -43,13 +44,15 @@ export default function Page() {
       />
 
       {loading ? (
-        <p className="text-secondary">Loading...</p>
+        <LoadingState />
       ) : chats.length === 0 ? (
-        <p className="text-secondary">
-          {hasActiveFilters
-            ? "No chats match your search."
-            : "No WhatsApp chats yet."}
-        </p>
+        <EmptyState
+          message={
+            hasActiveFilters
+              ? "No chats matching your search."
+              : "No WhatsApp chats yet."
+          }
+        />
       ) : (
         <ChatsTable
           chats={chats}

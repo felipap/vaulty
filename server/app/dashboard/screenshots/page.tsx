@@ -8,6 +8,12 @@ import {
 } from "./actions"
 import { ScreenshotPreview } from "./ScreenshotPreview"
 import { ScreenshotsTable } from "./ScreenshotsTable"
+import {
+  PageHeader,
+  PageCount,
+  EmptyState,
+  LoadingState,
+} from "@/ui/PageHeader"
 
 const IS_DEV = process.env.NODE_ENV === "development"
 
@@ -48,9 +54,9 @@ export default function Page() {
 
   let inner
   if (loading) {
-    inner = <p className="text-secondary">Loading...</p>
+    inner = <LoadingState />
   } else if (screenshots.length === 0) {
-    inner = <p className="text-secondary">No screenshots yet.</p>
+    inner = <EmptyState message="No screenshots yet." />
   } else {
     inner = (
       <ScreenshotsTable
@@ -65,10 +71,10 @@ export default function Page() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="heading-page">Screenshots</h1>
-          {retentionHours !== null && (
+      <PageHeader
+        title="Screenshots"
+        subtitle={
+          retentionHours !== null ? (
             <p className="text-sm text-secondary mt-1">
               Auto-delete after {formatRetention(retentionHours)} (set{" "}
               <code className="bg-zinc-100 dark:bg-zinc-800 px-1 py-0.5 rounded text-xs">
@@ -76,12 +82,11 @@ export default function Page() {
               </code>{" "}
               env var to change) {IS_DEV ? "(inactive in dev)" : ""}
             </p>
-          )}
-        </div>
-        <span className="text-sm text-secondary">
-          {total.toLocaleString()} total
-        </span>
-      </div>
+          ) : undefined
+        }
+      >
+        {total > 0 && <PageCount total={total} />}
+      </PageHeader>
 
       {inner}
 

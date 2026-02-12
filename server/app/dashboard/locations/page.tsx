@@ -4,6 +4,12 @@ import { useEffect, useState, useCallback } from "react"
 import { getLocations, type Location } from "./actions"
 import { Pagination } from "@/ui/Pagination"
 import { MapPinIcon, LockIcon } from "@/ui/icons"
+import {
+  PageHeader,
+  PageCount,
+  EmptyState,
+  LoadingState,
+} from "@/ui/PageHeader"
 import { decryptText, isEncrypted, getEncryptionKey } from "@/lib/encryption"
 
 export type DecryptedLocation = Location & {
@@ -82,9 +88,9 @@ export default function Page() {
 
   let inner
   if (loading) {
-    inner = <p className="text-secondary">Loading...</p>
+    inner = <LoadingState />
   } else if (locations.length === 0) {
-    inner = <p className="text-secondary">No locations yet.</p>
+    inner = <EmptyState message="No locations yet." />
   } else {
     inner = (
       <>
@@ -117,12 +123,9 @@ export default function Page() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="heading-page">Locations</h1>
-        <span className="text-sm text-secondary">
-          {total.toLocaleString()} total
-        </span>
-      </div>
+      <PageHeader title="Locations">
+        {total > 0 && <PageCount total={total} />}
+      </PageHeader>
 
       {inner}
     </div>
