@@ -1,8 +1,8 @@
 import { db } from "@/db"
 import { DEFAULT_USER_ID, WhatsappMessages } from "@/db/schema"
 import { logRead } from "@/lib/activity-log"
-import { requireReadAuth } from "@/lib/api-auth"
-import { and, desc, eq } from "drizzle-orm"
+import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
+import { and, desc, eq, gte } from "drizzle-orm"
 import { NextRequest } from "next/server"
 
 type RouteParams = { params: Promise<{ chat_id: string }> }
@@ -46,7 +46,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     )
   }
 
-  const messages = await getChatMessages(chatId, limit, offset)
+  const cutoff = getDataWindowCutoff(auth.token)
+  const messages = await getChatMessages(chatId, limit, offset, cutoff)
 
   await logRead({
     type: "whatsapp",
@@ -67,12 +68,22 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   })
 }
 
-async function getChatMessages(chatId: string, limit: number, offset: number) {
+async function getChatMessages(
+  chatId: string,
+  limit: number,
+  offset: number,
+  cutoff: Date | null
+) {
+  const conditions = [
+    eq(WhatsappMessages.userId, DEFAULT_USER_ID),
+    eq(WhatsappMessages.chatId, chatId),
+  ]
+  if (cutoff) {
+    conditions.push(gte(WhatsappMessages.timestamp, cutoff))
+  }
+
   const messages = await db.query.WhatsappMessages.findMany({
-    where: and(
-      eq(WhatsappMessages.userId, DEFAULT_USER_ID),
-      eq(WhatsappMessages.chatId, chatId)
-    ),
+    where: and(...conditions),
     orderBy: [desc(WhatsappMessages.timestamp)],
     limit,
     offset,

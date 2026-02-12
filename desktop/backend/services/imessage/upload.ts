@@ -1,5 +1,10 @@
 import { apiRequest } from '../../lib/contexter-api'
-import { encryptText, encryptBinaryToString } from '../../lib/encryption'
+import {
+  encryptText,
+  encryptBinaryToString,
+  computeSearchIndex,
+} from '../../lib/encryption'
+import { normalizeContactForSearch } from '../../lib/search-index-utils'
 import { type Message, type Attachment } from '../../sources/imessage'
 import { getDeviceId, getEncryptionKey } from '../../store'
 
@@ -24,6 +29,11 @@ function encryptMessages(
   return messages.map((msg) => ({
     ...msg,
     text: msg.text ? encryptText(msg.text, encryptionKey) : msg.text,
+    contact: encryptText(msg.contact, encryptionKey),
+    contactIndex: computeSearchIndex(
+      normalizeContactForSearch(msg.contact),
+      encryptionKey,
+    ),
     attachments: msg.attachments.map((att) =>
       encryptAttachment(att, encryptionKey),
     ),

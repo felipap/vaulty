@@ -9,6 +9,7 @@ import { RawJson } from "@/ui/RawJson"
 import { LockIcon, FileIcon, ImageIcon, DownloadIcon } from "@/ui/icons"
 import {
   decryptBinaryToBase64,
+  decryptText,
   isEncrypted,
   getEncryptionKey,
 } from "@/lib/encryption"
@@ -23,9 +24,25 @@ type DecryptedAttachment = Attachment & {
 }
 
 export function MessageDrawer({ message }: Props) {
+  const [decryptedContact, setDecryptedContact] = useState(message.contact)
   const [decryptedAttachments, setDecryptedAttachments] = useState<
     DecryptedAttachment[]
   >([])
+
+  useEffect(() => {
+    async function decrypt() {
+      if (isEncrypted(message.contact)) {
+        const key = getEncryptionKey()
+        if (key) {
+          const result = await decryptText(message.contact, key)
+          if (result) {
+            setDecryptedContact(result)
+          }
+        }
+      }
+    }
+    decrypt()
+  }, [message.contact])
 
   useEffect(() => {
     async function decryptAttachments() {
@@ -58,7 +75,7 @@ export function MessageDrawer({ message }: Props) {
     <Drawer title="Message Details">
       <div className="space-y-4">
         <DemoBlur>
-          <InfoRow label="Contact" value={message.contact} copyable />
+          <InfoRow label="Contact" value={decryptedContact} copyable />
         </DemoBlur>
         <InfoRow
           label="Direction"

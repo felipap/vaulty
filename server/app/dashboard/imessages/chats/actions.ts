@@ -3,7 +3,6 @@
 import { isAuthenticated } from "@/lib/admin-auth"
 import { db } from "@/db"
 import { Contacts, DEFAULT_USER_ID } from "@/db/schema"
-import { normalizePhoneForSearch } from "@/lib/search-normalize"
 import { eq, sql } from "drizzle-orm"
 import { unauthorized } from "next/navigation"
 
@@ -27,7 +26,7 @@ export type ChatsPage = {
 }
 
 export type ChatSearchParams = {
-  contact?: string
+  contactIndex?: string
   chatId?: string
 }
 
@@ -41,18 +40,15 @@ export async function getChats(
   }
 
   const offset = (page - 1) * pageSize
-  const normalizedContact = search.contact
-    ? normalizePhoneForSearch(search.contact).replace(/\D/g, "")
-    : ""
-  const hasContactSearch = normalizedContact.length > 0
+  const hasContactSearch = !!search.contactIndex
   const hasChatIdSearch = !!search.chatId
 
   const [countResult] = await db.execute<{ count: number }>(sql`
-    SELECT COUNT(DISTINCT COALESCE(chat_id, contact))::int as count
+    SELECT COUNT(DISTINCT COALESCE(chat_id, contact_index))::int as count
     FROM imessages
     WHERE user_id = ${DEFAULT_USER_ID}
-      ${hasContactSearch ? sql`AND REGEXP_REPLACE(contact, '[^0-9]', '', 'g') LIKE '%' || ${normalizedContact} || '%'` : sql``}
-      ${hasChatIdSearch ? sql`AND COALESCE(chat_id, contact) LIKE '%' || ${search.chatId} || '%'` : sql``}
+      ${hasContactSearch ? sql`AND contact_index = ${search.contactIndex}` : sql``}
+      ${hasChatIdSearch ? sql`AND COALESCE(chat_id, contact_index) LIKE '%' || ${search.chatId} || '%'` : sql``}
   `)
 
   const total = countResult.count
@@ -69,14 +65,14 @@ export async function getChats(
   }>(sql`
     WITH ranked_messages AS (
       SELECT
-        COALESCE(chat_id, contact) as effective_chat_id,
+        COALESCE(chat_id, contact_index) as effective_chat_id,
         id,
         text,
         date,
         is_from_me,
         contact,
         ROW_NUMBER() OVER (
-          PARTITION BY COALESCE(chat_id, contact)
+          PARTITION BY COALESCE(chat_id, contact_index)
           ORDER BY date DESC NULLS LAST
         ) as rn
       FROM imessages
@@ -85,20 +81,20 @@ export async function getChats(
     ),
     chat_participants AS (
       SELECT
-        COALESCE(chat_id, contact) as effective_chat_id,
-        COUNT(DISTINCT contact) as participant_count,
+        COALESCE(chat_id, contact_index) as effective_chat_id,
+        COUNT(DISTINCT contact_index) as participant_count,
         COUNT(*) as message_count,
         ARRAY_AGG(DISTINCT contact) as participants
       FROM imessages
       WHERE user_id = ${DEFAULT_USER_ID}
-      GROUP BY COALESCE(chat_id, contact)
+      GROUP BY COALESCE(chat_id, contact_index)
     ),
     filtered_chats AS (
-      SELECT DISTINCT COALESCE(chat_id, contact) as effective_chat_id
+      SELECT DISTINCT COALESCE(chat_id, contact_index) as effective_chat_id
       FROM imessages
       WHERE user_id = ${DEFAULT_USER_ID}
-        ${hasContactSearch ? sql`AND REGEXP_REPLACE(contact, '[^0-9]', '', 'g') LIKE '%' || ${normalizedContact} || '%'` : sql``}
-        ${hasChatIdSearch ? sql`AND COALESCE(chat_id, contact) LIKE '%' || ${search.chatId} || '%'` : sql``}
+        ${hasContactSearch ? sql`AND contact_index = ${search.contactIndex}` : sql``}
+        ${hasChatIdSearch ? sql`AND COALESCE(chat_id, contact_index) LIKE '%' || ${search.chatId} || '%'` : sql``}
     )
     SELECT
       rm.effective_chat_id as chat_id,
@@ -232,12 +228,12 @@ export async function getChatWithMessages(
   }>(sql`
     WITH ranked_messages AS (
       SELECT
-        COALESCE(chat_id, contact) as effective_chat_id,
+        COALESCE(chat_id, contact_index) as effective_chat_id,
         text,
         date,
         is_from_me,
         ROW_NUMBER() OVER (
-          PARTITION BY COALESCE(chat_id, contact)
+          PARTITION BY COALESCE(chat_id, contact_index)
           ORDER BY date DESC NULLS LAST
         ) as rn
       FROM imessages
@@ -246,13 +242,13 @@ export async function getChatWithMessages(
     ),
     chat_participants AS (
       SELECT
-        COALESCE(chat_id, contact) as effective_chat_id,
-        COUNT(DISTINCT contact) as participant_count,
+        COALESCE(chat_id, contact_index) as effective_chat_id,
+        COUNT(DISTINCT contact_index) as participant_count,
         COUNT(*) as message_count,
         ARRAY_AGG(DISTINCT contact) as participants
       FROM imessages
       WHERE user_id = ${DEFAULT_USER_ID}
-      GROUP BY COALESCE(chat_id, contact)
+      GROUP BY COALESCE(chat_id, contact_index)
     )
     SELECT
       rm.effective_chat_id as chat_id,
@@ -294,7 +290,7 @@ export async function getChatWithMessages(
       has_attachments
     FROM imessages
     WHERE user_id = ${DEFAULT_USER_ID}
-      AND COALESCE(chat_id, contact) = ${chatId}
+      AND COALESCE(chat_id, contact_index) = ${chatId}
     ORDER BY date DESC NULLS LAST
     LIMIT ${limit}
   `)
@@ -334,7 +330,7 @@ export async function getChatMessages(
     SELECT COUNT(*)::int as count
     FROM imessages
     WHERE user_id = ${DEFAULT_USER_ID}
-      AND COALESCE(chat_id, contact) = ${chatId}
+      AND COALESCE(chat_id, contact_index) = ${chatId}
   `)
 
   const total = countResult.count
@@ -358,7 +354,7 @@ export async function getChatMessages(
       has_attachments
     FROM imessages
     WHERE user_id = ${DEFAULT_USER_ID}
-      AND COALESCE(chat_id, contact) = ${chatId}
+      AND COALESCE(chat_id, contact_index) = ${chatId}
     ORDER BY date DESC NULLS LAST
     LIMIT ${limit}
     OFFSET ${offset}

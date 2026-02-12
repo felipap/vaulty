@@ -19,18 +19,11 @@ const encryptedOrEmpty = z.string().refine((s) => s === "" || isEncrypted(s), {
   message: "must be encrypted (missing enc:v1: prefix)",
 })
 
-const contactFormat = z.string().refine(
-  (contact) =>
-    contact.includes("@") || // email
-    /^\+\d+$/.test(contact) || // standardized phone
-    /^\d+$/.test(contact) || // short code
-    contact.startsWith("urn:") || // business URN
-    contact.toLowerCase() === "unknown", // unknown sender
-  {
-    message:
-      'Invalid contact format. Expected: phone (+1234...), email, short code, URN, or "Unknown"',
-  }
-)
+const encryptedContact = z
+  .string()
+  .refine((s) => isEncrypted(s), {
+    message: "contact must be encrypted (missing enc:v1: prefix)",
+  })
 
 const AttachmentSchema = z.object({
   id: z.string(),
@@ -47,7 +40,8 @@ const MessageSchema = z.object({
   id: z.union([z.number(), z.string()]),
   guid: z.string(),
   text: encryptedOrEmpty.nullable(),
-  contact: contactFormat,
+  contact: encryptedContact,
+  contactIndex: z.string().optional(),
   subject: encryptedOrEmpty.nullable(),
   date: z.string().nullable(),
   isFromMe: z.boolean(),
@@ -157,6 +151,7 @@ function toMessageValues(
     guid: validMessage.guid,
     text: validMessage.text,
     contact: validMessage.contact,
+    contactIndex: validMessage.contactIndex ?? null,
     subject: validMessage.subject,
     date: validMessage.date ? new Date(validMessage.date) : null,
     isFromMe: validMessage.isFromMe,

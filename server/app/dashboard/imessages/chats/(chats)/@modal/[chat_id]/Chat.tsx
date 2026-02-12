@@ -94,7 +94,7 @@ function MessageBubble({
       >
         {!message.isFromMe && (
           <p className="mb-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            <DemoBlur>{resolveContactName(message.contact, contactLookup)}</DemoBlur>
+            <DemoBlur>{resolveContactName(message.decryptedContact, contactLookup)}</DemoBlur>
           </p>
         )}
         <div className="flex items-start gap-1.5">

@@ -25,3 +25,11 @@ export function normalizeChatNameForSearch(name: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '')
 }
+
+/** Canonical contact form: emails → lowercase, phones → normalizePhoneForSearch */
+export function normalizeContactForSearch(contact: string): string {
+  if (contact.includes('@')) {
+    return contact.toLowerCase().trim()
+  }
+  return normalizePhoneForSearch(contact)
+}

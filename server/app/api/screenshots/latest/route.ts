@@ -1,8 +1,8 @@
 import { db } from "@/db"
 import { Screenshots } from "@/db/schema"
 import { logRead } from "@/lib/activity-log"
-import { requireReadAuth } from "@/lib/api-auth"
-import { desc, gte } from "drizzle-orm"
+import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
+import { and, desc, gte } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
@@ -22,14 +22,18 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  let where
+  const conditions = []
   if (withinMin) {
     const cutoff = new Date(Date.now() - withinMin * 60 * 1000)
-    where = gte(Screenshots.capturedAt, cutoff)
+    conditions.push(gte(Screenshots.capturedAt, cutoff))
+  }
+  const windowCutoff = getDataWindowCutoff(auth.token)
+  if (windowCutoff) {
+    conditions.push(gte(Screenshots.capturedAt, windowCutoff))
   }
 
   const screenshot = await db.query.Screenshots.findFirst({
-    where,
+    where: conditions.length > 0 ? and(...conditions) : undefined,
     orderBy: desc(Screenshots.capturedAt),
   })
 

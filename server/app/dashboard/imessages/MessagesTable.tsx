@@ -5,7 +5,10 @@ import { Pagination } from "@/ui/Pagination"
 import { isEncrypted } from "@/lib/encryption"
 import { type Message } from "./(messages)/actions"
 
-export type DecryptedMessage = Message & { decryptedText: string | null }
+export type DecryptedMessage = Message & {
+  decryptedText: string | null
+  decryptedContact: string
+}
 
 type Props = {
   messages: DecryptedMessage[]
@@ -60,7 +63,7 @@ function MessageRow({ message }: { message: DecryptedMessage }) {
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
           <ServiceIcon service={message.service} />
-          <span className="text-sm">{formatContact(message.contact)}</span>
+          <span className="text-sm">{formatContact(message.decryptedContact)}</span>
         </div>
       </td>
       <td className="max-w-[300px] truncate px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">

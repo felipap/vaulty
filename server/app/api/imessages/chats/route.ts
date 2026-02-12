@@ -3,7 +3,7 @@ import { DEFAULT_USER_ID } from "@/db/schema"
 import { sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
-import { requireReadAuth } from "@/lib/api-auth"
+import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "imessages")
@@ -50,7 +50,8 @@ export async function GET(request: NextRequest) {
 
   const startTime = Date.now()
 
-  const { chats } = await getLatestChats(limit, offset)
+  const cutoff = getDataWindowCutoff(auth.token)
+  const { chats } = await getLatestChats(limit, offset, cutoff)
 
   await logRead({
     type: "chat",
@@ -92,12 +93,13 @@ function isGroupChat(chatId: string): boolean {
 
 async function getLatestChats(
   limit: number,
-  offset: number
+  offset: number,
+  cutoff: Date | null
 ): Promise<{ chats: Chat[] }> {
-  // Use a single SQL query with window functions to:
-  // 1. Get the latest message per chat (using ROW_NUMBER)
-  // 2. Count distinct participants per chat
-  // 3. Aggregate participant list
+  const dateFilter = cutoff
+    ? sql`AND date >= ${cutoff}`
+    : sql``
+
   const result = await db.execute<{
     chat_id: string
     text: string | null
@@ -110,7 +112,7 @@ async function getLatestChats(
   }>(sql`
     WITH ranked_messages AS (
       SELECT
-        COALESCE(chat_id, contact) as effective_chat_id,
+        COALESCE(chat_id, contact_index) as effective_chat_id,
         id,
         text,
         date,
@@ -118,22 +120,24 @@ async function getLatestChats(
         is_from_me,
         contact,
         ROW_NUMBER() OVER (
-          PARTITION BY COALESCE(chat_id, contact)
+          PARTITION BY COALESCE(chat_id, contact_index)
           ORDER BY date DESC NULLS LAST
         ) as rn
       FROM imessages
       WHERE user_id = ${DEFAULT_USER_ID}
         AND text IS NOT NULL
+        ${dateFilter}
     ),
     chat_participants AS (
       SELECT
-        COALESCE(chat_id, contact) as effective_chat_id,
-        COUNT(DISTINCT contact) as participant_count,
+        COALESCE(chat_id, contact_index) as effective_chat_id,
+        COUNT(DISTINCT contact_index) as participant_count,
         COUNT(*) as message_count,
         ARRAY_AGG(DISTINCT contact) as participants
       FROM imessages
       WHERE user_id = ${DEFAULT_USER_ID}
-      GROUP BY COALESCE(chat_id, contact)
+        ${dateFilter}
+      GROUP BY COALESCE(chat_id, contact_index)
     )
     SELECT
       rm.effective_chat_id as chat_id,

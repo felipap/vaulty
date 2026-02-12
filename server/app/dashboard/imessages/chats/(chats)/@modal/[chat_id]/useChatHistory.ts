@@ -10,6 +10,7 @@ import { type ChatMessage, getChatMessages } from "../../../actions"
 
 export type DecryptedMessage = ChatMessage & {
   decryptedText: string | null
+  decryptedContact: string
 }
 
 type UseChatHistoryOptions = {
@@ -31,14 +32,18 @@ export function useChatHistory({ chatId, initialMessages, totalCount }: UseChatH
       const key = getEncryptionKey()
       const decrypted = await Promise.all(
         messages.map(async (msg) => {
-          if (!msg.text || !isEncrypted(msg.text)) {
-            return { ...msg, decryptedText: msg.text }
+          let decryptedText: string | null = msg.text
+          if (msg.text && isEncrypted(msg.text)) {
+            decryptedText = key ? await decryptText(msg.text, key) : null
           }
-          if (!key) {
-            return { ...msg, decryptedText: null }
+
+          let decryptedContact = msg.contact
+          if (isEncrypted(msg.contact) && key) {
+            decryptedContact =
+              (await decryptText(msg.contact, key)) ?? msg.contact
           }
-          const decryptedText = await decryptText(msg.text, key)
-          return { ...msg, decryptedText }
+
+          return { ...msg, decryptedText, decryptedContact }
         })
       )
       setDecryptedMessages(decrypted)

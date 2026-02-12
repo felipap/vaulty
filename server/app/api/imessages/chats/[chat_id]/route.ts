@@ -1,7 +1,7 @@
 import { db } from "@/db"
 import { DEFAULT_USER_ID } from "@/db/schema"
 import { logRead } from "@/lib/activity-log"
-import { requireReadAuth } from "@/lib/api-auth"
+import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 import { sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 
@@ -16,7 +16,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   const { chat_id } = await params
   const chatId = decodeURIComponent(chat_id)
 
-  const chat = await getChatDetails(chatId)
+  const cutoff = getDataWindowCutoff(auth.token)
+  const chat = await getChatDetails(chatId, cutoff)
 
   if (!chat) {
     return Response.json({ error: "Chat not found" }, { status: 404 })
@@ -51,8 +52,12 @@ function isGroupChat(chatId: string): boolean {
   return chatId.startsWith("chat")
 }
 
-async function getChatDetails(chatId: string): Promise<ChatDetails | null> {
+async function getChatDetails(
+  chatId: string,
+  cutoff: Date | null
+): Promise<ChatDetails | null> {
   const isGroup = isGroupChat(chatId)
+  const dateFilter = cutoff ? sql`AND date >= ${cutoff}` : sql``
 
   const result = await db.execute<{
     chat_id: string
@@ -76,19 +81,21 @@ async function getChatDetails(chatId: string): Promise<ChatDetails | null> {
       FROM imessages
       WHERE user_id = ${DEFAULT_USER_ID}
         AND (
-          ${isGroup ? sql`chat_id = ${chatId}` : sql`(chat_id = ${chatId} OR (contact = ${chatId} AND chat_id IS NULL))`}
+          ${isGroup ? sql`chat_id = ${chatId}` : sql`(chat_id = ${chatId} OR (contact_index = ${chatId} AND chat_id IS NULL))`}
         )
+        ${dateFilter}
     ),
     chat_stats AS (
       SELECT
-        COUNT(DISTINCT contact) as participant_count,
+        COUNT(DISTINCT contact_index) as participant_count,
         COUNT(*) as message_count,
         ARRAY_AGG(DISTINCT contact) as participants
       FROM imessages
       WHERE user_id = ${DEFAULT_USER_ID}
         AND (
-          ${isGroup ? sql`chat_id = ${chatId}` : sql`(chat_id = ${chatId} OR (contact = ${chatId} AND chat_id IS NULL))`}
+          ${isGroup ? sql`chat_id = ${chatId}` : sql`(chat_id = ${chatId} OR (contact_index = ${chatId} AND chat_id IS NULL))`}
         )
+        ${dateFilter}
     )
     SELECT
       ${chatId} as chat_id,

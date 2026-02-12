@@ -6,15 +6,14 @@ import { DataTable } from "@/ui/DataTable"
 import { DemoBlur } from "@/ui/DemoBlur"
 import { GroupIcon, LockIcon } from "@/ui/icons"
 import { Pagination } from "@/ui/Pagination"
-import { type Chat, type ContactLookup } from "./actions"
+import { type ContactLookup } from "./actions"
+import { type DecryptedChat } from "./useChatList"
 import { isEncrypted } from "@/lib/encryption"
 import {
   createColumnHelper,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-
-export type DecryptedChat = Chat & { decryptedLastMessage: string | null }
 
 const columnHelper = createColumnHelper<DecryptedChat>()
 
@@ -28,7 +27,7 @@ function createColumns(contactLookup: ContactLookup) {
         const chat = row.original
 
         if (chat.isGroupChat) {
-          const participantNames = chat.participants
+          const participantNames = chat.decryptedParticipants
             .map((p) => resolveContactName(p, contactLookup))
             .join(", ")
 
@@ -52,7 +51,7 @@ function createColumns(contactLookup: ContactLookup) {
           )
         }
 
-        const participant = chat.participants[0] || chat.chatId
+        const participant = chat.decryptedParticipants[0] || chat.chatId
         const resolvedName = resolveContactName(participant, contactLookup)
         const hasContactName = resolvedName !== formatContact(participant)
 

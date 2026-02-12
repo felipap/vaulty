@@ -3,7 +3,7 @@
 import { isAuthenticated } from "@/lib/admin-auth"
 import { db } from "@/db"
 import { Contacts } from "@/db/schema"
-import { desc, eq, ilike, or, sql } from "drizzle-orm"
+import { and, desc, eq, or, sql } from "drizzle-orm"
 import { unauthorized } from "next/navigation"
 
 export type Contact = {
@@ -31,26 +31,33 @@ export type ContactsPage = {
   totalPages: number
 }
 
+export type ContactSearchParams = {
+  nameIndex?: string
+  phoneNumberIndex?: string
+}
+
 export async function getContacts(
   page: number = 1,
   pageSize: number = 20,
-  query?: string
+  searchParams: ContactSearchParams = {}
 ): Promise<ContactsPage> {
   if (!(await isAuthenticated())) {
     unauthorized()
   }
 
   const offset = (page - 1) * pageSize
-  const trimmedQuery = query?.trim()
 
-  const fullName = sql`COALESCE(${Contacts.firstName}, '') || ' ' || COALESCE(${Contacts.lastName}, '')`
+  const { nameIndex, phoneNumberIndex } = searchParams
+  const hasNameSearch = !!nameIndex
+  const hasPhoneSearch = !!phoneNumberIndex
+  const hasSearch = hasNameSearch || hasPhoneSearch
 
-  const searchCondition = trimmedQuery
+  const searchCondition = hasSearch
     ? or(
-        ilike(Contacts.firstName, `%${trimmedQuery}%`),
-        ilike(Contacts.lastName, `%${trimmedQuery}%`),
-        ilike(Contacts.organization, `%${trimmedQuery}%`),
-        ilike(fullName, `%${trimmedQuery}%`)
+        hasNameSearch ? eq(Contacts.nameIndex, nameIndex) : undefined,
+        hasPhoneSearch
+          ? sql`${phoneNumberIndex} = ANY(${Contacts.phoneNumbersIndex})`
+          : undefined
       )
     : undefined
 
@@ -117,6 +124,14 @@ export async function getContact(id: string): Promise<ContactDetail | null> {
     createdAt: result.createdAt,
     updatedAt: result.updatedAt,
   }
+}
+
+export async function deleteAllContacts() {
+  if (!(await isAuthenticated())) {
+    unauthorized()
+  }
+
+  await db.delete(Contacts)
 }
 
 function parseContact(row: typeof Contacts.$inferSelect): Contact {

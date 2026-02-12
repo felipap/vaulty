@@ -10,6 +10,7 @@ export type TokenInfo = {
   name: string
   tokenPrefix: string
   scopes: string[]
+  dataWindowMs: number | null
   expiresAt: string | null
   lastUsedAt: string | null
   createdAt: string

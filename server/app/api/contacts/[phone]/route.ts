@@ -1,9 +1,9 @@
 import { db } from "@/db"
 import { Contacts, DEFAULT_USER_ID } from "@/db/schema"
-import { and, eq, sql } from "drizzle-orm"
+import { and, eq, gte, sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
-import { requireReadAuth } from "@/lib/api-auth"
+import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "contacts")
@@ -11,30 +11,52 @@ export async function GET(request: NextRequest) {
     return auth.response
   }
 
+  const searchParams = request.nextUrl.searchParams
+  const phoneNumberIndex = searchParams.get("phoneNumberIndex") // HMAC blind index
+
   const url = new URL(request.url)
   const phone = url.pathname.split("/").pop()
 
-  if (!phone) {
-    return Response.json({ error: "Phone number is required" }, { status: 400 })
+  if (!phone && !phoneNumberIndex) {
+    return Response.json(
+      { error: "Phone number or phoneNumberIndex is required" },
+      { status: 400 }
+    )
   }
 
-  const decodedPhone = decodeURIComponent(phone)
-  const normalizedPhone = normalizePhone(decodedPhone)
+  const decodedPhone = phone ? decodeURIComponent(phone) : ""
 
-  const matchingContact = await db.query.Contacts.findFirst({
-    where: and(
-      eq(Contacts.userId, DEFAULT_USER_ID),
+  const cutoff = getDataWindowCutoff(auth.token)
+  const conditions = [eq(Contacts.userId, DEFAULT_USER_ID)]
+
+  if (phoneNumberIndex) {
+    conditions.push(
+      sql`${phoneNumberIndex} = ANY(${Contacts.phoneNumbersIndex})`
+    )
+  } else {
+    const normalizedPhone = decodedPhone.replace(/\D/g, "")
+    conditions.push(
       sql`EXISTS (
         SELECT 1 FROM jsonb_array_elements_text(${Contacts.phoneNumbers}::jsonb) AS elem
         WHERE regexp_replace(elem, '[^0-9]', '', 'g') = ${normalizedPhone}
       )`
-    ),
+    )
+  }
+
+  if (cutoff) {
+    conditions.push(gte(Contacts.updatedAt, cutoff))
+  }
+
+  const matchingContact = await db.query.Contacts.findFirst({
+    where: and(...conditions),
   })
 
   if (!matchingContact) {
     await logRead({
       type: "contact",
-      description: `Contact not found for phone: ${decodedPhone}`,
+      description: phoneNumberIndex
+        ? `Contact not found by phone index`
+        : `Contact not found for phone: ${decodedPhone}`,
       count: 0,
       token: auth.token,
     })
@@ -60,7 +82,9 @@ export async function GET(request: NextRequest) {
 
   await logRead({
     type: "contact",
-    description: `Fetched contact by phone: ${decodedPhone}`,
+    description: phoneNumberIndex
+      ? `Fetched contact by phone index`
+      : `Fetched contact by phone: ${decodedPhone}`,
     count: 1,
     token: auth.token,
   })
@@ -69,8 +93,4 @@ export async function GET(request: NextRequest) {
     success: true,
     contact: parsed,
   })
-}
-
-function normalizePhone(phone: string): string {
-  return phone.replace(/\D/g, "")
 }

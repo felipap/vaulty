@@ -1,10 +1,10 @@
 import { db } from "@/db"
 import { MacosStickies } from "@/db/schema"
-import { sql } from "drizzle-orm"
+import { gte, sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { z } from "zod"
 import { logRead, logWrite } from "@/lib/activity-log"
-import { requireReadAuth, requireWriteAuth } from "@/lib/api-auth"
+import { getDataWindowCutoff, requireReadAuth, requireWriteAuth } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "macos-stickies")
@@ -14,7 +14,10 @@ export async function GET(request: NextRequest) {
 
   console.log("GET /api/macos-stickies")
 
+  const cutoff = getDataWindowCutoff(auth.token)
+
   const stickies = await db.query.MacosStickies.findMany({
+    where: cutoff ? gte(MacosStickies.updatedAt, cutoff) : undefined,
     orderBy: (s, { desc }) => [desc(s.updatedAt)],
   })
 

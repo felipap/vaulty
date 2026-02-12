@@ -1,10 +1,10 @@
 import { db } from "@/db"
 import { Contacts, DEFAULT_USER_ID } from "@/db/schema"
-import { eq, sql } from "drizzle-orm"
+import { and, eq, gte, sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { z } from "zod"
 import { logRead, logWrite } from "@/lib/activity-log"
-import { requireReadAuth } from "@/lib/api-auth"
+import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "contacts")
@@ -14,8 +14,14 @@ export async function GET(request: NextRequest) {
 
   console.log("GET /api/contacts")
 
+  const conditions = [eq(Contacts.userId, DEFAULT_USER_ID)]
+  const cutoff = getDataWindowCutoff(auth.token)
+  if (cutoff) {
+    conditions.push(gte(Contacts.updatedAt, cutoff))
+  }
+
   const contacts = await db.query.Contacts.findMany({
-    where: eq(Contacts.userId, DEFAULT_USER_ID),
+    where: and(...conditions),
     orderBy: (contacts, { asc }) => [
       asc(contacts.firstName),
       asc(contacts.lastName),
@@ -55,9 +61,11 @@ const ContactSchema = z.object({
   id: z.string(),
   firstName: z.string().nullable(),
   lastName: z.string().nullable(),
+  nameIndex: z.string().nullable().optional(), // HMAC blind index for name search
   organization: z.string().nullable(),
   emails: z.array(z.string()),
   phoneNumbers: z.array(z.string()),
+  phoneNumbersIndex: z.array(z.string()).nullable().optional(), // HMAC blind indexes for phone search
 })
 
 const PostSchema = z.object({
@@ -104,9 +112,11 @@ export async function POST(request: NextRequest) {
       contactId: c.id,
       firstName: c.firstName,
       lastName: c.lastName,
+      nameIndex: c.nameIndex ?? null,
       organization: c.organization,
       emails: JSON.stringify(c.emails),
       phoneNumbers: JSON.stringify(c.phoneNumbers),
+      phoneNumbersIndex: c.phoneNumbersIndex ?? null,
       deviceId,
       syncTime: new Date(syncTime),
     }))
@@ -119,9 +129,11 @@ export async function POST(request: NextRequest) {
         set: {
           firstName: sql`excluded.first_name`,
           lastName: sql`excluded.last_name`,
+          nameIndex: sql`excluded.name_index`,
           organization: sql`excluded.organization`,
           emails: sql`excluded.emails`,
           phoneNumbers: sql`excluded.phone_numbers`,
+          phoneNumbersIndex: sql`excluded.phone_numbers_index`,
           deviceId: sql`excluded.device_id`,
           syncTime: sql`excluded.sync_time`,
           updatedAt: sql`now()`,

@@ -3,7 +3,7 @@ import { DEFAULT_USER_ID } from "@/db/schema"
 import { sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
-import { requireReadAuth } from "@/lib/api-auth"
+import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "whatsapp")
@@ -43,7 +43,8 @@ export async function GET(request: NextRequest) {
 
   const startTime = Date.now()
 
-  const { chats } = await getLatestChats(limit, offset)
+  const cutoff = getDataWindowCutoff(auth.token)
+  const { chats } = await getLatestChats(limit, offset, cutoff)
 
   await logRead({
     type: "whatsapp",
@@ -80,8 +81,13 @@ interface Chat {
 
 async function getLatestChats(
   limit: number,
-  offset: number
+  offset: number,
+  cutoff: Date | null
 ): Promise<{ chats: Chat[] }> {
+  const tsFilter = cutoff
+    ? sql`AND timestamp >= ${cutoff}`
+    : sql``
+
   const result = await db.execute<{
     chat_id: string
     chat_name: string | null
@@ -107,6 +113,7 @@ async function getLatestChats(
         ) as rn
       FROM whatsapp_messages
       WHERE user_id = ${DEFAULT_USER_ID}
+        ${tsFilter}
     ),
     chat_participants AS (
       SELECT
@@ -117,6 +124,7 @@ async function getLatestChats(
         ARRAY_AGG(DISTINCT sender_jid) as participants
       FROM whatsapp_messages
       WHERE user_id = ${DEFAULT_USER_ID}
+        ${tsFilter}
       GROUP BY chat_id
     )
     SELECT

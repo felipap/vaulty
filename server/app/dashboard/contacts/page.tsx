@@ -2,12 +2,55 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { getContacts, type Contact } from "./actions"
+import { useRouter } from "next/navigation"
+import {
+  getContacts,
+  deleteAllContacts,
+  type Contact,
+  type ContactSearchParams,
+} from "./actions"
 import { DemoBlur } from "@/ui/DemoBlur"
 import { Pagination } from "@/ui/Pagination"
-import { SearchIcon } from "@/ui/icons"
+import { Button } from "@/ui/Button"
+import { SearchIcon, TrashIcon } from "@/ui/icons"
+import { computeSearchIndex, getEncryptionKey } from "@/lib/encryption"
+import {
+  normalizeChatNameForSearch,
+  normalizePhoneForSearch,
+} from "@/lib/search-normalize"
+
+async function buildSearchParams(
+  query: string
+): Promise<ContactSearchParams> {
+  const trimmed = query.trim()
+  if (!trimmed) {
+    return {}
+  }
+
+  const key = getEncryptionKey()
+  if (!key) {
+    return {}
+  }
+
+  const params: ContactSearchParams = {}
+
+  // Compute name index (normalized: stripped accents, lowercase, no punctuation)
+  const normalizedName = normalizeChatNameForSearch(trimmed)
+  if (normalizedName) {
+    params.nameIndex = await computeSearchIndex(normalizedName, key)
+  }
+
+  // If query looks like a phone number, also compute phone index
+  const normalizedPhone = normalizePhoneForSearch(trimmed)
+  if (normalizedPhone) {
+    params.phoneNumberIndex = await computeSearchIndex(normalizedPhone, key)
+  }
+
+  return params
+}
 
 export default function Page() {
+  const router = useRouter()
   const [contacts, setContacts] = useState<Contact[]>([])
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
@@ -35,7 +78,8 @@ export default function Page() {
   useEffect(() => {
     async function load() {
       setLoading(true)
-      const data = await getContacts(page, 20, debouncedQuery || undefined)
+      const searchParams = await buildSearchParams(debouncedQuery)
+      const data = await getContacts(page, 20, searchParams)
       setContacts(data.contacts)
       setTotalPages(data.totalPages)
       setTotal(data.total)
@@ -43,6 +87,21 @@ export default function Page() {
     }
     load()
   }, [page, debouncedQuery])
+
+  async function handleDeleteAll() {
+    const confirmed = confirm(
+      "Delete all contacts? This will permanently remove all contacts from the database."
+    )
+    if (!confirmed) {
+      return
+    }
+    await deleteAllContacts()
+    router.refresh()
+    setContacts([])
+    setTotal(0)
+    setTotalPages(1)
+    setPage(1)
+  }
 
   let inner
   if (loading) {
@@ -92,6 +151,14 @@ export default function Page() {
           <span className="shrink-0 text-sm text-zinc-500">
             {total.toLocaleString()} {debouncedQuery ? "matching" : "total"}
           </span>
+          <Button
+            variant="danger"
+            size="sm"
+            icon={<TrashIcon size={12} />}
+            onClick={handleDeleteAll}
+          >
+            Delete All
+          </Button>
         </div>
       </div>
 

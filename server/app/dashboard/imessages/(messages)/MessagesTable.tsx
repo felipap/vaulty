@@ -15,7 +15,10 @@ import { Pagination } from "@/ui/Pagination"
 import { type Message, type SortBy } from "./actions"
 import { type ContactLookup } from "../chats/actions"
 
-export type DecryptedMessage = Message & { decryptedText: string | null }
+export type DecryptedMessage = Message & {
+  decryptedText: string | null
+  decryptedContact: string
+}
 
 type Props = {
   messages: DecryptedMessage[]
@@ -43,17 +46,18 @@ export function MessagesTable({
         size: 100,
         cell: (info) => <DirectionBadge isFromMe={info.getValue()} />,
       }),
-      columnHelper.accessor("contact", {
+      columnHelper.display({
+        id: "contact",
         header: "Contact",
         size: 180,
-        cell: (info) => {
-          const contact = info.getValue()
+        cell: ({ row }) => {
+          const contact = row.original.decryptedContact
           const resolvedName = resolveContactName(contact, contactLookup)
           const hasContactName = resolvedName !== formatContact(contact)
 
           return (
             <div className="flex items-center gap-2">
-              <ServiceIcon service={info.row.original.service} />
+              <ServiceIcon service={row.original.service} />
               <DemoBlur>
                 <div className="flex flex-col">
                   <span className="text-sm">{resolvedName}</span>

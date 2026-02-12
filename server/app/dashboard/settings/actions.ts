@@ -31,6 +31,7 @@ export async function getAccessTokens() {
     name: t.name,
     tokenPrefix: t.tokenPrefix,
     scopes: t.scopes ?? [],
+    dataWindowMs: t.dataWindowMs,
     expiresAt: t.expiresAt?.toISOString() ?? null,
     lastUsedAt: t.lastUsedAt?.toISOString() ?? null,
     createdAt: t.createdAt.toISOString(),
@@ -40,7 +41,8 @@ export async function getAccessTokens() {
 export async function createToken(
   name: string,
   expiresInDays?: number,
-  scopes?: string[]
+  scopes?: string[],
+  dataWindowMs?: number
 ) {
   if (!(await isAuthenticated())) {
     throw new Error("Unauthorized")
@@ -50,11 +52,12 @@ export async function createToken(
     ? new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000)
     : undefined
 
-  const { token, record } = await createAccessToken(
+  const { token, record } = await createAccessToken({
     name,
     expiresAt,
-    scopes as Scope[]
-  )
+    scopes: scopes as Scope[],
+    dataWindowMs,
+  })
 
   return {
     token,
@@ -62,6 +65,7 @@ export async function createToken(
     name: record.name,
     tokenPrefix: record.tokenPrefix,
     scopes: record.scopes ?? [],
+    dataWindowMs: record.dataWindowMs,
     expiresAt: record.expiresAt?.toISOString() ?? null,
     createdAt: record.createdAt.toISOString(),
   }

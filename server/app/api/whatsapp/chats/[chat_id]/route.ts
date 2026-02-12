@@ -1,7 +1,7 @@
 import { db } from "@/db"
 import { DEFAULT_USER_ID } from "@/db/schema"
 import { logRead } from "@/lib/activity-log"
-import { requireReadAuth } from "@/lib/api-auth"
+import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 import { sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 
@@ -16,7 +16,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   const { chat_id } = await params
   const chatId = decodeURIComponent(chat_id)
 
-  const chat = await getChatDetails(chatId)
+  const cutoff = getDataWindowCutoff(auth.token)
+  const chat = await getChatDetails(chatId, cutoff)
 
   if (!chat) {
     return Response.json({ error: "Chat not found" }, { status: 404 })
@@ -47,7 +48,12 @@ interface ChatDetails {
   messageCount: number
 }
 
-async function getChatDetails(chatId: string): Promise<ChatDetails | null> {
+async function getChatDetails(
+  chatId: string,
+  cutoff: Date | null
+): Promise<ChatDetails | null> {
+  const tsFilter = cutoff ? sql`AND timestamp >= ${cutoff}` : sql``
+
   const result = await db.execute<{
     chat_id: string
     chat_name: string | null
@@ -70,6 +76,7 @@ async function getChatDetails(chatId: string): Promise<ChatDetails | null> {
       FROM whatsapp_messages
       WHERE user_id = ${DEFAULT_USER_ID}
         AND chat_id = ${chatId}
+        ${tsFilter}
     ),
     chat_stats AS (
       SELECT
@@ -80,6 +87,7 @@ async function getChatDetails(chatId: string): Promise<ChatDetails | null> {
       FROM whatsapp_messages
       WHERE user_id = ${DEFAULT_USER_ID}
         AND chat_id = ${chatId}
+        ${tsFilter}
     )
     SELECT
       ${chatId} as chat_id,

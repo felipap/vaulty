@@ -8,6 +8,7 @@ export type TokenInfo = {
   name: string
   tokenPrefix: string
   scopes: string[]
+  dataWindowMs: number | null
   expiresAt: string | null
   lastUsedAt: string | null
   createdAt: string
@@ -34,9 +35,10 @@ export function useAccessTokens() {
   async function create(
     name: string,
     expiresInDays?: number,
-    scopes?: string[]
+    scopes?: string[],
+    dataWindowMs?: number
   ) {
-    const result = await createToken(name, expiresInDays, scopes)
+    const result = await createToken(name, expiresInDays, scopes, dataWindowMs)
     await loadTokens()
     return result.token
   }

@@ -12,10 +12,15 @@ function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex")
 }
 
-export function generateAccessToken(
-  name: string,
-  expiresAt?: Date,
+type CreateTokenOptions = {
+  name: string
+  expiresAt?: Date
   scopes?: Scope[]
+  dataWindowMs?: number
+}
+
+export function generateAccessToken(
+  options: CreateTokenOptions
 ): { rawToken: string; values: typeof AccessTokens.$inferInsert } {
   const randomPart = randomBytes(25).toString("hex")
   const rawToken = `${TOKEN_PREFIX}${randomPart}`
@@ -25,21 +30,18 @@ export function generateAccessToken(
   return {
     rawToken,
     values: {
-      name,
+      name: options.name,
       tokenHash,
       tokenPrefix,
-      scopes: scopes ?? [],
-      expiresAt: expiresAt ?? null,
+      scopes: options.scopes ?? [],
+      dataWindowMs: options.dataWindowMs ?? null,
+      expiresAt: options.expiresAt ?? null,
     },
   }
 }
 
-export async function createAccessToken(
-  name: string,
-  expiresAt?: Date,
-  scopes?: Scope[]
-) {
-  const { rawToken, values } = generateAccessToken(name, expiresAt, scopes)
+export async function createAccessToken(options: CreateTokenOptions) {
+  const { rawToken, values } = generateAccessToken(options)
 
   const [record] = await db.insert(AccessTokens).values(values).returning()
 

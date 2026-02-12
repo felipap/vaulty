@@ -19,6 +19,7 @@ export function AccessTokens() {
   const [showCreate, setShowCreate] = useState(false)
   const [newTokenName, setNewTokenName] = useState("")
   const [expiresInDays, setExpiresInDays] = useState<string>("")
+  const [dataWindowMs, setDataWindowMs] = useState<string>("")
   const [selectedScopes, setSelectedScopes] = useState<Set<string>>(
     new Set(VALID_SCOPES)
   )
@@ -44,12 +45,14 @@ export function AccessTokens() {
     }
     setCreating(true)
     const days = expiresInDays ? parseInt(expiresInDays, 10) : undefined
+    const windowMs = dataWindowMs ? parseInt(dataWindowMs, 10) : undefined
     const allSelected = selectedScopes.size === VALID_SCOPES.length
     const scopes = allSelected ? [] : [...selectedScopes]
-    const token = await create(newTokenName.trim(), days, scopes)
+    const token = await create(newTokenName.trim(), days, scopes, windowMs)
     setRevealedToken(token)
     setNewTokenName("")
     setExpiresInDays("")
+    setDataWindowMs("")
     setSelectedScopes(new Set(VALID_SCOPES))
     setShowCreate(false)
     setCreating(false)
@@ -137,6 +140,22 @@ export function AccessTokens() {
               />
             </div>
             <div>
+              <label className="mb-1 block text-sm font-medium">
+                Data window (ms)
+              </label>
+              <input
+                type="number"
+                value={dataWindowMs}
+                onChange={(e) => setDataWindowMs(e.target.value)}
+                placeholder="Leave empty for unlimited access"
+                min="1"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-700"
+              />
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                Restricts reads to data within this many ms from now. e.g. 172800000 = 2 days
+              </p>
+            </div>
+            <div>
               <label className="mb-1.5 block text-sm font-medium">Scopes</label>
               <div className="flex flex-wrap gap-2">
                 {VALID_SCOPES.map((scope) => (
@@ -175,6 +194,7 @@ export function AccessTokens() {
                   setShowCreate(false)
                   setNewTokenName("")
                   setExpiresInDays("")
+                  setDataWindowMs("")
                 }}
                 className="rounded-md border border-zinc-200 px-4 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
               >

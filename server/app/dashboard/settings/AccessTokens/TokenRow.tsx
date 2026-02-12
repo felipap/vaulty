@@ -10,6 +10,23 @@ type Props = {
   onRevoke: () => void
 }
 
+function formatMs(ms: number): string {
+  const seconds = ms / 1000
+  if (seconds < 60) {
+    return `${seconds}s`
+  }
+  const minutes = seconds / 60
+  if (minutes < 60) {
+    return `${Math.round(minutes)}m`
+  }
+  const hours = minutes / 60
+  if (hours < 24) {
+    return `${Math.round(hours)}h`
+  }
+  const days = hours / 24
+  return `${Math.round(days)}d`
+}
+
 export function TokenRow({ token, onRevoke }: Props) {
   const [confirming, setConfirming] = useState(false)
 
@@ -41,6 +58,11 @@ export function TokenRow({ token, onRevoke }: Props) {
               {scope}
             </span>
           ))}
+          {token.dataWindowMs && (
+            <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+              Window: {formatMs(token.dataWindowMs)}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400">
           <code>{token.tokenPrefix}...</code>

@@ -1,7 +1,7 @@
 import { db } from "@/db"
 import { DEFAULT_USER_ID, WhatsappMessages } from "@/db/schema"
 import { logRead, logWrite } from "@/lib/activity-log"
-import { requireReadAuth } from "@/lib/api-auth"
+import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 import { WHATSAPP_ENCRYPTED_COLUMNS } from "@/lib/encryption-schema"
 import { and, eq, gte } from "drizzle-orm"
 import { NextRequest } from "next/server"
@@ -108,6 +108,11 @@ export async function GET(request: NextRequest) {
       )
     }
     conditions.push(gte(WhatsappMessages.timestamp, afterDate))
+  }
+
+  const cutoff = getDataWindowCutoff(auth.token)
+  if (cutoff) {
+    conditions.push(gte(WhatsappMessages.timestamp, cutoff))
   }
 
   const messages = await db.query.WhatsappMessages.findMany({

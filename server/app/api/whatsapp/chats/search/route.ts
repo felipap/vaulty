@@ -1,7 +1,7 @@
 import { db } from "@/db"
 import { DEFAULT_USER_ID } from "@/db/schema"
 import { logRead } from "@/lib/activity-log"
-import { requireReadAuth } from "@/lib/api-auth"
+import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 import { normalizePhoneForSearch } from "@/lib/search-normalize"
 import { sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
@@ -55,10 +55,11 @@ export async function GET(request: NextRequest) {
   }
 
   const startTime = Date.now()
+  const cutoff = getDataWindowCutoff(auth.token)
 
   const { chats, total } = senderPhoneNumberIndex
-    ? await searchChatsByPhoneIndex(senderPhoneNumberIndex, limit, offset)
-    : await searchChatsBySender(normalizedSender, limit, offset)
+    ? await searchChatsByPhoneIndex(senderPhoneNumberIndex, limit, offset, cutoff)
+    : await searchChatsBySender(normalizedSender, limit, offset, cutoff)
 
   await logRead({
     type: "whatsapp",
@@ -103,13 +104,17 @@ interface Chat {
 async function searchChatsByPhoneIndex(
   senderPhoneNumberIndex: string,
   limit: number,
-  offset: number
+  offset: number,
+  cutoff: Date | null
 ): Promise<{ chats: Chat[]; total: number }> {
+  const tsFilter = cutoff ? sql`AND timestamp >= ${cutoff}` : sql``
+
   const [countResult] = await db.execute<{ count: number }>(sql`
     SELECT COUNT(DISTINCT chat_id)::int as count
     FROM whatsapp_messages
     WHERE user_id = ${DEFAULT_USER_ID}
       AND sender_phone_number_index = ${senderPhoneNumberIndex}
+      ${tsFilter}
   `)
 
   const total = countResult.count
@@ -139,6 +144,7 @@ async function searchChatsByPhoneIndex(
         ) as rn
       FROM whatsapp_messages
       WHERE user_id = ${DEFAULT_USER_ID}
+        ${tsFilter}
     ),
     chat_participants AS (
       SELECT
@@ -149,6 +155,7 @@ async function searchChatsByPhoneIndex(
         ARRAY_AGG(DISTINCT sender_jid) as participants
       FROM whatsapp_messages
       WHERE user_id = ${DEFAULT_USER_ID}
+        ${tsFilter}
       GROUP BY chat_id
     ),
     filtered_chats AS (
@@ -156,6 +163,7 @@ async function searchChatsByPhoneIndex(
       FROM whatsapp_messages
       WHERE user_id = ${DEFAULT_USER_ID}
         AND sender_phone_number_index = ${senderPhoneNumberIndex}
+        ${tsFilter}
     )
     SELECT
       rm.chat_id,
@@ -194,13 +202,17 @@ async function searchChatsByPhoneIndex(
 async function searchChatsBySender(
   normalizedSender: string,
   limit: number,
-  offset: number
+  offset: number,
+  cutoff: Date | null
 ): Promise<{ chats: Chat[]; total: number }> {
+  const tsFilter = cutoff ? sql`AND timestamp >= ${cutoff}` : sql``
+
   const [countResult] = await db.execute<{ count: number }>(sql`
     SELECT COUNT(DISTINCT chat_id)::int as count
     FROM whatsapp_messages
     WHERE user_id = ${DEFAULT_USER_ID}
       AND REGEXP_REPLACE(sender_jid, '[^0-9]', '', 'g') LIKE '%' || ${normalizedSender} || '%'
+      ${tsFilter}
   `)
 
   const total = countResult.count
@@ -230,6 +242,7 @@ async function searchChatsBySender(
         ) as rn
       FROM whatsapp_messages
       WHERE user_id = ${DEFAULT_USER_ID}
+        ${tsFilter}
     ),
     chat_participants AS (
       SELECT
@@ -240,6 +253,7 @@ async function searchChatsBySender(
         ARRAY_AGG(DISTINCT sender_jid) as participants
       FROM whatsapp_messages
       WHERE user_id = ${DEFAULT_USER_ID}
+        ${tsFilter}
       GROUP BY chat_id
     ),
     filtered_chats AS (
@@ -247,6 +261,7 @@ async function searchChatsBySender(
       FROM whatsapp_messages
       WHERE user_id = ${DEFAULT_USER_ID}
         AND REGEXP_REPLACE(sender_jid, '[^0-9]', '', 'g') LIKE '%' || ${normalizedSender} || '%'
+        ${tsFilter}
     )
     SELECT
       rm.chat_id,

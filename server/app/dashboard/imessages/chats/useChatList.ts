@@ -8,9 +8,17 @@ import {
   type ContactLookup,
   type ChatSearchParams,
 } from "./actions"
-import { decryptText, isEncrypted, getEncryptionKey } from "@/lib/encryption"
+import {
+  maybeDecrypt,
+  getEncryptionKey,
+  computeSearchIndex,
+} from "@/lib/encryption"
+import { normalizeContactForSearch } from "@/lib/search-normalize"
 
-export type DecryptedChat = Chat & { decryptedLastMessage: string | null }
+export type DecryptedChat = Chat & {
+  decryptedLastMessage: string | null
+  decryptedParticipants: string[]
+}
 
 export type ChatFilters = {
   contact: string
@@ -26,11 +34,19 @@ type UseChatListOptions = {
   pageSize?: number
 }
 
-function buildSearchParams(filters: ChatFilters): ChatSearchParams {
+async function buildSearchParams(
+  filters: ChatFilters
+): Promise<ChatSearchParams> {
   const params: ChatSearchParams = {}
 
   if (filters.contact) {
-    params.contact = filters.contact
+    const key = getEncryptionKey()
+    if (key) {
+      const normalized = normalizeContactForSearch(filters.contact)
+      if (normalized) {
+        params.contactIndex = await computeSearchIndex(normalized, key)
+      }
+    }
   }
   if (filters.chatId) {
     params.chatId = filters.chatId
@@ -54,20 +70,16 @@ export function useChatList(options: UseChatListOptions = {}) {
 
   const decryptChats = useCallback(
     async (chatList: Chat[]): Promise<DecryptedChat[]> => {
-      const encryptionKey = getEncryptionKey()
       return Promise.all(
         chatList.map(async (chat) => {
-          if (!chat.lastMessageText || !isEncrypted(chat.lastMessageText)) {
-            return { ...chat, decryptedLastMessage: chat.lastMessageText }
-          }
-          if (!encryptionKey) {
-            return { ...chat, decryptedLastMessage: null }
-          }
-          const decrypted = await decryptText(
-            chat.lastMessageText,
-            encryptionKey
+          const decryptedLastMessage = await maybeDecrypt(chat.lastMessageText)
+          const decryptedParticipants = await Promise.all(
+            chat.participants.map(async (p) => {
+              const decrypted = await maybeDecrypt(p)
+              return decrypted ?? p
+            })
           )
-          return { ...chat, decryptedLastMessage: decrypted }
+          return { ...chat, decryptedLastMessage, decryptedParticipants }
         })
       )
     },
@@ -82,7 +94,7 @@ export function useChatList(options: UseChatListOptions = {}) {
   useEffect(() => {
     async function load() {
       setLoading(true)
-      const searchParams = buildSearchParams(filters)
+      const searchParams = await buildSearchParams(filters)
       const data = await getChats(page, pageSize, searchParams)
       const decrypted = await decryptChats(data.chats)
       setChats(decrypted)

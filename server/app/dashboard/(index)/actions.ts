@@ -42,13 +42,13 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     .where(eq(iMessages.userId, DEFAULT_USER_ID))
 
   const [chatStats] = await db.execute<{ count: number }>(sql`
-    SELECT COUNT(DISTINCT COALESCE(chat_id, contact))::int as count
+    SELECT COUNT(DISTINCT COALESCE(chat_id, contact_index))::int as count
     FROM imessages
     WHERE user_id = ${DEFAULT_USER_ID}
   `)
 
   const [contactStats] = await db.execute<{ count: number }>(sql`
-    SELECT COUNT(DISTINCT contact)::int as count
+    SELECT COUNT(DISTINCT contact_index)::int as count
     FROM imessages
     WHERE user_id = ${DEFAULT_USER_ID}
   `)

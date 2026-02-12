@@ -1,9 +1,9 @@
 import { db } from "@/db"
 import { Contacts, DEFAULT_USER_ID } from "@/db/schema"
-import { and, eq, ilike, or, sql } from "drizzle-orm"
+import { and, eq, gte, or, sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
-import { requireReadAuth } from "@/lib/api-auth"
+import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "contacts")
@@ -12,33 +12,30 @@ export async function GET(request: NextRequest) {
   }
 
   const searchParams = request.nextUrl.searchParams
-  const query = searchParams.get("q")?.trim() || ""
+  const nameIndex = searchParams.get("nameIndex") // HMAC blind index for name
+  const phoneNumberIndex = searchParams.get("phoneNumberIndex") // HMAC blind index for phone
   const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100)
 
-  if (!query) {
+  if (!nameIndex && !phoneNumberIndex) {
     return Response.json(
-      { error: "Search query 'q' is required" },
+      { error: "nameIndex or phoneNumberIndex parameter is required" },
       { status: 400 }
     )
   }
 
-  const searchPattern = `%${query}%`
-  const startsWithPattern = `${query}%`
-  const lowerQuery = query.toLowerCase()
-
-  // Full name with NULL handling
-  const fullName = sql`COALESCE(${Contacts.firstName}, '') || ' ' || COALESCE(${Contacts.lastName}, '')`
-
-  // Relevance: exact match (3) > starts with (2) > contains (1)
-  const relevanceScore = sql<number>`
-    CASE
-      WHEN LOWER(COALESCE(${Contacts.firstName}, '')) = ${lowerQuery}
-        OR LOWER(COALESCE(${Contacts.lastName}, '')) = ${lowerQuery} THEN 3
-      WHEN LOWER(COALESCE(${Contacts.firstName}, '')) LIKE ${startsWithPattern.toLowerCase()}
-        OR LOWER(COALESCE(${Contacts.lastName}, '')) LIKE ${startsWithPattern.toLowerCase()} THEN 2
-      ELSE 1
-    END
-  `
+  const cutoff = getDataWindowCutoff(auth.token)
+  const whereConditions = [
+    eq(Contacts.userId, DEFAULT_USER_ID),
+    or(
+      nameIndex ? eq(Contacts.nameIndex, nameIndex) : undefined,
+      phoneNumberIndex
+        ? sql`${phoneNumberIndex} = ANY(${Contacts.phoneNumbersIndex})`
+        : undefined
+    ),
+  ]
+  if (cutoff) {
+    whereConditions.push(gte(Contacts.updatedAt, cutoff))
+  }
 
   const contacts = await db
     .select({
@@ -54,18 +51,8 @@ export async function GET(request: NextRequest) {
       updatedAt: Contacts.updatedAt,
     })
     .from(Contacts)
-    .where(
-      and(
-        eq(Contacts.userId, DEFAULT_USER_ID),
-        or(
-          ilike(Contacts.firstName, searchPattern),
-          ilike(Contacts.lastName, searchPattern),
-          ilike(Contacts.organization, searchPattern),
-          ilike(fullName, searchPattern)
-        )
-      )
-    )
-    .orderBy(sql`${relevanceScore} DESC`, Contacts.firstName, Contacts.lastName)
+    .where(and(...whereConditions))
+    .orderBy(Contacts.updatedAt)
     .limit(limit)
 
   const parsed = contacts.map((c) => ({
@@ -83,7 +70,7 @@ export async function GET(request: NextRequest) {
 
   await logRead({
     type: "contact",
-    description: `Searched contacts for "${query}"`,
+    description: `Searched contacts by ${nameIndex ? "name" : "phone"} index`,
     count: parsed.length,
     token: auth.token,
   })
@@ -92,6 +79,5 @@ export async function GET(request: NextRequest) {
     success: true,
     contacts: parsed,
     count: parsed.length,
-    query,
   })
 }

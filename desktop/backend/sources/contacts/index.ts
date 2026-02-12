@@ -3,6 +3,12 @@ import { readdirSync } from 'fs'
 import { homedir } from 'os'
 import { join } from 'path'
 import { apiRequest } from '../../lib/contexter-api'
+import { computeSearchIndex, encryptText } from '../../lib/encryption'
+import {
+  normalizeChatNameForSearch,
+  normalizePhoneForSearch,
+} from '../../lib/search-index-utils'
+import { getDeviceId, getEncryptionKey } from '../../store'
 
 export type Contact = {
   id: string
@@ -11,6 +17,11 @@ export type Contact = {
   organization: string | null
   emails: string[]
   phoneNumbers: string[]
+}
+
+type EncryptedContact = Contact & {
+  nameIndex?: string
+  phoneNumbersIndex?: string[]
 }
 
 function findContactsDatabase(): string | null {
@@ -100,14 +111,57 @@ export function fetchContacts(): Contact[] {
   return contacts
 }
 
+function encryptContacts(
+  contacts: Contact[],
+  encryptionKey: string,
+): EncryptedContact[] {
+  return contacts.map((c) => {
+    const fullName = [c.firstName, c.lastName].filter(Boolean).join(' ').trim()
+    const normalizedName = fullName
+      ? normalizeChatNameForSearch(fullName)
+      : null
+
+    return {
+      ...c,
+      firstName: c.firstName
+        ? encryptText(c.firstName, encryptionKey)
+        : c.firstName,
+      lastName: c.lastName
+        ? encryptText(c.lastName, encryptionKey)
+        : c.lastName,
+      nameIndex: normalizedName
+        ? computeSearchIndex(normalizedName, encryptionKey)
+        : undefined,
+      organization: c.organization
+        ? encryptText(c.organization, encryptionKey)
+        : c.organization,
+      emails: c.emails.map((e) => encryptText(e, encryptionKey)),
+      phoneNumbers: c.phoneNumbers.map((p) => encryptText(p, encryptionKey)),
+      phoneNumbersIndex: c.phoneNumbers
+        .map((p) => normalizePhoneForSearch(p))
+        .filter((p) => p.length > 0)
+        .map((p) => computeSearchIndex(p, encryptionKey)),
+    }
+  })
+}
+
 export async function uploadContacts(contacts: Contact[]): Promise<void> {
   if (contacts.length === 0) {
     return
   }
 
+  const encryptionKey = getEncryptionKey()
+  const contactsToUpload = encryptionKey
+    ? encryptContacts(contacts, encryptionKey)
+    : contacts
+
   await apiRequest({
     path: '/api/contacts',
-    body: { contacts },
+    body: {
+      contacts: contactsToUpload,
+      syncTime: new Date().toISOString(),
+      deviceId: getDeviceId(),
+    },
   })
 
   console.log(`Uploaded ${contacts.length} contacts successfully`)

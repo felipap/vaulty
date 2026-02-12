@@ -30,7 +30,7 @@ export type Screenshot = typeof Screenshots.$inferSelect
 //
 //
 
-// Encrypted: text, subject
+// Encrypted: text, subject, contact, chatName
 export const iMessages = pgTable(
   "imessages",
   {
@@ -42,7 +42,10 @@ export const iMessages = pgTable(
     guid: text("guid").notNull().unique(),
     // encrypted
     text: text("text"),
+    // encrypted
     contact: text("contact").notNull(),
+    // HMAC blind index
+    contactIndex: text("contact_index"),
     // encrypted
     subject: text("subject"),
     date: timestamp("date"),
@@ -58,7 +61,7 @@ export const iMessages = pgTable(
     syncTime: timestamp("sync_time").notNull(),
   },
   (table) => [
-    index("imessages_contact_idx").on(table.contact),
+    index("imessages_contact_index_idx").on(table.contactIndex),
     index("imessages_chat_id_idx").on(table.chatId),
     index("imessages_date_idx").on(table.date),
   ]
@@ -108,12 +111,16 @@ export const Contacts = pgTable(
     firstName: text("first_name"),
     // encrypted
     lastName: text("last_name"),
+    // HMAC blind index for full name search
+    nameIndex: text("name_index"),
     // encrypted
     organization: text("organization"),
     // encrypted, JSON array
     emails: text("emails").notNull(),
     // encrypted, JSON array
     phoneNumbers: text("phone_numbers").notNull(),
+    // HMAC blind indexes for phone search (one per phone number)
+    phoneNumbersIndex: text("phone_numbers_index").array(),
     deviceId: text("device_id").notNull(),
     syncTime: timestamp("sync_time").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -122,6 +129,9 @@ export const Contacts = pgTable(
   (table) => [
     unique("contacts_user_contact_unique").on(table.userId, table.contactId),
     index("contacts_user_id_idx").on(table.userId),
+    index("contacts_name_index_idx").on(table.nameIndex),
+    index("contacts_phone_numbers_index_idx")
+      .using("gin", table.phoneNumbersIndex),
   ]
 )
 

@@ -1,8 +1,10 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { DemoBlur } from "@/ui/DemoBlur"
 import { Drawer } from "@/ui/Drawer"
 import { GroupIcon } from "@/ui/icons"
+import { maybeDecrypt } from "@/lib/encryption"
 import { type ChatWithMessages, type ContactLookup } from "../../../actions"
 import { Chat } from "./Chat"
 import { resolveContactName, formatContact } from "./utils"
@@ -13,12 +15,37 @@ type Props = {
 }
 
 export function ChatDrawer({ chat, contactLookup }: Props) {
-  const chatTitle = getChatTitle(chat, contactLookup)
+  const [decryptedParticipants, setDecryptedParticipants] = useState<string[]>(
+    chat.participants
+  )
+
+  useEffect(() => {
+    async function decrypt() {
+      const decrypted = await Promise.all(
+        chat.participants.map(async (p) => {
+          const result = await maybeDecrypt(p)
+          return result ?? p
+        })
+      )
+      setDecryptedParticipants(decrypted)
+    }
+    decrypt()
+  }, [chat.participants])
+
+  const chatTitle = getChatTitle(
+    chat,
+    decryptedParticipants,
+    contactLookup
+  )
 
   return (
     <Drawer title={chatTitle}>
       <div className="space-y-4">
-        <ChatInfo chat={chat} contactLookup={contactLookup} />
+        <ChatInfo
+          chat={chat}
+          decryptedParticipants={decryptedParticipants}
+          contactLookup={contactLookup}
+        />
         <Chat
           chatId={chat.chatId}
           initialMessages={chat.messages}
@@ -32,15 +59,17 @@ export function ChatDrawer({ chat, contactLookup }: Props) {
 
 function ChatInfo({
   chat,
+  decryptedParticipants,
   contactLookup,
 }: {
   chat: ChatWithMessages
+  decryptedParticipants: string[]
   contactLookup: ContactLookup
 }) {
   return (
     <div className="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-950">
       <div className="flex items-center gap-3">
-        <ChatAvatar chat={chat} />
+        <ChatAvatar chat={chat} decryptedParticipants={decryptedParticipants} />
         <div className="min-w-0 flex-1">
           {chat.isGroupChat ? (
             <>
@@ -49,7 +78,7 @@ function ChatInfo({
               </p>
               <DemoBlur>
                 <p className="truncate text-xs text-zinc-500">
-                  {chat.participants
+                  {decryptedParticipants
                     .map((p) => resolveContactName(p, contactLookup))
                     .join(", ")}
                 </p>
@@ -60,14 +89,14 @@ function ChatInfo({
               <DemoBlur>
                 <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                   {resolveContactName(
-                    chat.participants[0] || chat.chatId,
+                    decryptedParticipants[0] || chat.chatId,
                     contactLookup
                   )}
                 </p>
               </DemoBlur>
               <DemoBlur>
                 <p className="text-xs text-zinc-500">
-                  {formatContact(chat.participants[0] || chat.chatId)}
+                  {formatContact(decryptedParticipants[0] || chat.chatId)}
                 </p>
               </DemoBlur>
             </>
@@ -86,7 +115,13 @@ function ChatInfo({
   )
 }
 
-function ChatAvatar({ chat }: { chat: ChatWithMessages }) {
+function ChatAvatar({
+  chat,
+  decryptedParticipants,
+}: {
+  chat: ChatWithMessages
+  decryptedParticipants: string[]
+}) {
   if (chat.isGroupChat) {
     return (
       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
@@ -95,7 +130,7 @@ function ChatAvatar({ chat }: { chat: ChatWithMessages }) {
     )
   }
 
-  const name = chat.participants[0] || "?"
+  const name = decryptedParticipants[0] || "?"
   const initial = name.charAt(0).toUpperCase()
 
   return (
@@ -107,10 +142,14 @@ function ChatAvatar({ chat }: { chat: ChatWithMessages }) {
 
 function getChatTitle(
   chat: ChatWithMessages,
+  decryptedParticipants: string[],
   contactLookup: ContactLookup
 ): string {
   if (chat.isGroupChat) {
     return `Group Chat (${chat.participantCount})`
   }
-  return resolveContactName(chat.participants[0] || chat.chatId, contactLookup)
+  return resolveContactName(
+    decryptedParticipants[0] || chat.chatId,
+    contactLookup
+  )
 }

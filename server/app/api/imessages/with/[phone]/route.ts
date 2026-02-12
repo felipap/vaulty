@@ -1,9 +1,9 @@
 import { db } from "@/db"
 import { DEFAULT_USER_ID, iMessages } from "@/db/schema"
-import { and, desc, eq } from "drizzle-orm"
+import { and, desc, eq, gte } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
-import { requireReadAuth } from "@/lib/api-auth"
+import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "imessages")
@@ -55,12 +55,18 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  const decodedPhone = decodeURIComponent(phone)
-  const messages = await getMessagesWithContact(decodedPhone, limit, offset)
+  const contactIndex = decodeURIComponent(phone)
+  const cutoff = getDataWindowCutoff(auth.token)
+  const messages = await getMessagesWithContactIndex(
+    contactIndex,
+    limit,
+    offset,
+    cutoff
+  )
 
   await logRead({
     type: "imessage",
-    description: `Fetched conversation with ${decodedPhone}`,
+    description: `Fetched conversation by contactIndex`,
     count: messages.length,
     token: auth.token,
   })
@@ -76,16 +82,22 @@ export async function GET(request: NextRequest) {
   })
 }
 
-async function getMessagesWithContact(
-  contact: string,
+async function getMessagesWithContactIndex(
+  contactIndex: string,
   limit: number,
-  offset: number
+  offset: number,
+  cutoff: Date | null
 ) {
+  const conditions = [
+    eq(iMessages.userId, DEFAULT_USER_ID),
+    eq(iMessages.contactIndex, contactIndex),
+  ]
+  if (cutoff) {
+    conditions.push(gte(iMessages.date, cutoff))
+  }
+
   const messages = await db.query.iMessages.findMany({
-    where: and(
-      eq(iMessages.userId, DEFAULT_USER_ID),
-      eq(iMessages.contact, contact)
-    ),
+    where: and(...conditions),
     orderBy: [desc(iMessages.date)],
     limit,
     offset,

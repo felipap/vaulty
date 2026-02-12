@@ -26,14 +26,20 @@ export default function Page() {
       const encryptionKey = getEncryptionKey()
       return Promise.all(
         msgs.map(async (msg) => {
-          if (!msg.text || !isEncrypted(msg.text)) {
-            return { ...msg, decryptedText: msg.text }
+          let decryptedText: string | null = msg.text
+          if (msg.text && isEncrypted(msg.text) && encryptionKey) {
+            decryptedText = await decryptText(msg.text, encryptionKey)
+          } else if (msg.text && isEncrypted(msg.text)) {
+            decryptedText = null
           }
-          if (!encryptionKey) {
-            return { ...msg, decryptedText: null }
+
+          let decryptedContact = msg.contact
+          if (isEncrypted(msg.contact) && encryptionKey) {
+            decryptedContact =
+              (await decryptText(msg.contact, encryptionKey)) ?? msg.contact
           }
-          const decrypted = await decryptText(msg.text, encryptionKey)
-          return { ...msg, decryptedText: decrypted }
+
+          return { ...msg, decryptedText, decryptedContact }
         })
       )
     },

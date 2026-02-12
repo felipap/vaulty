@@ -1,8 +1,8 @@
 import { db } from "@/db"
 import { Locations } from "@/db/schema"
 import { logRead } from "@/lib/activity-log"
-import { requireReadAuth } from "@/lib/api-auth"
-import { desc, gte } from "drizzle-orm"
+import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
+import { and, desc, gte } from "drizzle-orm"
 import { NextRequest } from "next/server"
 
 export async function GET(request: NextRequest) {
@@ -22,14 +22,18 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  let where
+  const conditions = []
   if (withinMin) {
     const cutoff = new Date(Date.now() - withinMin * 60 * 1000)
-    where = gte(Locations.timestamp, cutoff)
+    conditions.push(gte(Locations.timestamp, cutoff))
+  }
+  const windowCutoff = getDataWindowCutoff(auth.token)
+  if (windowCutoff) {
+    conditions.push(gte(Locations.timestamp, windowCutoff))
   }
 
   const latest = await db.query.Locations.findFirst({
-    where,
+    where: conditions.length > 0 ? and(...conditions) : undefined,
     orderBy: [desc(Locations.timestamp)],
   })
 

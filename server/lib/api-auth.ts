@@ -8,6 +8,7 @@ export type TokenIdentity = {
   accessTokenId: string
   tokenPrefix: string
   scopes: string[]
+  dataWindowMs: number | null
 }
 
 type AuthResult =
@@ -98,8 +99,17 @@ export async function requireReadAuth(
       accessTokenId: accessToken.id,
       tokenPrefix: accessToken.tokenPrefix,
       scopes: tokenScopes,
+      dataWindowMs: accessToken.dataWindowMs,
     },
   }
+}
+
+// Returns the earliest date a token is allowed to see, or null if unlimited.
+export function getDataWindowCutoff(token: TokenIdentity): Date | null {
+  if (!token.dataWindowMs) {
+    return null
+  }
+  return new Date(Date.now() - token.dataWindowMs)
 }
 
 // Returns null if authorized. Returns a Response to send if unauthorized.

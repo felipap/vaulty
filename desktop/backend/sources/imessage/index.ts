@@ -18,6 +18,7 @@ export type Message = {
   guid: string
   text: string | null
   contact: string
+  contactIndex?: string
   subject: string | null
   date: string
   isFromMe: boolean

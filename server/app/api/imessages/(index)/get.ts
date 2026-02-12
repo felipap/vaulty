@@ -1,7 +1,7 @@
 import { db } from "@/db"
 import { DEFAULT_USER_ID, iMessages } from "@/db/schema"
 import { logRead } from "@/lib/activity-log"
-import { requireReadAuth } from "@/lib/api-auth"
+import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 import { and, eq, gte } from "drizzle-orm"
 import { NextRequest } from "next/server"
 
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   const limitParam = searchParams.get("limit") || "20"
   const offsetParam = searchParams.get("offset")
   const afterParam = searchParams.get("after")
-  const contactParam = searchParams.get("contact")
+  const contactIndexParam = searchParams.get("contactIndex")
 
   const limit = parseInt(limitParam, 10)
   const offset = offsetParam ? parseInt(offsetParam, 10) : 0
@@ -47,8 +47,8 @@ export async function GET(request: NextRequest) {
 
   const conditions = [eq(iMessages.userId, DEFAULT_USER_ID)]
 
-  if (contactParam) {
-    conditions.push(eq(iMessages.contact, contactParam))
+  if (contactIndexParam) {
+    conditions.push(eq(iMessages.contactIndex, contactIndexParam))
   }
 
   if (afterParam) {
@@ -62,6 +62,11 @@ export async function GET(request: NextRequest) {
     conditions.push(gte(iMessages.date, afterDate))
   }
 
+  const cutoff = getDataWindowCutoff(auth.token)
+  if (cutoff) {
+    conditions.push(gte(iMessages.date, cutoff))
+  }
+
   const messages = await db.query.iMessages.findMany({
     where: and(...conditions),
     orderBy: (iMessages, { asc }) => [asc(iMessages.date)],
@@ -70,13 +75,13 @@ export async function GET(request: NextRequest) {
   })
 
   console.info(
-    `Retrieved ${messages.length} iMessages${contactParam ? ` for contact ${contactParam}` : ""}`
+    `Retrieved ${messages.length} iMessages${contactIndexParam ? ` for contactIndex ${contactIndexParam}` : ""}`
   )
 
   await logRead({
     type: "imessage",
-    description: contactParam
-      ? `Fetched messages for ${contactParam}`
+    description: contactIndexParam
+      ? `Fetched messages by contactIndex`
       : "Fetched messages",
     count: messages.length,
     token: auth.token,
