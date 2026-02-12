@@ -1,75 +1,53 @@
 # Table of Contents
 
 - [Table of Contents](#table-of-contents)
-- [Authentication](#authentication)
-  - [Admin Dashboard](#admin-dashboard)
-  - [Device Auth (Desktop App)](#device-auth-desktop-app)
-  - [Access Tokens (API Read)](#access-tokens-api-read)
-- [Server security](#server-security)
-- [E2E Encryption](#e2e-encryption)
-- [Encrypted Fields by Table](#encrypted-fields-by-table)
+  - [Server Dashboard](#server-dashboard)
+  - [Client Authentication](#client-authentication)
+  - [API Access Tokens](#api-access-tokens)
+  - [E2E Encryption](#e2e-encryption)
+  - [Dashboard Decryption](#dashboard-decryption)
+  - [Encrypted Fields by Table](#encrypted-fields-by-table)
   - [Encryption Key Management](#encryption-key-management)
   - [Blind Indexing for Search](#blind-indexing-for-search)
 - [Rate Limiting](#rate-limiting)
 
-# Authentication
+## Server Dashboard
 
-There are three auth flows: admin dashboard, device writes (Electron app), and API reads (access tokens).
+The dashboard uses a passphrase-based system. The passphrase is set via
+`DASHBOARD_SECRET` env var on the server. It's stored in an httpOnly cookie that
+expires in a year.
 
-## Admin Dashboard
+## Client Authentication
 
-A passphrase-based system. The passphrase is set via `DASHBOARD_SECRET` env var on the server.
+The Electron app authenticates via a shared secret `API_WRITE_SECRET`, sent as
+Bearer token.
 
-1. User enters passphrase on login page
-2. Server compares it to `DASHBOARD_SECRET`
-3. If valid, sets an httpOnly cookie (`context_admin`) containing the passphrase
-4. Cookie settings: httpOnly, secure in production, sameSite=lax, 1 year expiry
-5. Subsequent requests check if cookie value matches `DASHBOARD_SECRET`
+## API Access Tokens
 
-In development, if `DASHBOARD_SECRET` is unset, auth is bypassed entirely.
+The user can use the dashboard to create access tokens for reading data from the
+API via the dashboard.
 
-## Device Auth (Desktop App)
+## E2E Encryption
 
-Devices authenticate via a shared secret:
+Data is encrypted on the client before it's sent to the server. The server API
+returns encrypted data too.
 
-1. Set `API_WRITE_SECRET` env var on the server
-2. Enter the same secret in the desktop app settings
-3. Desktop app sends it as `Authorization: Bearer <secret>` header
-4. Server rejects requests where the token doesn't match
+## Dashboard Decryption
 
-If `API_WRITE_SECRET` is unset on the server, device auth is bypassed (for development).
+Users can see decrypted data in the dashboard by entering the encryption key, or
+clicking the "Open Dashboard" button in the Electron app. Decryption happens
+entirely in the user browser and the encryption key must never be sent to the
+server. The encryption key is stored in `sessionStorage` and expires after 1 hour.
 
-## Access Tokens (API Read)
+## Encrypted Fields by Table
 
-API read endpoints are authenticated via DB-backed access tokens, managed in the dashboard settings page.
+Each server-side table has a mix of encrypted fields (stored as `enc:v1:...`
+ciphertext) and plaintext fields which the server can read.
 
-1. User creates a token in the dashboard (with optional expiration)
-2. Server generates a `ctx_`-prefixed token, stores only its SHA-256 hash
-3. The full token is shown once — the user must copy it
-4. API consumers send it as `Authorization: Bearer ctx_...` header
-5. Server hashes the token and looks it up in the `access_tokens` table
-6. Tokens can be revoked from the dashboard (soft delete via `revoked_at`)
-7. `last_used_at` is updated on each successful validation
-
-# Server security
-
-API read is actually more sensitive than write.
-
-# E2E Encryption
-
-Messages and screenshots are encrypted on the desktop before upload. The encryption key **never leaves your browser**.
-
-- Desktop app encrypts data locally before sending to the server
-- Server stores encrypted blobs (it cannot read your data)
-- Web dashboard downloads encrypted data and decrypts it locally
-- The encryption key is stored in browser `sessionStorage` (must not be sent anywhere)
-- Decryption uses the Web Crypto API (`crypto.subtle`) in your browser
-
-The server has no way to decrypt your data. If you lose your encryption key, your data is unrecoverable.
-
-# Encrypted Fields by Table
-
-Each table has a mix of encrypted fields (stored as `enc:v1:...` ciphertext) and plaintext fields the server can read. This section only covers the meaningful data fields — operational metadata like `createdAt`, `syncTime`, and `deviceId` are always plaintext but aren't listed since they don't represent user content.
+The encryption makes it impossible to search for plaintext values, which would
+be a dealbreaker for certain workflows (eg. searching for messages from a
+particular phone number). To solve this, we also store HMAC-based blind indexes
+on certain encrypted fields, as noted below.
 
 **screenshots**
 
@@ -112,11 +90,11 @@ Each table has a mix of encrypted fields (stored as `enc:v1:...` ciphertext) and
 | -------------- | -------------------------------------------------------------- |
 | Encrypted      | text, chatName, senderName, senderPhoneNumber                  |
 | Plaintext      | chatId, messageId, senderJid, timestamp, isFromMe, isGroupChat |
-| Search Indices | chatName, senderName, senderPhoneNumber                        |
+| Search Indices | chatNameIndex, senderNameIndex, senderPhoneNumberIndex         |
 
-Search indices are blind indexes (HMAC) that support server-side exact-match search. See [Blind Indexing for Search](#blind-indexing-for-search).
-
-The remaining tables (`write_logs`, `read_logs`, `access_tokens`, `login_attempts`) are operational — they don't store user content and have no encrypted fields.
+The remaining tables (`write_logs`, `read_logs`, `access_tokens`,
+`login_attempts`) are operational — they don't store user content and have no
+encrypted fields.
 
 ## Encryption Key Management
 
