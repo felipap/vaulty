@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vaulty
+      POSTGRES_PASSWORD: vaulty
+      POSTGRES_DB: vaulty
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vaulty"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://vaulty:vaulty@db:5432/vaulty
+      DASHBOARD_SECRET: ${DASHBOARD_SECRET}
+      API_WRITE_SECRET: ${API_WRITE_SECRET}
+      CRON_SECRET: ${CRON_SECRET}
+      WEBSITE_HOST: ${WEBSITE_HOST:-}
+      DASHBOARD_IP_WHITELIST: ${DASHBOARD_IP_WHITELIST:-}
+      API_WRITE_IP_WHITELIST: ${API_WRITE_IP_WHITELIST:-}
+      API_READ_IP_WHITELIST: ${API_READ_IP_WHITELIST:-}
+      SCREENSHOT_RETENTION_HOURS: ${SCREENSHOT_RETENTION_HOURS:-1}
+      IMESSAGE_RETENTION_HOURS: ${IMESSAGE_RETENTION_HOURS:-0}
+      WHATSAPP_RETENTION_HOURS: ${WHATSAPP_RETENTION_HOURS:-0}
+      CONTACT_RETENTION_HOURS: ${CONTACT_RETENTION_HOURS:-0}
+      LOCATION_RETENTION_HOURS: ${LOCATION_RETENTION_HOURS:-0}
+      STICKIES_RETENTION_HOURS: ${STICKIES_RETENTION_HOURS:-0}
+      LOG_RETENTION_HOURS: ${LOG_RETENTION_HOURS:-0}
+
+  cron:
+    image: alpine:3
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      CRON_SECRET: ${CRON_SECRET}
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        apk add --no-cache curl
+        echo "* * 1 * * curl -sf -H 'Authorization: Bearer '\"$$CRON_SECRET\" http://app:3000/api/cron/cleanup" | crontab -
+        crond -f -l 2
+
+volumes:
+  pgdata:
