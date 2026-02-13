@@ -3,6 +3,7 @@
 ## Now
 
 - [ ] Fix onboarding flow
+- [ ] What about multiple screens?
 
 ## Later
 
@@ -19,6 +20,7 @@
 
 ## Done
 
+- [x] Docker deployment support
 - [x] Button to delete all data from dashboard
 - [x] Read-only access tokens
 - [x] Stream WhatsApp SQLite import instead of loading all into memory

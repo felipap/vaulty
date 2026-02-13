@@ -35,7 +35,7 @@ See [ROADMAP.md](./ROADMAP.md).
 Vaulty has three pieces:
 
 - **Desktop app** (macOS) — Reads your local data, encrypts it on your machine, and syncs it to your server on a schedule. Runs quietly in the menu bar.
-- **Server** (Next.js, deployable to Vercel) — Stores the encrypted data and exposes it through a REST API. Includes a dashboard for managing access tokens and browsing your data.
+- **Server** (Next.js, deployable via Docker or Vercel) — Stores the encrypted data and exposes it through a REST API. Includes a dashboard for managing access tokens and browsing your data.
 - **iOS app** — Shares your realtime location.
 
 Data flows one way: from your devices, through encryption, to your server. The server never sees plaintext — it stores ciphertext and serves it to authorized clients.
@@ -75,7 +75,7 @@ Since responses contain encrypted fields, you can run the included [decrypt prox
 
 ### 1. Deploy the server
 
-The server is a Next.js app designed for Vercel. See [server/README.md](./server/README.md) for setup instructions and environment variables.
+The server is a Next.js app that can be deployed with Docker (recommended for self-hosting) or Vercel. See [server/README.md](./server/README.md) for setup instructions and environment variables.
 
 ### 2. Install the desktop app
 

@@ -163,6 +163,8 @@ The HMAC is computed using:
 
 # Rate Limiting
 
+### Vercel
+
 Configure rate limiting in the Vercel dashboard under **Firewall → + New Rule**.
 
 Recommended rule for API endpoints:
@@ -173,3 +175,7 @@ Recommended rule for API endpoints:
 - **Then:** Too Many Requests (429)
 
 See [docs/firewall-example.png](./docs/firewall-example.png) for reference.
+
+### Docker / self-hosted
+
+When self-hosting, rate limiting is not built into the application. Use a reverse proxy like nginx or Caddy in front of the app container to add rate limiting.
