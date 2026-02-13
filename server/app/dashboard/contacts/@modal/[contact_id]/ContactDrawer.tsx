@@ -6,7 +6,7 @@ import { Drawer } from "@/ui/Drawer"
 import { InfoRow } from "@/ui/InfoRow"
 import { RawJson } from "@/ui/RawJson"
 import { PhoneIcon, MailIcon } from "@/ui/icons"
-import { type ContactDetail } from "../../actions"
+import { type ContactDetail } from "../../../icontacts/actions"
 
 type Props = {
   contact: ContactDetail
