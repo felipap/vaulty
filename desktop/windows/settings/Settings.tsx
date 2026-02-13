@@ -9,18 +9,10 @@ import { ContactsSyncTab } from './sync-tabs/contacts'
 import { WhatsappSqliteSyncTab } from './sync-tabs/whatsapp-sqlite'
 import { MacosStickiesSyncTab } from './sync-tabs/macos-stickies'
 import { WinStickyNotesSyncTab } from './sync-tabs/win-sticky-notes'
-import { SyncLogSource } from '../electron'
+import { SyncLogSource, SOURCE_LABELS } from '../electron'
 
+const isMac = window.electron.platform === 'darwin'
 const isWindows = window.electron.platform === 'win32'
-
-const SOURCE_LABELS: Record<SyncLogSource, string> = {
-  screenshots: 'Screen Capture',
-  imessage: 'iMessage Export',
-  contacts: 'Contacts Sync',
-  'whatsapp-sqlite': 'WhatsApp (SQLite)',
-  'macos-stickies': 'macOS Stickies',
-  'win-sticky-notes': 'Windows Sticky Notes',
-}
 
 function getInitialTab(): ActiveTab {
   const params = new URLSearchParams(window.location.search)
@@ -49,7 +41,7 @@ export function Settings() {
   // Show onboarding if not completed
   if (onboardingCompleted === null) {
     return (
-      <div className="h-screen flex items-center justify-center bg-[var(--background-color-one)]">
+      <div className="h-screen flex items-center justify-center bg-one">
         <p className="text-tertiary text-sm">Loading...</p>
       </div>
     )
@@ -81,12 +73,12 @@ function SettingsPanel() {
         winStickyNotes,
         syncLogs,
       ] = await Promise.all([
-        window.electron.getScreenCaptureConfig(),
-        window.electron.getIMessageExportConfig(),
-        window.electron.getContactsSyncConfig(),
-        window.electron.getWhatsappSqliteConfig(),
-        window.electron.getMacosStickiesSyncConfig(),
-        window.electron.getWinStickyNotesSyncConfig(),
+        window.electron.getServiceConfig('screenCapture'),
+        window.electron.getServiceConfig('imessageExport'),
+        window.electron.getServiceConfig('icontactsSync'),
+        window.electron.getServiceConfig('whatsappSqlite'),
+        window.electron.getServiceConfig('macosStickiesSync'),
+        window.electron.getServiceConfig('winStickyNotesSync'),
         window.electron.getSyncLogs(),
       ])
 
@@ -110,30 +102,35 @@ function SettingsPanel() {
           lastSyncFailed: lastSyncStatus['screenshots'] ?? false,
         },
         {
-          source: 'imessage',
-          label: SOURCE_LABELS['imessage'],
-          enabled: imessage.enabled,
-          lastSyncFailed: lastSyncStatus['imessage'] ?? false,
-        },
-        {
-          source: 'contacts',
-          label: SOURCE_LABELS['contacts'],
-          enabled: contacts.enabled,
-          lastSyncFailed: lastSyncStatus['contacts'] ?? false,
-        },
-        {
           source: 'whatsapp-sqlite',
           label: SOURCE_LABELS['whatsapp-sqlite'],
           enabled: whatsappSqlite.enabled,
           lastSyncFailed: lastSyncStatus['whatsapp-sqlite'] ?? false,
         },
-        {
-          source: 'macos-stickies',
-          label: SOURCE_LABELS['macos-stickies'],
-          enabled: macosStickies.enabled,
-          lastSyncFailed: lastSyncStatus['macos-stickies'] ?? false,
-        },
       ]
+
+      if (isMac) {
+        infos.push(
+          {
+            source: 'imessage',
+            label: SOURCE_LABELS['imessage'],
+            enabled: imessage.enabled,
+            lastSyncFailed: lastSyncStatus['imessage'] ?? false,
+          },
+          {
+            source: 'contacts',
+            label: SOURCE_LABELS['contacts'],
+            enabled: contacts.enabled,
+            lastSyncFailed: lastSyncStatus['contacts'] ?? false,
+          },
+          {
+            source: 'macos-stickies',
+            label: SOURCE_LABELS['macos-stickies'],
+            enabled: macosStickies.enabled,
+            lastSyncFailed: lastSyncStatus['macos-stickies'] ?? false,
+          },
+        )
+      }
 
       if (isWindows) {
         infos.push({
@@ -202,7 +199,7 @@ function SettingsPanel() {
   }
 
   return (
-    <div className="h-screen flex bg-[var(--background-color-one)]">
+    <div className="h-screen flex bg-one">
       <Sidebar
         activeTab={activeTab}
         onSelectTab={setActiveTab}

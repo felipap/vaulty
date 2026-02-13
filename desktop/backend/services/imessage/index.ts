@@ -7,8 +7,7 @@ import {
   setLastExportedMessageDate,
   store,
 } from '../../store'
-import { startAnimating } from '../../tray/animate'
-import { createScheduledService } from '../scheduler'
+import { createScheduledService, type SyncResult } from '../scheduler'
 import { uploadMessages } from './upload'
 
 export { imessageBackfill } from './backfill'
@@ -25,12 +24,12 @@ function yieldToEventLoop(): Promise<void> {
 
 let sdk: IMessageSDK | null = null
 
-async function exportAndUpload(): Promise<void> {
+async function exportAndUpload(): Promise<SyncResult> {
   log.info('Exporting messages...')
   await yieldToEventLoop()
 
   if (!sdk) {
-    throw new Error('SDK not initialized')
+    return { error: 'SDK not initialized' }
   }
 
   const config = store.get('imessageExport')
@@ -44,7 +43,7 @@ async function exportAndUpload(): Promise<void> {
 
   if (messages.length === 0) {
     log.info('No new messages to export')
-    return
+    return { success: true }
   }
 
   const latestDateStr = messages.reduce(
@@ -56,20 +55,17 @@ async function exportAndUpload(): Promise<void> {
 
   await yieldToEventLoop()
 
-  const stopAnimating = startAnimating('vault-rotation')
-
   for (let i = 0; i < messages.length; i += BATCH_SIZE) {
     const batch = messages.slice(i, i + BATCH_SIZE)
     const res = await catchAndComplain(uploadMessages(batch))
     if ('error' in res) {
-      stopAnimating()
-      throw new Error(`uploadMessages failed: ${res.error}`)
+      return { error: `uploadMessages failed: ${res.error}` }
     }
     await yieldToEventLoop()
   }
 
-  stopAnimating()
   setLastExportedMessageDate(new Date(latestDateStr))
+  return { success: true }
 }
 
 export const imessageService = createScheduledService({

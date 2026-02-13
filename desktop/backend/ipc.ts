@@ -2,6 +2,7 @@ import { ipcMain, shell, systemPreferences, app } from 'electron'
 import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
+import type { ServiceConfigKey } from '../shared-types'
 import { SERVICES, getService } from './services'
 import { imessageBackfill } from './services/imessage'
 import { whatsappBackfill } from './services/whatsapp'
@@ -15,6 +16,15 @@ import {
   getEncryptionKey,
   setEncryptionKey,
 } from './store'
+
+const CONFIG_KEY_TO_SERVICE: Record<ServiceConfigKey, string> = {
+  screenCapture: 'screenshots',
+  imessageExport: 'imessage',
+  icontactsSync: 'icontacts',
+  whatsappSqlite: 'whatsapp-sqlite',
+  macosStickiesSync: 'macos-stickies',
+  winStickyNotesSync: 'win-sticky-notes',
+}
 
 export function registerIpcHandlers(): void {
   // Onboarding
@@ -34,19 +44,7 @@ export function registerIpcHandlers(): void {
     clearSyncLogs()
   })
 
-  ipcMain.handle('get-screen-capture-config', () => {
-    return store.get('screenCapture')
-  })
-
-  ipcMain.handle(
-    'set-screen-capture-config',
-    (_event, config: { enabled?: boolean; intervalMinutes?: number }) => {
-      const current = store.get('screenCapture')
-      store.set('screenCapture', { ...current, ...config })
-      getService('screenshots')?.restart()
-    },
-  )
-
+  // Server connection
   ipcMain.handle('get-server-url', () => {
     return store.get('serverUrl')
   })
@@ -76,85 +74,22 @@ export function registerIpcHandlers(): void {
     setEncryptionKey(key)
   })
 
-  ipcMain.handle('get-imessage-export-config', () => {
-    return store.get('imessageExport')
+  // Generic service config
+  ipcMain.handle('get-service-config', (_event, configKey: ServiceConfigKey) => {
+    return store.get(configKey)
   })
 
   ipcMain.handle(
-    'set-imessage-export-config',
-    (
-      _event,
-      config: {
-        enabled?: boolean
-        intervalMinutes?: number
-        includeAttachments?: boolean
-      },
-    ) => {
-      const current = store.get('imessageExport')
-      store.set('imessageExport', { ...current, ...config })
-      getService('imessage')?.restart()
+    'set-service-config',
+    (_event, configKey: ServiceConfigKey, config: Record<string, unknown>) => {
+      const current = store.get(configKey)
+      store.set(configKey, { ...current, ...config })
+      const serviceName = CONFIG_KEY_TO_SERVICE[configKey]
+      getService(serviceName)?.restart()
     },
   )
 
-  ipcMain.handle('get-contacts-sync-config', () => {
-    return store.get('icontactsSync')
-  })
-
-  ipcMain.handle(
-    'set-contacts-sync-config',
-    (_event, config: { enabled?: boolean; intervalMinutes?: number }) => {
-      const current = store.get('icontactsSync')
-      store.set('icontactsSync', { ...current, ...config })
-      getService('icontacts')?.restart()
-    },
-  )
-
-  ipcMain.handle('get-whatsapp-sqlite-config', () => {
-    return store.get('whatsappSqlite')
-  })
-
-  ipcMain.handle(
-    'set-whatsapp-sqlite-config',
-    (
-      _event,
-      config: {
-        enabled?: boolean
-        intervalMinutes?: number
-        ignoredChatIds?: string[]
-      },
-    ) => {
-      const current = store.get('whatsappSqlite')
-      store.set('whatsappSqlite', { ...current, ...config })
-      getService('whatsapp-sqlite')?.restart()
-    },
-  )
-
-  ipcMain.handle('get-macos-stickies-sync-config', () => {
-    return store.get('macosStickiesSync')
-  })
-
-  ipcMain.handle(
-    'set-macos-stickies-sync-config',
-    (_event, config: { enabled?: boolean; intervalMinutes?: number }) => {
-      const current = store.get('macosStickiesSync')
-      store.set('macosStickiesSync', { ...current, ...config })
-      getService('macos-stickies')?.restart()
-    },
-  )
-
-  ipcMain.handle('get-win-sticky-notes-sync-config', () => {
-    return store.get('winStickyNotesSync')
-  })
-
-  ipcMain.handle(
-    'set-win-sticky-notes-sync-config',
-    (_event, config: { enabled?: boolean; intervalMinutes?: number }) => {
-      const current = store.get('winStickyNotesSync')
-      store.set('winStickyNotesSync', { ...current, ...config })
-      getService('win-sticky-notes')?.restart()
-    },
-  )
-
+  // Services status
   ipcMain.handle('get-services-status', () => {
     return SERVICES.map((s) => ({
       name: s.name,
@@ -171,6 +106,7 @@ export function registerIpcHandlers(): void {
     }
   })
 
+  // Permissions
   ipcMain.handle('check-full-disk-access', () => {
     const chatDbPath = path.join(os.homedir(), 'Library', 'Messages', 'chat.db')
     try {

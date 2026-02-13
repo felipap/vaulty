@@ -72,7 +72,7 @@ export function LogsTab({ highlightSyncId }: Props) {
       ) : (
         <div className="flex-1 overflow-auto -mx-4 px-4">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-[var(--background-color-one)]">
+            <thead className="sticky top-0 bg-one">
               <tr className="text-left text-tertiary border-b">
                 <th className="pb-2 font-medium">Time</th>
                 <th className="pb-2 font-medium">Source</th>

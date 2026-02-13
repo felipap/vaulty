@@ -6,8 +6,7 @@ import {
   type WhatsappSqliteMessage,
 } from '../../sources/whatsapp-sqlite'
 import { store } from '../../store'
-import { startAnimating } from '../../tray/animate'
-import { createScheduledService } from '../scheduler'
+import { createScheduledService, type SyncResult } from '../scheduler'
 import { log } from './index'
 import type { WhatsAppMessage } from './types'
 import { uploadWhatsAppMessages } from './upload'
@@ -56,12 +55,12 @@ function setLastExportedDate(date: Date): void {
   })
 }
 
-async function exportAndUpload(): Promise<void> {
+async function exportAndUpload(): Promise<SyncResult> {
   log.info('Exporting messages...')
   await yieldToEventLoop()
 
   if (!db) {
-    throw new Error('Database not initialized')
+    return { error: 'Database not initialized' }
   }
 
   const lastExported = getLastExportedDate()
@@ -74,8 +73,6 @@ async function exportAndUpload(): Promise<void> {
   let nextAfterId: number | undefined = undefined
   let totalUploaded = 0
   let latestTimestamp: string | null = null
-
-  const stopAnimating = startAnimating('vault-rotation')
 
   for (;;) {
     const { messages: sqliteMessages, nextAfterMessageDate, nextAfterId: nextId } =
@@ -97,8 +94,7 @@ async function exportAndUpload(): Promise<void> {
 
       const res = await catchAndComplain(uploadWhatsAppMessages(batch, 'sqlite'))
       if ('error' in res) {
-        stopAnimating()
-        throw new Error(`uploadWhatsAppMessages failed: ${res.error}`)
+        return { error: `uploadWhatsAppMessages failed: ${res.error}` }
       }
       totalUploaded += batch.length
     }
@@ -111,14 +107,14 @@ async function exportAndUpload(): Promise<void> {
     await yieldToEventLoop()
   }
 
-  stopAnimating()
-
   if (totalUploaded > 0 && latestTimestamp) {
     log.debug(`Uploaded ${totalUploaded.toLocaleString()} new messages`)
     setLastExportedDate(new Date(latestTimestamp))
   } else if (totalUploaded === 0) {
     log.info('No new messages to export')
   }
+
+  return { success: true }
 }
 
 export const whatsappSqliteService = createScheduledService({

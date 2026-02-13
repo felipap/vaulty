@@ -1,15 +1,9 @@
 import { createLogger } from '../lib/logger'
+import { startAnimating, stopAnimating } from '../tray/animate'
 import { addSyncLog, getEncryptionKey, store } from '../store'
 import type { SyncLogSource } from '../store/schema'
+import type { ServiceConfigKey } from '../../shared-types'
 import type { SyncStatus, Service } from './index'
-
-type ConfigKey =
-  | 'screenCapture'
-  | 'imessageExport'
-  | 'icontactsSync'
-  | 'whatsappSqlite'
-  | 'macosStickiesSync'
-  | 'winStickyNotesSync'
 
 class MissingEncryptionKeyError extends Error {
   constructor() {
@@ -18,10 +12,12 @@ class MissingEncryptionKeyError extends Error {
   }
 }
 
+export type SyncResult = { success: true } | { error: string }
+
 type SchedulerOptions = {
   name: SyncLogSource
-  configKey: ConfigKey
-  onSync: () => Promise<void>
+  configKey: ServiceConfigKey
+  onSync: () => Promise<SyncResult>
   onStart?: () => void
   onStop?: () => void
 }
@@ -53,15 +49,29 @@ export function createScheduledService(options: SchedulerOptions): Service {
       return
     }
 
+    startAnimating('vault-rotation')
     try {
-      await onSync()
-      lastSyncStatus = 'success'
-      addSyncLog({
-        timestamp: startTime,
-        source: name,
-        status: 'success',
-        duration: Date.now() - startTime,
-      })
+      const result = await onSync()
+
+      if ('error' in result) {
+        log.error('Sync failed:', result.error)
+        lastSyncStatus = 'error'
+        lastFailedSyncId = addSyncLog({
+          timestamp: startTime,
+          source: name,
+          status: 'error',
+          errorMessage: result.error,
+          duration: Date.now() - startTime,
+        })
+      } else {
+        lastSyncStatus = 'success'
+        addSyncLog({
+          timestamp: startTime,
+          source: name,
+          status: 'success',
+          duration: Date.now() - startTime,
+        })
+      }
     } catch (error) {
       const isConnectionError =
         error instanceof TypeError &&
@@ -89,6 +99,8 @@ export function createScheduledService(options: SchedulerOptions): Service {
         errorMessage,
         duration: Date.now() - startTime,
       })
+    } finally {
+      stopAnimating()
     }
   }
 

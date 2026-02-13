@@ -6,6 +6,15 @@ export type SyncLogSource =
   | 'macos-stickies'
   | 'win-sticky-notes'
 
+export const SOURCE_LABELS: Record<SyncLogSource, string> = {
+  screenshots: 'Screen Capture',
+  imessage: 'macOS Messages',
+  contacts: 'macOS Contacts',
+  'whatsapp-sqlite': 'WhatsApp',
+  'macos-stickies': 'macOS Stickies',
+  'win-sticky-notes': 'Windows Sticky Notes',
+}
+
 export interface SyncLog {
   id: string
   timestamp: number
@@ -28,6 +37,17 @@ export interface WhatsappSqliteConfig extends ServiceConfig {
   lastExportedMessageDate: string | null
   ignoredChatIds?: string[]
 }
+
+export type ServiceConfigMap = {
+  screenCapture: ServiceConfig
+  imessageExport: IMessageExportConfig
+  icontactsSync: ServiceConfig
+  whatsappSqlite: WhatsappSqliteConfig
+  macosStickiesSync: ServiceConfig
+  winStickyNotesSync: ServiceConfig
+}
+
+export type ServiceConfigKey = keyof ServiceConfigMap
 
 export interface ServiceStatus {
   name: string
@@ -66,33 +86,9 @@ export interface ElectronAPI {
   getEncryptionKey: () => Promise<string | null>
   setEncryptionKey: (key: string) => Promise<void>
 
-  // Screenshots service
-  getScreenCaptureConfig: () => Promise<ServiceConfig>
-  setScreenCaptureConfig: (config: Partial<ServiceConfig>) => Promise<void>
-
-  // iMessage service
-  getIMessageExportConfig: () => Promise<IMessageExportConfig>
-  setIMessageExportConfig: (
-    config: Partial<IMessageExportConfig>,
-  ) => Promise<void>
-
-  // Contacts service
-  getContactsSyncConfig: () => Promise<ServiceConfig>
-  setContactsSyncConfig: (config: Partial<ServiceConfig>) => Promise<void>
-
-  // WhatsApp SQLite service
-  getWhatsappSqliteConfig: () => Promise<WhatsappSqliteConfig>
-  setWhatsappSqliteConfig: (
-    config: Partial<WhatsappSqliteConfig>,
-  ) => Promise<void>
-
-  // macOS Stickies service
-  getMacosStickiesSyncConfig: () => Promise<ServiceConfig>
-  setMacosStickiesSyncConfig: (config: Partial<ServiceConfig>) => Promise<void>
-
-  // Windows Sticky Notes service
-  getWinStickyNotesSyncConfig: () => Promise<ServiceConfig>
-  setWinStickyNotesSyncConfig: (config: Partial<ServiceConfig>) => Promise<void>
+  // Service config (generic)
+  getServiceConfig: <K extends ServiceConfigKey>(key: K) => Promise<ServiceConfigMap[K]>
+  setServiceConfig: <K extends ServiceConfigKey>(key: K, config: Partial<ServiceConfigMap[K]>) => Promise<void>
 
   // Services status
   getServicesStatus: () => Promise<ServiceStatus[]>

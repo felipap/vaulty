@@ -1,25 +1,20 @@
 import { createLogger } from '../../lib/logger'
-import { startAnimating, stopAnimating } from '../../tray/animate'
 import { captureScreen } from '../../sources/screenshots'
 import { uploadScreenshot } from './upload'
-import { createScheduledService } from '../scheduler'
+import { createScheduledService, type SyncResult } from '../scheduler'
 
 const log = createLogger('screenshots')
 
-async function captureAndUpload(): Promise<void> {
+async function captureAndUpload(): Promise<SyncResult> {
   log.info('Capturing screen...')
 
   const imageBuffer = await captureScreen()
   if (!imageBuffer) {
-    throw new Error('Failed to capture screen')
+    return { error: 'Failed to capture screen' }
   }
 
-  startAnimating('vault-rotation')
-  try {
-    await uploadScreenshot(imageBuffer)
-  } finally {
-    stopAnimating()
-  }
+  await uploadScreenshot(imageBuffer)
+  return { success: true }
 }
 
 export const screenshotsService = createScheduledService({

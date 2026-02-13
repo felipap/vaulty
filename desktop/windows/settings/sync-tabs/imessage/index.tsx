@@ -43,7 +43,7 @@ export const IMessageSyncTab = withBoundary(function IMessageSyncTab({
   const logs = useSyncLogs('imessage')
 
   useEffect(() => {
-    window.electron.getIMessageExportConfig().then(setConfig)
+    window.electron.getServiceConfig('imessageExport').then(setConfig)
   }, [])
 
   const handleToggleEnabled = async () => {
@@ -51,7 +51,7 @@ export const IMessageSyncTab = withBoundary(function IMessageSyncTab({
       return
     }
     const newEnabled = !config.enabled
-    await window.electron.setIMessageExportConfig({ enabled: newEnabled })
+    await window.electron.setServiceConfig('imessageExport', { enabled: newEnabled })
     setConfig({ ...config, enabled: newEnabled })
     onEnabledChange(newEnabled)
   }
@@ -61,7 +61,7 @@ export const IMessageSyncTab = withBoundary(function IMessageSyncTab({
       return
     }
     const newValue = !config.includeAttachments
-    await window.electron.setIMessageExportConfig({
+    await window.electron.setServiceConfig('imessageExport', {
       includeAttachments: newValue,
     })
     setConfig({ ...config, includeAttachments: newValue })
@@ -71,7 +71,7 @@ export const IMessageSyncTab = withBoundary(function IMessageSyncTab({
     if (!config) {
       return
     }
-    await window.electron.setIMessageExportConfig({ intervalMinutes: minutes })
+    await window.electron.setServiceConfig('imessageExport', { intervalMinutes: minutes })
     setConfig({ ...config, intervalMinutes: minutes })
   }
 
@@ -81,20 +81,20 @@ export const IMessageSyncTab = withBoundary(function IMessageSyncTab({
 
   return (
     <SyncTab
-      title="iMessage Export"
+      title="macOS Messages"
       description="Export iMessage conversations to the server."
       footer={
         <DataSourceLogs
           logs={logs}
           highlightSyncId={highlightSyncId}
-          sourceLabel="iMessage Export"
+          sourceLabel="macOS Messages"
         />
       }
     >
       <FullDiskPermission description="iMessage export requires Full Disk Access to read your messages database." />
 
       <ToggleRow
-        label="Enable iMessage Export"
+        label="Enable macOS Messages Sync"
         enabled={config.enabled}
         onChange={handleToggleEnabled}
       />

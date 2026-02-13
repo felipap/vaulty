@@ -25,7 +25,7 @@ export const MacosStickiesSyncTab = withBoundary(function MacosStickiesSyncTab({
   const logs = useSyncLogs('macos-stickies')
 
   useEffect(() => {
-    window.electron.getMacosStickiesSyncConfig().then(setConfig)
+    window.electron.getServiceConfig('macosStickiesSync').then(setConfig)
   }, [])
 
   const handleToggleEnabled = async () => {
@@ -33,7 +33,7 @@ export const MacosStickiesSyncTab = withBoundary(function MacosStickiesSyncTab({
       return
     }
     const newEnabled = !config.enabled
-    await window.electron.setMacosStickiesSyncConfig({ enabled: newEnabled })
+    await window.electron.setServiceConfig('macosStickiesSync', { enabled: newEnabled })
     setConfig({ ...config, enabled: newEnabled })
     onEnabledChange(newEnabled)
   }
@@ -42,7 +42,7 @@ export const MacosStickiesSyncTab = withBoundary(function MacosStickiesSyncTab({
     if (!config) {
       return
     }
-    await window.electron.setMacosStickiesSyncConfig({ intervalMinutes: minutes })
+    await window.electron.setServiceConfig('macosStickiesSync', { intervalMinutes: minutes })
     setConfig({ ...config, intervalMinutes: minutes })
   }
 

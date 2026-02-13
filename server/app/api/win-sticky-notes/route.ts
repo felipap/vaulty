@@ -4,8 +4,16 @@ import { gte, sql } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { logRead, logWrite } from "@/lib/activity-log"
-import { getDataWindowCutoff, requireReadAuth, requireWriteAuth } from "@/lib/api-auth"
-import { SyncSuccessResponse, SyncErrorResponse, formatZodError } from "@/app/api/types"
+import {
+  getDataWindowCutoff,
+  requireReadAuth,
+  requireWriteAuth,
+} from "@/lib/api-auth"
+import {
+  SyncSuccessResponse,
+  SyncErrorResponse,
+  formatZodError,
+} from "@/app/api/types"
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "win-sticky-notes")
@@ -25,7 +33,7 @@ export async function GET(request: NextRequest) {
   console.info(`Retrieved ${stickies.length} Windows sticky notes`)
 
   await logRead({
-    type: "win-sticky-note",
+    type: "windows-sticky-notes",
     description: "Fetched Windows sticky notes",
     count: stickies.length,
     token: auth.token,
@@ -121,7 +129,7 @@ export async function POST(request: NextRequest) {
 
   if (upsertedCount > 0) {
     await logWrite({
-      type: "win-sticky-note",
+      type: "windows-sticky-notes",
       description: `Synced Windows sticky notes from ${deviceId}`,
       count: upsertedCount,
     })

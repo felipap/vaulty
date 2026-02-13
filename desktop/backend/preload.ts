@@ -24,52 +24,11 @@ const api = {
   setEncryptionKey: (key: string) =>
     ipcRenderer.invoke('set-encryption-key', key),
 
-  // Screenshots service
-  getScreenCaptureConfig: () => ipcRenderer.invoke('get-screen-capture-config'),
-  setScreenCaptureConfig: (config: {
-    enabled?: boolean
-    intervalMinutes?: number
-  }) => ipcRenderer.invoke('set-screen-capture-config', config),
-
-  // iMessage service
-  getIMessageExportConfig: () =>
-    ipcRenderer.invoke('get-imessage-export-config'),
-  setIMessageExportConfig: (config: {
-    enabled?: boolean
-    intervalMinutes?: number
-    includeAttachments?: boolean
-  }) => ipcRenderer.invoke('set-imessage-export-config', config),
-
-  // Contacts service
-  getContactsSyncConfig: () => ipcRenderer.invoke('get-contacts-sync-config'),
-  setContactsSyncConfig: (config: {
-    enabled?: boolean
-    intervalMinutes?: number
-  }) => ipcRenderer.invoke('set-contacts-sync-config', config),
-
-  // WhatsApp SQLite service
-  getWhatsappSqliteConfig: () =>
-    ipcRenderer.invoke('get-whatsapp-sqlite-config'),
-  setWhatsappSqliteConfig: (config: {
-    enabled?: boolean
-    intervalMinutes?: number
-  }) => ipcRenderer.invoke('set-whatsapp-sqlite-config', config),
-
-  // macOS Stickies service
-  getMacosStickiesSyncConfig: () =>
-    ipcRenderer.invoke('get-macos-stickies-sync-config'),
-  setMacosStickiesSyncConfig: (config: {
-    enabled?: boolean
-    intervalMinutes?: number
-  }) => ipcRenderer.invoke('set-macos-stickies-sync-config', config),
-
-  // Windows Sticky Notes service
-  getWinStickyNotesSyncConfig: () =>
-    ipcRenderer.invoke('get-win-sticky-notes-sync-config'),
-  setWinStickyNotesSyncConfig: (config: {
-    enabled?: boolean
-    intervalMinutes?: number
-  }) => ipcRenderer.invoke('set-win-sticky-notes-sync-config', config),
+  // Generic service config
+  getServiceConfig: (key: string) =>
+    ipcRenderer.invoke('get-service-config', key),
+  setServiceConfig: (key: string, config: Record<string, unknown>) =>
+    ipcRenderer.invoke('set-service-config', key, config),
 
   // Services status
   getServicesStatus: () => ipcRenderer.invoke('get-services-status'),

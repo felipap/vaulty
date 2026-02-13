@@ -26,7 +26,7 @@ export const ContactsSyncTab = withBoundary(function ContactsSyncTab({
   const logs = useSyncLogs('contacts')
 
   useEffect(() => {
-    window.electron.getContactsSyncConfig().then(setConfig)
+    window.electron.getServiceConfig('icontactsSync').then(setConfig)
   }, [])
 
   const handleToggleEnabled = async () => {
@@ -34,7 +34,7 @@ export const ContactsSyncTab = withBoundary(function ContactsSyncTab({
       return
     }
     const newEnabled = !config.enabled
-    await window.electron.setContactsSyncConfig({ enabled: newEnabled })
+    await window.electron.setServiceConfig('icontactsSync', { enabled: newEnabled })
     setConfig({ ...config, enabled: newEnabled })
     onEnabledChange(newEnabled)
   }
@@ -43,7 +43,7 @@ export const ContactsSyncTab = withBoundary(function ContactsSyncTab({
     if (!config) {
       return
     }
-    await window.electron.setContactsSyncConfig({ intervalMinutes: minutes })
+    await window.electron.setServiceConfig('icontactsSync', { intervalMinutes: minutes })
     setConfig({ ...config, intervalMinutes: minutes })
   }
 
@@ -53,20 +53,20 @@ export const ContactsSyncTab = withBoundary(function ContactsSyncTab({
 
   return (
     <SyncTab
-      title="Contacts Sync"
+      title="macOS Contacts"
       description="Sync your contacts to the server."
       footer={
         <DataSourceLogs
           logs={logs}
           highlightSyncId={highlightSyncId}
-          sourceLabel="Contacts Sync"
+          sourceLabel="macOS Contacts"
         />
       }
     >
       <FullDiskPermission description="Contacts sync requires Full Disk Access to read your contacts database." />
 
       <ToggleRow
-        label="Enable Contacts Sync"
+        label="Enable macOS Contacts Sync"
         enabled={config.enabled}
         onChange={handleToggleEnabled}
       />

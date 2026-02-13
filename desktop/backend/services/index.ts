@@ -24,13 +24,14 @@ import { winStickyNotesService } from './win-sticky-notes'
 
 const log = createLogger('services')
 
+const isMac = process.platform === 'darwin'
+const isWindows = process.platform === 'win32'
+
 export const SERVICES: Service[] = [
-  imessageService,
   screenshotsService,
-  iContactsService,
   whatsappSqliteService,
-  macosStickiesService,
-  ...(process.platform === 'win32' ? [winStickyNotesService] : []),
+  ...(isMac ? [imessageService, iContactsService, macosStickiesService] : []),
+  ...(isWindows ? [winStickyNotesService] : []),
 ]
 
 export async function startAllServices(): Promise<void> {

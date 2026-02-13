@@ -1,8 +1,7 @@
 import { createLogger } from '../../lib/logger'
-import { startAnimating, stopAnimating } from '../../tray/animate'
 import { fetchContacts } from '../../sources/icontacts'
 import { uploadContacts } from './upload'
-import { createScheduledService } from '../scheduler'
+import { createScheduledService, type SyncResult } from '../scheduler'
 
 const log = createLogger('icontacts-service')
 
@@ -12,25 +11,21 @@ function yieldToEventLoop(): Promise<void> {
   })
 }
 
-async function syncAndUpload(): Promise<void> {
+async function syncAndUpload(): Promise<SyncResult> {
   log.info('Syncing...')
   await yieldToEventLoop()
 
   const contacts = fetchContacts()
   if (contacts.length === 0) {
     log.info('No contacts to sync')
-    return
+    return { success: true }
   }
 
   log.info(`Fetched ${contacts.length} contacts`)
   await yieldToEventLoop()
 
-  startAnimating('vault-rotation')
-  try {
-    await uploadContacts(contacts)
-  } finally {
-    stopAnimating()
-  }
+  await uploadContacts(contacts)
+  return { success: true }
 }
 
 export const iContactsService = createScheduledService({

@@ -32,7 +32,7 @@ export const WhatsappSqliteSyncTab = withBoundary(
     const logs = useSyncLogs('whatsapp-sqlite')
 
     useEffect(() => {
-      window.electron.getWhatsappSqliteConfig().then(setConfig)
+      window.electron.getServiceConfig('whatsappSqlite').then(setConfig)
     }, [])
 
     const handleToggleEnabled = async () => {
@@ -40,7 +40,7 @@ export const WhatsappSqliteSyncTab = withBoundary(
         return
       }
       const newEnabled = !config.enabled
-      await window.electron.setWhatsappSqliteConfig({ enabled: newEnabled })
+      await window.electron.setServiceConfig('whatsappSqlite', { enabled: newEnabled })
       setConfig({ ...config, enabled: newEnabled })
       onEnabledChange(newEnabled)
     }
@@ -49,7 +49,7 @@ export const WhatsappSqliteSyncTab = withBoundary(
       if (!config) {
         return
       }
-      await window.electron.setWhatsappSqliteConfig({
+      await window.electron.setServiceConfig('whatsappSqlite', {
         intervalMinutes: minutes,
       })
       setConfig({ ...config, intervalMinutes: minutes })
@@ -60,7 +60,7 @@ export const WhatsappSqliteSyncTab = withBoundary(
         return
       }
       const updatedIds = [...(config.ignoredChatIds ?? []), id]
-      await window.electron.setWhatsappSqliteConfig({
+      await window.electron.setServiceConfig('whatsappSqlite', {
         ignoredChatIds: updatedIds,
       })
       setConfig({ ...config, ignoredChatIds: updatedIds })
@@ -71,7 +71,7 @@ export const WhatsappSqliteSyncTab = withBoundary(
         return
       }
       const updatedIds = (config.ignoredChatIds ?? []).filter((i) => i !== id)
-      await window.electron.setWhatsappSqliteConfig({
+      await window.electron.setServiceConfig('whatsappSqlite', {
         ignoredChatIds: updatedIds,
       })
       setConfig({ ...config, ignoredChatIds: updatedIds })
@@ -83,13 +83,13 @@ export const WhatsappSqliteSyncTab = withBoundary(
 
     return (
       <SyncTab
-        title="WhatsApp (SQLite)"
+        title="WhatsApp"
         description="Sync WhatsApp messages directly from the WhatsApp Desktop app database. Requires WhatsApp Desktop to be installed."
         footer={
           <DataSourceLogs
             logs={logs}
             highlightSyncId={highlightSyncId}
-            sourceLabel="WhatsApp (SQLite)"
+            sourceLabel="WhatsApp"
           />
         }
       >

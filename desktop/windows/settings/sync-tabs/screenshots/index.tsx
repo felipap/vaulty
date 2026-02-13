@@ -27,7 +27,7 @@ export const ScreenshotsSyncTab = withBoundary(function ScreenshotsSyncTab({
   const logs = useSyncLogs('screenshots')
 
   useEffect(() => {
-    window.electron.getScreenCaptureConfig().then(setConfig)
+    window.electron.getServiceConfig('screenCapture').then(setConfig)
   }, [])
 
   const handleToggleEnabled = async () => {
@@ -35,7 +35,7 @@ export const ScreenshotsSyncTab = withBoundary(function ScreenshotsSyncTab({
       return
     }
     const newEnabled = !config.enabled
-    await window.electron.setScreenCaptureConfig({ enabled: newEnabled })
+    await window.electron.setServiceConfig('screenCapture', { enabled: newEnabled })
     setConfig({ ...config, enabled: newEnabled })
     onEnabledChange(newEnabled)
   }
@@ -44,7 +44,7 @@ export const ScreenshotsSyncTab = withBoundary(function ScreenshotsSyncTab({
     if (!config) {
       return
     }
-    await window.electron.setScreenCaptureConfig({ intervalMinutes: minutes })
+    await window.electron.setServiceConfig('screenCapture', { intervalMinutes: minutes })
     setConfig({ ...config, intervalMinutes: minutes })
   }
 

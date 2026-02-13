@@ -1,6 +1,6 @@
 import { forwardRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
-import { SyncLog, SyncLogSource } from '../../electron'
+import { SyncLog, SOURCE_LABELS } from '../../electron'
 
 function formatTimestamp(timestamp: number): string {
   const date = new Date(timestamp)
@@ -18,15 +18,6 @@ export function formatDate(timestamp: number): string {
     month: 'short',
     day: 'numeric',
   })
-}
-
-const SOURCE_LABELS: Record<SyncLogSource, string> = {
-  screenshots: 'Screenshots',
-  imessage: 'iMessage',
-  contacts: 'Contacts',
-  'whatsapp-sqlite': 'WhatsApp (SQLite)',
-  'macos-stickies': 'macOS Stickies',
-  'win-sticky-notes': 'Windows Sticky Notes',
 }
 
 function StatusBadge({ status }: { status: 'success' | 'error' }) {
