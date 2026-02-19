@@ -1,6 +1,6 @@
 import { db } from "@/db"
 import { AppleContacts, DEFAULT_USER_ID } from "@/db/schema"
-import { and, eq, gte, or, sql } from "drizzle-orm"
+import { and, asc, eq, gte, or, sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
@@ -12,9 +12,9 @@ export async function GET(request: NextRequest) {
   }
 
   const searchParams = request.nextUrl.searchParams
-  const firstNameIndex = searchParams.get("firstNameIndex") // HMAC blind index for first name
-  const lastNameIndex = searchParams.get("lastNameIndex") // HMAC blind index for last name
-  const phoneNumberIndex = searchParams.get("phoneNumberIndex") // HMAC blind index for phone
+  const firstNameIndex = searchParams.get("firstNameIndex")
+  const lastNameIndex = searchParams.get("lastNameIndex")
+  const phoneNumberIndex = searchParams.get("phoneNumberIndex")
   const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100)
 
   if (!firstNameIndex && !lastNameIndex && !phoneNumberIndex) {
@@ -46,23 +46,23 @@ export async function GET(request: NextRequest) {
     whereConditions.push(gte(AppleContacts.updatedAt, cutoff))
   }
 
-  const contacts = await db
-    .select({
-      id: AppleContacts.id,
-      contactId: AppleContacts.contactId,
-      firstName: AppleContacts.firstName,
-      lastName: AppleContacts.lastName,
-      organization: AppleContacts.organization,
-      emails: AppleContacts.emails,
-      phoneNumbers: AppleContacts.phoneNumbers,
-      syncTime: AppleContacts.syncTime,
-      createdAt: AppleContacts.createdAt,
-      updatedAt: AppleContacts.updatedAt,
-    })
-    .from(AppleContacts)
-    .where(and(...whereConditions))
-    .orderBy(AppleContacts.updatedAt)
-    .limit(limit)
+  const contacts = await db.query.AppleContacts.findMany({
+    where: and(...whereConditions),
+    orderBy: asc(AppleContacts.updatedAt),
+    limit,
+    columns: {
+      id: true,
+      contactId: true,
+      firstName: true,
+      lastName: true,
+      organization: true,
+      emails: true,
+      phoneNumbers: true,
+      syncTime: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  })
 
   const parsed = contacts.map((c) => ({
     id: c.id,
