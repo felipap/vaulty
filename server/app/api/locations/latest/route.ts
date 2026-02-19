@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
   })
 
   if (!latest) {
-    return Response.json({ location: null })
+    return Response.json({ success: true, location: null })
   }
 
   // Over 10 minutes old.
@@ -55,6 +55,7 @@ export async function GET(request: NextRequest) {
   }
 
   return Response.json({
+    success: true,
     location: {
       id: latest.id,
       latitude: latest.latitude,

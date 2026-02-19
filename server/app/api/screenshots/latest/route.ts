@@ -45,10 +45,11 @@ export async function GET(request: NextRequest) {
   })
 
   if (!screenshot) {
-    return NextResponse.json({ screenshot: null })
+    return NextResponse.json({ success: true, screenshot: null })
   }
 
   return NextResponse.json({
+    success: true,
     screenshot: {
       id: screenshot.id,
       data: screenshot.data,
