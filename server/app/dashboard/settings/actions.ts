@@ -19,10 +19,11 @@ import {
   ReadLogs,
   AccessTokens,
 } from "@/db/schema"
+import { unauthorized } from "next/navigation"
 
 export async function getAccessTokens() {
   if (!(await isAuthenticated())) {
-    throw new Error("Unauthorized")
+    unauthorized()
   }
 
   const tokens = await listAccessTokens()
@@ -45,7 +46,7 @@ export async function createToken(
   dataWindowMs?: number
 ) {
   if (!(await isAuthenticated())) {
-    throw new Error("Unauthorized")
+    unauthorized()
   }
 
   const expiresAt = expiresInDays
@@ -73,7 +74,7 @@ export async function createToken(
 
 export async function revokeToken(id: string) {
   if (!(await isAuthenticated())) {
-    throw new Error("Unauthorized")
+    unauthorized()
   }
 
   const revoked = await revokeAccessToken(id)
@@ -86,7 +87,7 @@ export async function revokeToken(id: string) {
 
 export async function deleteEverything() {
   if (!(await isAuthenticated())) {
-    throw new Error("Unauthorized")
+    unauthorized()
   }
 
   const [screenshots] = await db

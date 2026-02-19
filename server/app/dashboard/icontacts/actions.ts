@@ -75,13 +75,12 @@ export async function getContacts(
 
   const total = countResult.count
 
-  const results = await db
-    .select()
-    .from(AppleContacts)
-    .where(searchCondition)
-    .orderBy(desc(AppleContacts.updatedAt))
-    .limit(pageSize)
-    .offset(offset)
+  const results = await db.query.AppleContacts.findMany({
+    where: searchCondition,
+    orderBy: desc(AppleContacts.updatedAt),
+    limit: pageSize,
+    offset,
+  })
 
   const contacts = results.map((row) => parseContact(row))
 

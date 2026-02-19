@@ -2,7 +2,9 @@
 
 import { db } from "@/db"
 import { WriteLogs, ReadLogs } from "@/db/schema"
+import { isAuthenticated } from "@/lib/admin-auth"
 import { desc } from "drizzle-orm"
+import { unauthorized } from "next/navigation"
 
 export type WriteLogEntry = {
   id: string
@@ -25,6 +27,10 @@ export type ReadLogEntry = {
 }
 
 export async function getRecentWriteLogs(limit = 20): Promise<WriteLogEntry[]> {
+  if (!(await isAuthenticated())) {
+    unauthorized()
+  }
+
   return db.query.WriteLogs.findMany({
     orderBy: [desc(WriteLogs.createdAt)],
     limit,
@@ -32,6 +38,10 @@ export async function getRecentWriteLogs(limit = 20): Promise<WriteLogEntry[]> {
 }
 
 export async function getRecentReadLogs(limit = 20): Promise<ReadLogEntry[]> {
+  if (!(await isAuthenticated())) {
+    unauthorized()
+  }
+
   return db.query.ReadLogs.findMany({
     orderBy: [desc(ReadLogs.createdAt)],
     limit,

@@ -38,12 +38,18 @@ export async function getStickies(
 
   const total = countResult.count
 
-  const results = await db
-    .select()
-    .from(MacosStickies)
-    .orderBy(desc(MacosStickies.updatedAt))
-    .limit(pageSize)
-    .offset(offset)
+  const results = await db.query.MacosStickies.findMany({
+    orderBy: desc(MacosStickies.updatedAt),
+    limit: pageSize,
+    offset,
+    columns: {
+      id: true,
+      stickyId: true,
+      text: true,
+      syncTime: true,
+      updatedAt: true,
+    },
+  })
 
   const stickies: StickyNote[] = results.map((row) => ({
     id: row.id,

@@ -4,8 +4,6 @@
 
 - [ ] [desktop] Fix onboarding flow
 - [ ] [desktop] Source(screenshots): What about multiple screens?
-- [ ] Standardize the getter and setter functions.
-
 ## Later
 
 - [ ] [desktop] Sleep for X minutes.
@@ -23,6 +21,7 @@
 
 ## Done
 
+- [x] [server] Standardize the getter and setter functions
 - [x] [desktop] Fix: App is huge
 - [x] [server] Move to sqlite.
 - [x] [server] Docker deployment support
