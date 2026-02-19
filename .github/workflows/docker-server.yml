@@ -1,12 +1,6 @@
 name: 'Server: Docker build and smoke test'
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'server/**'
-      - '.github/workflows/docker-server.yml'
   pull_request:
     branches:
       - main
