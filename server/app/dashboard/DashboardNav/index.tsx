@@ -84,7 +84,7 @@ export function DashboardNav() {
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <Button variant="outline" icon={<SettingsIcon size={14} />}>
-              Settings
+              <Link href="/dashboard/settings">Settings</Link>
             </Button>
             <EncryptionKeyButton />
             <form action={logout}>
