@@ -2,50 +2,50 @@
 
 ## Now
 
-- [ ] Fix onboarding flow
-- [ ] What about multiple screens?
+- [ ] [desktop] Fix onboarding flow
+- [ ] [desktop] Source(screenshots): What about multiple screens?
 - [ ] Standardize the getter and setter functions.
 
 ## Later
 
-- [ ] Sleep for X minutes.
-- [ ] App is huge
+- [ ] [desktop] Sleep for X minutes.
 - [ ] Opt-in (out?) Sentry
 - [ ] Real-time authorization of data access by asking user directly
 - [ ] Upgrade ESLint to v9 (requires flat config migration)
-- [ ] Rate-limit access tokens
-- [ ] Install via npm
-- [ ] Fix dashboard breaking when providing the wrong key (stays in "Loading...")
-- [ ] Wake during darkwakes via LaunchAgent
-- [ ] Whitelist or blacklist messages from particular numbers
-- [ ] Expire data after a certain time
-- [ ] Blur texts in desktop screenshots?
+- [ ] [server] Rate-limit access tokens
+- [ ] [server] Install via npm
+- [ ] [server] Fix dashboard breaking when providing the wrong key (stays in "Loading...")
+- [ ] [desktop] Wake during darkwakes via LaunchAgent
+- [ ] [server] Whitelist or blacklist messages from particular numbers
+- [ ] [server] Expire data after a certain time
+- [ ] [desktop] Blur texts in desktop screenshots?
 - [ ] Key rotation
 
 ## Done
 
-- [x] Move to sqlite.
-- [x] Docker deployment support
-- [x] Button to delete all data from dashboard
-- [x] Read-only access tokens
-- [x] Stream WhatsApp SQLite import instead of loading all into memory
-- [x] Better request logs
-- [x] Authenticated llms.txt
+- [x] [desktop] Fix: App is huge
+- [x] [server] Move to sqlite.
+- [x] [server] Docker deployment support
+- [x] [server] Button to delete all data from dashboard
+- [x] [server] Read-only access tokens
+- [x] [desktop] Stream WhatsApp SQLite import instead of loading all into memory
+- [x] [server] Better request logs
+- [x] [server] Authenticated llms.txt
 - [x] Rebrand project
-- [x] Horizontal layout of settings
-- [x] Improve logger (electron-log)
+- [x] [desktop] Horizontal layout of settings
+- [x] [desktop] Improve logger (electron-log)
 - [x] Encrypt locations
-- [x] /api/locations/latest endpoint
-- [x] Don't auto upload data when starting the app
+- [x] [server] /api/locations/latest endpoint
+- [x] [desktop] Don't auto upload data when starting the app
 - [x] End-to-end encryption of message texts
-- [x] Store device secret in system keychain instead of plaintext JSON
-- [x] Auto delete screenshots after 24 hours
-- [x] IP whitelisting
-- [x] Fix local packing taking too long
-- [x] Desktop icon
-- [x] Fix notarization
+- [x] [desktop] Store device secret in system keychain instead of plaintext JSON
+- [x] [desktop] Auto delete screenshots after 24 hours
+- [x] [server] IP whitelisting
+- [x] [desktop] Fix local packing taking too long
+- [x] [desktop] Desktop icon
+- [x] [desktop] Fix notarization
 - [x] Fix CI/CD
-- [x] Export macOS contacts
-- [x] Export iMessage
-- [x] Upload screenshot animation
-- [x] Fix dashboard authentication
+- [x] [desktop] Export macOS contacts
+- [x] [desktop] Export iMessage
+- [x] [desktop] Upload screenshot animation
+- [x] [server] Fix dashboard authentication
