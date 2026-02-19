@@ -4,6 +4,7 @@
 
 - [ ] [desktop] Fix onboarding flow
 - [ ] [desktop] Source(screenshots): What about multiple screens?
+
 ## Later
 
 - [ ] [desktop] Sleep for X minutes.
