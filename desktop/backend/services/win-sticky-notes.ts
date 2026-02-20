@@ -1,5 +1,7 @@
 import { createLogger } from '../lib/logger'
 import { apiRequest } from '../lib/contexter-api'
+import { encryptText } from '../lib/encryption'
+import { getEncryptionKey } from '../store'
 import { fetchWinStickyNotes, type WinStickyNote } from '../sources/win-sticky-notes'
 import { createScheduledService, type SyncResult } from './scheduler'
 
@@ -11,10 +13,24 @@ function yieldToEventLoop(): Promise<void> {
   })
 }
 
+function encryptStickyNotes(notes: WinStickyNote[], encryptionKey: string): WinStickyNote[] {
+  return notes.map((n) => ({
+    id: n.id,
+    text: encryptText(n.text, encryptionKey),
+  }))
+}
+
 async function uploadStickyNotes(notes: WinStickyNote[]): Promise<void> {
+  const encryptionKey = getEncryptionKey()
+  if (!encryptionKey) {
+    log.error('Encryption key not set, skipping upload')
+    return
+  }
+
+  const encrypted = encryptStickyNotes(notes, encryptionKey)
   await apiRequest({
     path: '/api/win-sticky-notes',
-    body: { stickies: notes },
+    body: { stickies: encrypted },
   })
   log.info(`Uploaded ${notes.length} Windows sticky notes`)
 }

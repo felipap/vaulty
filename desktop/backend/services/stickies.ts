@@ -1,5 +1,7 @@
 import { createLogger } from '../lib/logger'
 import { apiRequest } from '../lib/contexter-api'
+import { encryptText } from '../lib/encryption'
+import { getEncryptionKey } from '../store'
 import { fetchStickies, type Sticky } from '../sources/stickies'
 import { createScheduledService, type SyncResult } from './scheduler'
 
@@ -11,10 +13,24 @@ function yieldToEventLoop(): Promise<void> {
   })
 }
 
+function encryptStickies(stickies: Sticky[], encryptionKey: string): Sticky[] {
+  return stickies.map((s) => ({
+    id: s.id,
+    text: encryptText(s.text, encryptionKey),
+  }))
+}
+
 async function uploadStickies(stickies: Sticky[]): Promise<void> {
+  const encryptionKey = getEncryptionKey()
+  if (!encryptionKey) {
+    log.error('Encryption key not set, skipping upload')
+    return
+  }
+
+  const encrypted = encryptStickies(stickies, encryptionKey)
   await apiRequest({
     path: '/api/macos-stickies',
-    body: { stickies },
+    body: { stickies: encrypted },
   })
   log.info(`Uploaded ${stickies.length} macOS stickies`)
 }

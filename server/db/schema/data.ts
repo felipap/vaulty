@@ -229,8 +229,8 @@ export const MacosStickies = sqliteTable("macos_stickies", {
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   deviceId: text("device_id").notNull(),
-  // encrypted
   stickyId: text("sticky_id").notNull().unique(),
+  // encrypted
   text: text("text").notNull(),
   syncTime: integer("sync_time", { mode: "timestamp" }).notNull(),
 })
