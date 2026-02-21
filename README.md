@@ -18,14 +18,17 @@ See [ROADMAP.md](./ROADMAP.md).
 
 ## Supported sources
 
-| Source             | Description                               | Status |
-| ------------------ | ----------------------------------------- | ------ |
-| **Apple Messages** | Message history and attachments           | Stable |
-| **WhatsApp**       | Message history via local SQLite database | Stable |
-| **Apple Contacts** | From macOS AddressBook                    | Stable |
-| **Screenshots**    | Periodic screen captures                  | Beta   |
-| **Locations**      | GPS coordinates via iOS app               | Beta   |
-| **macOS Stickies** | Sticky notes from your desktop            | Stable |
+| ID                 | Source                   | Description                               | Status |
+| ------------------ | ------------------------ | ----------------------------------------- | ------ |
+| `imessage`         | **Apple Messages**       | Message history and attachments            | Stable |
+| `whatsapp-sqlite`  | **WhatsApp**             | Message history via local SQLite database  | Stable |
+| `apple-contacts`   | **Apple Contacts**       | From macOS AddressBook                     | Stable |
+| `apple-notes`      | **Apple Notes**          | Notes from macOS Notes app                 | Beta   |
+| `apple-reminders`  | **Apple Reminders**      | Reminders from macOS Reminders app         | Beta   |
+| `screenshots`      | **Screenshots**          | Periodic screen captures                   | Beta   |
+| `locations`        | **Locations**            | GPS coordinates via iOS app                | Beta   |
+| `macos-stickies`   | **macOS Stickies**       | Sticky notes from macOS desktop            | Stable |
+| `win-sticky-notes` | **Windows Sticky Notes** | Sticky notes from Windows                  | Beta   |
 
 ## How it works
 
@@ -51,6 +54,7 @@ GET /api/whatsapp/chats/{chat_id}/messages
 GET /api/screenshots/latest?within_min=60
 GET /api/locations/latest?within_min=60
 GET /api/llms.txt
+...
 ```
 
 Access tokens are scoped — you can grant an agent access to contacts but not screenshots, for example. Tokens are managed through the dashboard and prefixed with `vault_`.
