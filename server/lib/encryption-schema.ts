@@ -44,3 +44,15 @@ export const WHATSAPP_ENCRYPTED_COLUMNS = [
   "senderName",
   "senderPhoneNumber",
 ] as const
+
+export const APPLE_NOTES_ENCRYPTED_COLUMNS = ["title", "body"] as const
+
+export const APPLE_REMINDERS_ENCRYPTED_COLUMNS = [
+  "title",
+  "notes",
+  "listName",
+] as const
+
+export const MACOS_STICKIES_ENCRYPTED_COLUMNS = ["text"] as const
+
+export const WIN_STICKY_NOTES_ENCRYPTED_COLUMNS = ["text"] as const

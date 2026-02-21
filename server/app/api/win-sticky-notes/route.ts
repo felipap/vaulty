@@ -14,6 +14,10 @@ import {
   SyncErrorResponse,
   formatZodError,
 } from "@/app/api/types"
+import {
+  WIN_STICKY_NOTES_ENCRYPTED_COLUMNS,
+  encryptedRequired,
+} from "@/lib/encryption-schema"
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "win-sticky-notes")
@@ -48,14 +52,44 @@ export async function GET(request: NextRequest) {
 
 const StickySchema = z.object({
   id: z.string(),
-  text: z.string(),
+  text: encryptedRequired,
 })
 
+type ValidatedSticky = z.infer<typeof StickySchema>
+
 const PostSchema = z.object({
-  stickies: z.array(StickySchema),
+  stickies: z.array(z.unknown()),
   syncTime: z.string().optional(),
   deviceId: z.string().optional(),
 })
+
+function validateStickies(stickies: unknown[]) {
+  const validStickies: ValidatedSticky[] = []
+  const rejectedStickies: Array<{
+    index: number
+    sticky: unknown
+    error: string
+  }> = []
+
+  for (let i = 0; i < stickies.length; i++) {
+    const sticky = stickies[i]
+    const result = StickySchema.safeParse(sticky)
+
+    if (!result.success) {
+      const error = formatZodError(result.error)
+      rejectedStickies.push({ index: i, sticky, error })
+      console.warn(
+        `Rejected Windows sticky note at index ${i}:`,
+        JSON.stringify({ error })
+      )
+      continue
+    }
+
+    validStickies.push(result.data)
+  }
+
+  return { validStickies, rejectedStickies }
+}
 
 export async function POST(request: NextRequest) {
   console.log("POST /api/win-sticky-notes")
@@ -96,7 +130,9 @@ export async function POST(request: NextRequest) {
     })
   }
 
-  const values = stickies.map((s) => ({
+  const { validStickies, rejectedStickies } = validateStickies(stickies)
+
+  const values = validStickies.map((s) => ({
     stickyId: s.id,
     text: s.text,
     deviceId,
@@ -126,12 +162,20 @@ export async function POST(request: NextRequest) {
   }
 
   console.info(`Synced ${upsertedCount} Windows sticky notes`)
+  console.info(
+    `Rejected ${rejectedStickies.length} invalid Windows sticky notes`
+  )
 
   if (upsertedCount > 0) {
     await logWrite({
       type: "windows-sticky-notes",
-      description: `Synced Windows sticky notes from ${deviceId}`,
+      description: `Synced encrypted Windows sticky notes from ${deviceId}`,
       count: upsertedCount,
+      metadata: {
+        rejectedCount: rejectedStickies.length,
+        encrypted: true,
+        encryptedColumns: WIN_STICKY_NOTES_ENCRYPTED_COLUMNS,
+      },
     })
   }
 
@@ -139,7 +183,7 @@ export async function POST(request: NextRequest) {
     success: true,
     insertedCount: upsertedCount,
     updatedCount: 0,
-    rejectedCount: 0,
+    rejectedCount: rejectedStickies.length,
     skippedCount: 0,
   })
 }

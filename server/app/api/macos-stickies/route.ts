@@ -6,6 +6,7 @@ import { z } from "zod"
 import { logRead, logWrite } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth, requireWriteAuth } from "@/lib/api-auth"
 import { SyncSuccessResponse, SyncErrorResponse, formatZodError } from "@/app/api/types"
+import { MACOS_STICKIES_ENCRYPTED_COLUMNS, encryptedRequired } from "@/lib/encryption-schema"
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "macos-stickies")
@@ -40,14 +41,37 @@ export async function GET(request: NextRequest) {
 
 const StickySchema = z.object({
   id: z.string(),
-  text: z.string(),
+  text: encryptedRequired,
 })
 
+type ValidatedSticky = z.infer<typeof StickySchema>
+
 const PostSchema = z.object({
-  stickies: z.array(StickySchema),
+  stickies: z.array(z.unknown()),
   syncTime: z.string().optional(),
   deviceId: z.string().optional(),
 })
+
+function validateStickies(stickies: unknown[]) {
+  const validStickies: ValidatedSticky[] = []
+  const rejectedStickies: Array<{ index: number; sticky: unknown; error: string }> = []
+
+  for (let i = 0; i < stickies.length; i++) {
+    const sticky = stickies[i]
+    const result = StickySchema.safeParse(sticky)
+
+    if (!result.success) {
+      const error = formatZodError(result.error)
+      rejectedStickies.push({ index: i, sticky, error })
+      console.warn(`Rejected macOS sticky at index ${i}:`, JSON.stringify({ error }))
+      continue
+    }
+
+    validStickies.push(result.data)
+  }
+
+  return { validStickies, rejectedStickies }
+}
 
 export async function POST(request: NextRequest) {
   console.log("POST /api/macos-stickies")
@@ -88,7 +112,9 @@ export async function POST(request: NextRequest) {
     })
   }
 
-  const values = stickies.map((s) => ({
+  const { validStickies, rejectedStickies } = validateStickies(stickies)
+
+  const values = validStickies.map((s) => ({
     stickyId: s.id,
     text: s.text,
     deviceId,
@@ -118,12 +144,18 @@ export async function POST(request: NextRequest) {
   }
 
   console.info(`Synced ${upsertedCount} macOS stickies`)
+  console.info(`Rejected ${rejectedStickies.length} invalid macOS stickies`)
 
   if (upsertedCount > 0) {
     await logWrite({
       type: "macos-sticky",
-      description: `Synced macOS stickies from ${deviceId}`,
+      description: `Synced encrypted macOS stickies from ${deviceId}`,
       count: upsertedCount,
+      metadata: {
+        rejectedCount: rejectedStickies.length,
+        encrypted: true,
+        encryptedColumns: MACOS_STICKIES_ENCRYPTED_COLUMNS,
+      },
     })
   }
 
@@ -131,7 +163,7 @@ export async function POST(request: NextRequest) {
     success: true,
     insertedCount: upsertedCount,
     updatedCount: 0,
-    rejectedCount: 0,
+    rejectedCount: rejectedStickies.length,
     skippedCount: 0,
   })
 }

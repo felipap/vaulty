@@ -6,6 +6,7 @@ import { z } from "zod"
 import { logRead, logWrite } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth, requireWriteAuth } from "@/lib/api-auth"
 import { SyncSuccessResponse, SyncErrorResponse, formatZodError } from "@/app/api/types"
+import { APPLE_NOTES_ENCRYPTED_COLUMNS, encryptedRequired, encryptedOrEmpty } from "@/lib/encryption-schema"
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "apple-notes")
@@ -40,8 +41,8 @@ export async function GET(request: NextRequest) {
 
 const NoteSchema = z.object({
   id: z.number(),
-  title: z.string(),
-  body: z.string(),
+  title: encryptedRequired,
+  body: encryptedOrEmpty,
   folderName: z.string().nullable(),
   accountName: z.string().nullable(),
   isPinned: z.boolean(),
@@ -49,11 +50,34 @@ const NoteSchema = z.object({
   modifiedAt: z.string(),
 })
 
+type ValidatedNote = z.infer<typeof NoteSchema>
+
 const PostSchema = z.object({
-  notes: z.array(NoteSchema),
+  notes: z.array(z.unknown()),
   syncTime: z.string().optional(),
   deviceId: z.string().optional(),
 })
+
+function validateNotes(notes: unknown[]) {
+  const validNotes: ValidatedNote[] = []
+  const rejectedNotes: Array<{ index: number; note: unknown; error: string }> = []
+
+  for (let i = 0; i < notes.length; i++) {
+    const note = notes[i]
+    const result = NoteSchema.safeParse(note)
+
+    if (!result.success) {
+      const error = formatZodError(result.error)
+      rejectedNotes.push({ index: i, note, error })
+      console.warn(`Rejected Apple Note at index ${i}:`, JSON.stringify({ error }))
+      continue
+    }
+
+    validNotes.push(result.data)
+  }
+
+  return { validNotes, rejectedNotes }
+}
 
 export async function POST(request: NextRequest) {
   console.log("POST /api/apple-notes")
@@ -94,7 +118,9 @@ export async function POST(request: NextRequest) {
     })
   }
 
-  const values = notes.map((n) => ({
+  const { validNotes, rejectedNotes } = validateNotes(notes)
+
+  const values = validNotes.map((n) => ({
     noteId: n.id,
     title: n.title,
     body: n.body,
@@ -136,12 +162,18 @@ export async function POST(request: NextRequest) {
   }
 
   console.info(`Synced ${upsertedCount} Apple Notes`)
+  console.info(`Rejected ${rejectedNotes.length} invalid Apple Notes`)
 
   if (upsertedCount > 0) {
     await logWrite({
       type: "apple-note",
-      description: `Synced Apple Notes from ${deviceId}`,
+      description: `Synced encrypted Apple Notes from ${deviceId}`,
       count: upsertedCount,
+      metadata: {
+        rejectedCount: rejectedNotes.length,
+        encrypted: true,
+        encryptedColumns: APPLE_NOTES_ENCRYPTED_COLUMNS,
+      },
     })
   }
 
@@ -149,7 +181,7 @@ export async function POST(request: NextRequest) {
     success: true,
     insertedCount: upsertedCount,
     updatedCount: 0,
-    rejectedCount: 0,
+    rejectedCount: rejectedNotes.length,
     skippedCount: 0,
   })
 }

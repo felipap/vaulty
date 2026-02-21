@@ -1,11 +1,24 @@
+import {
+  SyncErrorResponse,
+  SyncSuccessResponse,
+  formatZodError,
+} from "@/app/api/types"
 import { db } from "@/db"
 import { AppleReminders } from "@/db/schema"
+import { logRead, logWrite } from "@/lib/activity-log"
+import {
+  getDataWindowCutoff,
+  requireReadAuth,
+  requireWriteAuth,
+} from "@/lib/api-auth"
+import {
+  APPLE_REMINDERS_ENCRYPTED_COLUMNS,
+  encryptedOrEmpty,
+  encryptedRequired,
+} from "@/lib/encryption-schema"
 import { gte, sql } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
-import { logRead, logWrite } from "@/lib/activity-log"
-import { getDataWindowCutoff, requireReadAuth, requireWriteAuth } from "@/lib/api-auth"
-import { SyncSuccessResponse, SyncErrorResponse, formatZodError } from "@/app/api/types"
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "apple-reminders")
@@ -36,9 +49,9 @@ export async function GET(request: NextRequest) {
 
 const ReminderSchema = z.object({
   id: z.string(),
-  title: z.string(),
-  notes: z.string().nullable(),
-  listName: z.string().nullable(),
+  title: encryptedRequired,
+  notes: encryptedOrEmpty.nullable(),
+  listName: encryptedOrEmpty.nullable(),
   completed: z.boolean(),
   flagged: z.boolean(),
   priority: z.number(),
@@ -48,11 +61,34 @@ const ReminderSchema = z.object({
   lastModifiedDate: z.string().nullable(),
 })
 
+type ValidatedReminder = z.infer<typeof ReminderSchema>
+
 const PostSchema = z.object({
-  reminders: z.array(ReminderSchema),
+  reminders: z.array(z.unknown()),
   syncTime: z.string().optional(),
   deviceId: z.string().optional(),
 })
+
+function validateReminders(reminders: unknown[]) {
+  const validReminders: ValidatedReminder[] = []
+  const rejectedReminders: Array<{ index: number; reminder: unknown; error: string }> = []
+
+  for (let i = 0; i < reminders.length; i++) {
+    const reminder = reminders[i]
+    const result = ReminderSchema.safeParse(reminder)
+
+    if (!result.success) {
+      const error = formatZodError(result.error)
+      rejectedReminders.push({ index: i, reminder, error })
+      console.warn(`Rejected Apple Reminder at index ${i}:`, JSON.stringify({ error }))
+      continue
+    }
+
+    validReminders.push(result.data)
+  }
+
+  return { validReminders, rejectedReminders }
+}
 
 export async function POST(request: NextRequest) {
   const unauthorized = await requireWriteAuth(request)
@@ -86,7 +122,9 @@ export async function POST(request: NextRequest) {
     })
   }
 
-  const values = reminders.map((r) => ({
+  const { validReminders, rejectedReminders } = validateReminders(reminders)
+
+  const values = validReminders.map((r) => ({
     reminderId: r.id,
     title: r.title,
     notes: r.notes,
@@ -97,7 +135,9 @@ export async function POST(request: NextRequest) {
     dueDate: r.dueDate ? new Date(r.dueDate) : null,
     completionDate: r.completionDate ? new Date(r.completionDate) : null,
     reminderCreatedAt: r.creationDate ? new Date(r.creationDate) : null,
-    reminderModifiedAt: r.lastModifiedDate ? new Date(r.lastModifiedDate) : null,
+    reminderModifiedAt: r.lastModifiedDate
+      ? new Date(r.lastModifiedDate)
+      : null,
     deviceId,
     syncTime: new Date(syncTime),
   }))
@@ -133,11 +173,19 @@ export async function POST(request: NextRequest) {
     upsertedCount += result.length
   }
 
+  console.info(`Synced ${upsertedCount} Apple Reminders`)
+  console.info(`Rejected ${rejectedReminders.length} invalid Apple Reminders`)
+
   if (upsertedCount > 0) {
     await logWrite({
       type: "apple-reminder",
-      description: `Synced Apple Reminders from ${deviceId}`,
+      description: `Synced encrypted Apple Reminders from ${deviceId}`,
       count: upsertedCount,
+      metadata: {
+        rejectedCount: rejectedReminders.length,
+        encrypted: true,
+        encryptedColumns: APPLE_REMINDERS_ENCRYPTED_COLUMNS,
+      },
     })
   }
 
@@ -145,7 +193,7 @@ export async function POST(request: NextRequest) {
     success: true,
     insertedCount: upsertedCount,
     updatedCount: 0,
-    rejectedCount: 0,
+    rejectedCount: rejectedReminders.length,
     skippedCount: 0,
   })
 }
