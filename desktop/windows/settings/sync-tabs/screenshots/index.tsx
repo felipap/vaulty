@@ -3,7 +3,7 @@ import { ServiceConfig } from '../../../electron'
 import { ScreenRecordingPermission } from '../ScreenRecordingPermission'
 import { withBoundary } from '../../../shared/ui/withBoundary'
 import { DataSourceLogs } from '../../DataSourceLogs'
-import { SyncTab, ToggleRow, IntervalSelect, LoadingSkeleton, useSyncLogs } from '../shared'
+import { SyncTab, ToggleRow, IntervalSelect, LoadingSkeleton, useSyncLogs, SyncNowButton } from '../shared'
 
 type Props = {
   onEnabledChange: (enabled: boolean) => void
@@ -78,6 +78,8 @@ export const ScreenshotsSyncTab = withBoundary(function ScreenshotsSyncTab({
         onChange={handleIntervalChange}
         disabled={!config.enabled}
       />
+
+      <SyncNowButton serviceName="screenshots" disabled={!config.enabled} />
     </SyncTab>
   )
 })

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { ServiceConfig } from '../../../electron'
 import { withBoundary } from '../../../shared/ui/withBoundary'
 import { DataSourceLogs } from '../../DataSourceLogs'
-import { SyncTab, ToggleRow, IntervalSelect, LoadingSkeleton, useSyncLogs } from '../shared'
+import { SyncTab, ToggleRow, IntervalSelect, LoadingSkeleton, useSyncLogs, SyncNowButton } from '../shared'
 
 type Props = {
   onEnabledChange: (enabled: boolean) => void
@@ -74,6 +74,8 @@ export const AppleRemindersSyncTab = withBoundary(function AppleRemindersSyncTab
         onChange={handleIntervalChange}
         disabled={!config.enabled}
       />
+
+      <SyncNowButton serviceName="apple-reminders" disabled={!config.enabled} />
     </SyncTab>
   )
 })

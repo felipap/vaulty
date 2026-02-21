@@ -5,7 +5,7 @@ import { HistoricalBackfill } from './HistoricalBackfill'
 import { withBoundary } from '../../../shared/ui/withBoundary'
 import { InfoCircleIcon } from '../../../shared/ui/icons'
 import { DataSourceLogs } from '../../DataSourceLogs'
-import { SyncTab, ToggleRow, IntervalSelect, LoadingSkeleton, useSyncLogs } from '../shared'
+import { SyncTab, ToggleRow, IntervalSelect, LoadingSkeleton, useSyncLogs, SyncNowButton } from '../shared'
 
 type Props = {
   onEnabledChange: (enabled: boolean) => void
@@ -113,6 +113,8 @@ export const IMessageSyncTab = withBoundary(function IMessageSyncTab({
         onChange={handleIntervalChange}
         disabled={!config.enabled}
       />
+
+      <SyncNowButton serviceName="imessage" disabled={!config.enabled} />
 
       <HistoricalBackfill />
     </SyncTab>

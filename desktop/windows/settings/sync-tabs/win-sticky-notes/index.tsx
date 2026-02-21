@@ -8,6 +8,7 @@ import {
   IntervalSelect,
   LoadingSkeleton,
   useSyncLogs,
+  SyncNowButton,
 } from '../shared'
 
 type Props = {
@@ -80,6 +81,8 @@ export const WinStickyNotesSyncTab = withBoundary(
           onChange={handleIntervalChange}
           disabled={!config.enabled}
         />
+
+        <SyncNowButton serviceName="win-sticky-notes" disabled={!config.enabled} />
       </SyncTab>
     )
   },

@@ -11,6 +11,7 @@ import {
   IntervalSelect,
   LoadingSkeleton,
   useSyncLogs,
+  SyncNowButton,
 } from '../shared'
 
 type Props = {
@@ -107,6 +108,8 @@ export const WhatsappSqliteSyncTab = withBoundary(
           onChange={handleIntervalChange}
           disabled={!config.enabled}
         />
+
+        <SyncNowButton serviceName="whatsapp-sqlite" disabled={!config.enabled} />
 
         <IgnoredChatIds
           ignoredChatIds={config.ignoredChatIds ?? []}

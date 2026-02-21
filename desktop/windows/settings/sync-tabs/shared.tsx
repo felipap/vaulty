@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect } from 'react'
+import { ReactNode, useState, useEffect, useCallback } from 'react'
 import { SyncLog, SyncLogSource } from '../../electron'
 
 export function useSyncLogs(source: SyncLogSource) {
@@ -115,6 +115,31 @@ export function SyncTab({
       </header>
       {footer && <div className="border-t pt-6">{footer}</div>}
     </div>
+  )
+}
+
+type SyncNowButtonProps = {
+  serviceName: string
+  disabled?: boolean
+}
+
+export function SyncNowButton({ serviceName, disabled }: SyncNowButtonProps) {
+  const [syncing, setSyncing] = useState(false)
+
+  const handleClick = useCallback(async () => {
+    setSyncing(true)
+    await window.electron.runServiceNow(serviceName)
+    setSyncing(false)
+  }, [serviceName])
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={disabled || syncing}
+      className="px-3 py-1.5 text-sm font-medium rounded-md bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+    >
+      {syncing ? 'Syncing...' : 'Sync Now'}
+    </button>
   )
 }
 
