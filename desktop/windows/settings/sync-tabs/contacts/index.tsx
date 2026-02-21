@@ -3,7 +3,14 @@ import { ServiceConfig } from '../../../electron'
 import { FullDiskPermission } from '../FullDiskPermission'
 import { withBoundary } from '../../../shared/ui/withBoundary'
 import { DataSourceLogs } from '../../DataSourceLogs'
-import { SyncTab, ToggleRow, IntervalSelect, LoadingSkeleton, useSyncLogs, SyncNowButton } from '../shared'
+import {
+  SyncTab,
+  ToggleRow,
+  IntervalSelect,
+  LoadingSkeleton,
+  useSyncLogs,
+  SyncNowButton,
+} from '../shared'
 
 type Props = {
   onEnabledChange: (enabled: boolean) => void
@@ -26,7 +33,7 @@ export const ContactsSyncTab = withBoundary(function ContactsSyncTab({
   const logs = useSyncLogs('contacts')
 
   useEffect(() => {
-    window.electron.getServiceConfig('icontactsSync').then(setConfig)
+    window.electron.getServiceConfig('appleContactsSync').then(setConfig)
   }, [])
 
   const handleToggleEnabled = async () => {
@@ -34,7 +41,9 @@ export const ContactsSyncTab = withBoundary(function ContactsSyncTab({
       return
     }
     const newEnabled = !config.enabled
-    await window.electron.setServiceConfig('icontactsSync', { enabled: newEnabled })
+    await window.electron.setServiceConfig('appleContactsSync', {
+      enabled: newEnabled,
+    })
     setConfig({ ...config, enabled: newEnabled })
     onEnabledChange(newEnabled)
   }
@@ -43,7 +52,9 @@ export const ContactsSyncTab = withBoundary(function ContactsSyncTab({
     if (!config) {
       return
     }
-    await window.electron.setServiceConfig('icontactsSync', { intervalMinutes: minutes })
+    await window.electron.setServiceConfig('appleContactsSync', {
+      intervalMinutes: minutes,
+    })
     setConfig({ ...config, intervalMinutes: minutes })
   }
 
@@ -78,7 +89,7 @@ export const ContactsSyncTab = withBoundary(function ContactsSyncTab({
         disabled={!config.enabled}
       />
 
-      <SyncNowButton serviceName="icontacts" disabled={!config.enabled} />
+      <SyncNowButton serviceName="apple-contacts" disabled={!config.enabled} />
     </SyncTab>
   )
 })

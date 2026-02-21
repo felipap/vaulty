@@ -8,6 +8,7 @@ import {
   store,
 } from '../../store'
 import { createScheduledService, type SyncResult } from '../scheduler'
+import { yieldToEventLoop } from '../upload-utils'
 import { uploadMessages } from './upload'
 
 export { imessageBackfill } from './backfill'
@@ -15,12 +16,6 @@ export { imessageBackfill } from './backfill'
 export const log = createLogger('imessage')
 
 const BATCH_SIZE = 50
-
-function yieldToEventLoop(): Promise<void> {
-  return new Promise((resolve) => {
-    setImmediate(resolve)
-  })
-}
 
 let sdk: IMessageSDK | null = null
 

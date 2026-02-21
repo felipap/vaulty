@@ -61,7 +61,7 @@ export function DashboardClient() {
           <StatCard
             label="Contacts"
             value={stats.totalContacts.toLocaleString()}
-            href={"/dashboard/syncs/icontacts" as Route}
+            href={"/dashboard/syncs/apple-contacts" as Route}
           />
           <StatCard
             label="Locations"

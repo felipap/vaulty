@@ -48,7 +48,7 @@ const NAV_ITEMS: Array<{
     icon: <WhatsappIcon size={13} />,
   },
   {
-    href: "/dashboard/syncs/icontacts",
+    href: "/dashboard/syncs/apple-contacts",
     label: "Apple Contacts",
     icon: <ContactIcon size={13} />,
   },

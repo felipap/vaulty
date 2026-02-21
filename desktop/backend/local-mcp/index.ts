@@ -5,9 +5,9 @@ import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js'
 import { createServer, IncomingMessage, ServerResponse } from 'http'
 import { z } from 'zod'
 import { createLogger } from '../lib/logger'
-import { fetchContacts } from '../sources/icontacts'
+import { fetchContacts } from '../sources/apple-contacts'
 import { createIMessageSDK, fetchMessages } from '../sources/imessage'
-import { fetchStickies } from '../sources/stickies'
+import { fetchStickies } from '../sources/mac-stickies'
 
 const log = createLogger('mcp')
 

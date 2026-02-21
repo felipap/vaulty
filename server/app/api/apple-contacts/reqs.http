@@ -4,12 +4,12 @@
 
 ###
 
-GET {{host}}/api/icontacts
+GET {{host}}/api/apple-contacts
 Authorization: Bearer {{accessToken}}
 
 ###
 
-GET {{host}}/api/icontacts/+17146236604
+GET {{host}}/api/apple-contacts/+17146236604
 Authorization: Bearer {{accessToken}}
 
 ###

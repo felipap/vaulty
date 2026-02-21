@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto'
 export type SyncLogSource =
   | 'screenshots'
   | 'imessage'
-  | 'icontacts'
+  | 'apple-contacts'
   | 'whatsapp-sqlite'
   | 'macos-stickies'
   | 'win-sticky-notes'
@@ -37,7 +37,7 @@ export type StoreSchema = {
     includeAttachments: boolean
     lastExportedMessageDate: string | null
   }
-  icontactsSync: {
+  appleContactsSync: {
     enabled: boolean
     intervalMinutes: number
     nextSyncAfter: string | null
@@ -91,7 +91,7 @@ export const DEFAULT_STATE: StoreSchema = {
     nextSyncAfter: null,
     lastExportedMessageDate: null,
   },
-  icontactsSync: {
+  appleContactsSync: {
     enabled: false,
     intervalMinutes: 60,
     nextSyncAfter: null,

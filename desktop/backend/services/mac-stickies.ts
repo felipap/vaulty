@@ -1,18 +1,18 @@
-import { fetchWinStickyNotes } from '../sources/win-sticky-notes'
+import { fetchStickies } from '../sources/mac-stickies'
 import { createScheduledService } from './scheduler'
 import { createSyncHandler, encryptAndUpload } from './upload-utils'
 
-export const winStickyNotesService = createScheduledService({
-  name: 'win-sticky-notes',
-  configKey: 'winStickyNotesSync',
+export const macosStickiesService = createScheduledService({
+  name: 'macos-stickies',
+  configKey: 'macosStickiesSync',
   onSync: createSyncHandler({
-    label: 'Windows sticky notes',
-    fetch: fetchWinStickyNotes,
+    label: 'macOS stickies',
+    fetch: fetchStickies,
     upload: (items) =>
       encryptAndUpload({
         items,
         config: { encryptedFields: ['text'] },
-        apiPath: '/api/win-sticky-notes',
+        apiPath: '/api/macos-stickies',
         bodyKey: 'stickies',
       }),
   }),

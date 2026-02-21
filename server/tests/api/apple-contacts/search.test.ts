@@ -1,7 +1,7 @@
 // Not super happy with this.
 
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { GET } from "@/app/api/icontacts/search/route"
+import { GET } from "@/app/api/apple-contacts/search/route"
 import { NextRequest } from "next/server"
 
 // Mock contact data
@@ -94,13 +94,13 @@ function createRequest(url: string): NextRequest {
   return new NextRequest(new URL(url, "http://localhost"))
 }
 
-describe("GET /api/icontacts/search", () => {
+describe("GET /api/apple-contacts/search", () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it("returns 400 when query parameter is missing", async () => {
-    const request = createRequest("/api/icontacts/search")
+    const request = createRequest("/api/apple-contacts/search")
     const response = await GET(request)
 
     expect(response.status).toBe(400)
@@ -109,7 +109,7 @@ describe("GET /api/icontacts/search", () => {
   })
 
   it("returns 400 when query parameter is empty", async () => {
-    const request = createRequest("/api/icontacts/search?q=")
+    const request = createRequest("/api/apple-contacts/search?q=")
     const response = await GET(request)
 
     expect(response.status).toBe(400)
@@ -118,14 +118,14 @@ describe("GET /api/icontacts/search", () => {
   })
 
   it("returns 400 when query parameter is whitespace only", async () => {
-    const request = createRequest("/api/icontacts/search?q=%20%20%20")
+    const request = createRequest("/api/apple-contacts/search?q=%20%20%20")
     const response = await GET(request)
 
     expect(response.status).toBe(400)
   })
 
   it("returns contacts when query is provided", async () => {
-    const request = createRequest("/api/icontacts/search?q=john")
+    const request = createRequest("/api/apple-contacts/search?q=john")
     const response = await GET(request)
 
     expect(response.status).toBe(200)
@@ -137,7 +137,7 @@ describe("GET /api/icontacts/search", () => {
   })
 
   it("respects limit parameter", async () => {
-    const request = createRequest("/api/icontacts/search?q=test&limit=2")
+    const request = createRequest("/api/apple-contacts/search?q=test&limit=2")
     const response = await GET(request)
 
     expect(response.status).toBe(200)
@@ -146,7 +146,7 @@ describe("GET /api/icontacts/search", () => {
   })
 
   it("caps limit at 100", async () => {
-    const request = createRequest("/api/icontacts/search?q=test&limit=500")
+    const request = createRequest("/api/apple-contacts/search?q=test&limit=500")
     const response = await GET(request)
 
     expect(response.status).toBe(200)
@@ -154,7 +154,7 @@ describe("GET /api/icontacts/search", () => {
   })
 
   it("parses emails and phoneNumbers as arrays", async () => {
-    const request = createRequest("/api/icontacts/search?q=john")
+    const request = createRequest("/api/apple-contacts/search?q=john")
     const response = await GET(request)
 
     const json = await response.json()
@@ -165,7 +165,7 @@ describe("GET /api/icontacts/search", () => {
   })
 
   it("includes query in response", async () => {
-    const request = createRequest("/api/icontacts/search?q=searchterm")
+    const request = createRequest("/api/apple-contacts/search?q=searchterm")
     const response = await GET(request)
 
     const json = await response.json()
@@ -173,7 +173,7 @@ describe("GET /api/icontacts/search", () => {
   })
 
   it("handles default limit of 50", async () => {
-    const request = createRequest("/api/icontacts/search?q=test")
+    const request = createRequest("/api/apple-contacts/search?q=test")
     const response = await GET(request)
 
     expect(response.status).toBe(200)

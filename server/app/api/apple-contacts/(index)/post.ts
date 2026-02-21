@@ -44,7 +44,7 @@ type InsertResult = {
 }
 
 export async function POST(request: NextRequest) {
-  console.log("POST /api/icontacts")
+  console.log("POST /api/apple-contacts")
 
   const json = await request.json()
 

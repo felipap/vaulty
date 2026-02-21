@@ -10,10 +10,10 @@ const LLMS_TXT = `# Vaulty API
 ## Endpoints
 
 ### Contacts
-- GET /api/icontacts - List all contacts
-- POST /api/icontacts - Sync contacts from device
-- GET /api/icontacts/{phone} - Get contact by phone number
-- GET /api/icontacts/search?q={query} - Search contacts by name
+- GET /api/apple-contacts - List all contacts
+- POST /api/apple-contacts - Sync contacts from device
+- GET /api/apple-contacts/{phone} - Get contact by phone number
+- GET /api/apple-contacts/search?q={query} - Search contacts by name
 
 ### iMessages
 - GET /api/imessages - List messages (params: limit, offset, after, contact)

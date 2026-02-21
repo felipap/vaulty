@@ -19,7 +19,7 @@ import { screenshotsService } from './screenshots'
 import { imessageService } from './imessage'
 import { iContactsService } from './apple-contacts'
 import { whatsappSqliteService } from './whatsapp'
-import { macosStickiesService } from './stickies'
+import { macosStickiesService } from './mac-stickies'
 import { winStickyNotesService } from './win-sticky-notes'
 import { appleNotesService } from './apple-notes'
 import { appleRemindersService } from './apple-reminders'
@@ -32,7 +32,15 @@ const isWindows = process.platform === 'win32'
 export const SERVICES: Service[] = [
   screenshotsService,
   whatsappSqliteService,
-  ...(isMac ? [imessageService, iContactsService, macosStickiesService, appleNotesService, appleRemindersService] : []),
+  ...(isMac
+    ? [
+        imessageService,
+        iContactsService,
+        macosStickiesService,
+        appleNotesService,
+        appleRemindersService,
+      ]
+    : []),
   ...(isWindows ? [winStickyNotesService] : []),
 ]
 

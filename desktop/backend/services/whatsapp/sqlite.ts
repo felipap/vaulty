@@ -7,17 +7,12 @@ import {
 } from '../../sources/whatsapp-sqlite'
 import { store } from '../../store'
 import { createScheduledService, type SyncResult } from '../scheduler'
+import { yieldToEventLoop } from '../upload-utils'
 import { log } from './index'
 import type { WhatsAppMessage } from './types'
 import { uploadWhatsAppMessages } from './upload'
 
 const BATCH_SIZE = 50
-
-function yieldToEventLoop(): Promise<void> {
-  return new Promise((resolve) => {
-    setImmediate(resolve)
-  })
-}
 
 let db: Database.Database | null = null
 

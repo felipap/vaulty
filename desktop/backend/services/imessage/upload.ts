@@ -1,76 +1,61 @@
-import { apiRequest } from '../../lib/contexter-api'
 import { log } from './index'
-import {
-  encryptBinaryToString,
-  computeSearchIndex,
-} from '../../lib/encryption'
+import { encryptBinaryToString } from '../../lib/encryption'
 import { normalizeContactForSearch } from '../../lib/search-index-utils'
-import { type Message, type Attachment } from '../../sources/imessage'
-import { getDeviceId, getEncryptionKey } from '../../store'
-import { encryptFields } from '../upload-utils'
+import { type Message } from '../../sources/imessage'
+import { getDeviceId } from '../../store'
+import { encryptAndUpload, type SyncConfig } from '../upload-utils'
 
-const ENCRYPTED_FIELDS = ['text', 'contact'] as const
-
-function encryptAttachment(
-  attachment: Attachment,
-  encryptionKey: string,
-): Attachment {
-  if (!attachment.dataBase64) {
-    return attachment
-  }
-  const buffer = Buffer.from(attachment.dataBase64, 'base64')
-  return {
-    ...attachment,
-    dataBase64: encryptBinaryToString(buffer, encryptionKey),
-  }
+const FIELD_CONFIG: SyncConfig = {
+  encryptedFields: ['text', 'contact'],
+  searchIndexes: [
+    {
+      sourceField: 'contact',
+      indexField: 'contactIndex',
+      normalize: normalizeContactForSearch,
+    },
+  ],
 }
 
-function addSearchIndexesAndEncryptAttachments(
+function encryptAttachments(
   messages: Message[],
   encryptionKey: string,
 ): Message[] {
   return messages.map((msg) => ({
     ...msg,
-    contactIndex: computeSearchIndex(
-      normalizeContactForSearch(msg.contact),
-      encryptionKey,
-    ),
-    attachments: msg.attachments.map((att) =>
-      encryptAttachment(att, encryptionKey),
-    ),
+    attachments: msg.attachments.map((att) => {
+      if (!att.dataBase64) {
+        return att
+      }
+      const buffer = Buffer.from(att.dataBase64, 'base64')
+      return {
+        ...att,
+        dataBase64: encryptBinaryToString(buffer, encryptionKey),
+      }
+    }),
   }))
 }
 
 export async function uploadMessages(
   messages: Message[],
 ): Promise<{ error: string } | {}> {
-  if (messages.length === 0) {
-    return {}
-  }
-
-  const encryptionKey = getEncryptionKey()
-  if (!encryptionKey) {
-    return { error: 'Encryption key not set' }
-  }
-
-  const withIndexes = addSearchIndexesAndEncryptAttachments(messages, encryptionKey)
-  const encrypted = encryptFields(withIndexes, ENCRYPTED_FIELDS, encryptionKey)
-
-  const res = await apiRequest({
-    path: '/api/imessages',
-    body: {
-      messages: encrypted,
+  const result = await encryptAndUpload({
+    items: messages,
+    config: FIELD_CONFIG,
+    apiPath: '/api/imessages',
+    bodyKey: 'messages',
+    extraBody: {
       syncTime: new Date().toISOString(),
       deviceId: getDeviceId(),
       messageCount: messages.length,
     },
+    preprocess: encryptAttachments,
   })
-  if ('error' in res) {
-    const errorStr = typeof res.error === 'string' ? res.error : JSON.stringify(res.error)
-    log.error('apiRequest to /api/imessages failed:', errorStr.slice(0, 1000))
-    return { error: res.error }
+
+  if ('error' in result) {
+    log.error('Upload to /api/imessages failed:', result.error.slice(0, 1000))
+    return { error: result.error }
   }
 
-  log.info(`Uploaded ${messages.length} messages successfully`)
+  log.info(`Uploaded ${result.count} messages successfully`)
   return {}
 }

@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     return auth.response
   }
 
-  console.log("GET /api/icontacts")
+  console.log("GET /api/apple-contacts")
 
   const conditions = [eq(AppleContacts.userId, DEFAULT_USER_ID)]
   const cutoff = getDataWindowCutoff(auth.token)

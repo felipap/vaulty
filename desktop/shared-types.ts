@@ -45,7 +45,7 @@ export interface WhatsappSqliteConfig extends ServiceConfig {
 export type ServiceConfigMap = {
   screenCapture: ServiceConfig
   imessageExport: IMessageExportConfig
-  icontactsSync: ServiceConfig
+  appleContactsSync: ServiceConfig
   whatsappSqlite: WhatsappSqliteConfig
   macosStickiesSync: ServiceConfig
   winStickyNotesSync: ServiceConfig
@@ -93,8 +93,13 @@ export interface ElectronAPI {
   setEncryptionKey: (key: string) => Promise<void>
 
   // Service config (generic)
-  getServiceConfig: <K extends ServiceConfigKey>(key: K) => Promise<ServiceConfigMap[K]>
-  setServiceConfig: <K extends ServiceConfigKey>(key: K, config: Partial<ServiceConfigMap[K]>) => Promise<void>
+  getServiceConfig: <K extends ServiceConfigKey>(
+    key: K,
+  ) => Promise<ServiceConfigMap[K]>
+  setServiceConfig: <K extends ServiceConfigKey>(
+    key: K,
+    config: Partial<ServiceConfigMap[K]>,
+  ) => Promise<void>
 
   // Services status
   getServicesStatus: () => Promise<ServiceStatus[]>

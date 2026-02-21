@@ -79,7 +79,7 @@ function SettingsPanel() {
       ] = await Promise.all([
         window.electron.getServiceConfig('screenCapture'),
         window.electron.getServiceConfig('imessageExport'),
-        window.electron.getServiceConfig('icontactsSync'),
+        window.electron.getServiceConfig('appleContactsSync'),
         window.electron.getServiceConfig('whatsappSqlite'),
         window.electron.getServiceConfig('macosStickiesSync'),
         window.electron.getServiceConfig('appleNotesSync'),

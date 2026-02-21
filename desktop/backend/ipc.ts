@@ -20,7 +20,7 @@ import {
 const CONFIG_KEY_TO_SERVICE: Record<ServiceConfigKey, string> = {
   screenCapture: 'screenshots',
   imessageExport: 'imessage',
-  icontactsSync: 'icontacts',
+  appleContactsSync: 'apple-contacts',
   whatsappSqlite: 'whatsapp-sqlite',
   macosStickiesSync: 'macos-stickies',
   winStickyNotesSync: 'win-sticky-notes',
@@ -77,9 +77,12 @@ export function registerIpcHandlers(): void {
   })
 
   // Generic service config
-  ipcMain.handle('get-service-config', (_event, configKey: ServiceConfigKey) => {
-    return store.get(configKey)
-  })
+  ipcMain.handle(
+    'get-service-config',
+    (_event, configKey: ServiceConfigKey) => {
+      return store.get(configKey)
+    },
+  )
 
   ipcMain.handle(
     'set-service-config',

@@ -1,6 +1,18 @@
 import { encryptText, computeSearchIndex } from '../lib/encryption'
+import { createLogger } from '../lib/logger'
 import { apiRequest } from '../lib/contexter-api'
 import { getEncryptionKey } from '../store'
+import type { SyncResult } from './scheduler'
+
+type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue }
+
+type JsonObject = { [key: string]: JsonValue }
 
 type SearchIndex = {
   sourceField: string
@@ -8,16 +20,16 @@ type SearchIndex = {
   normalize: (value: string) => string
 }
 
-export type FieldConfig = {
+export type SyncConfig = {
   encryptedFields: readonly string[]
   searchIndexes?: SearchIndex[]
   encryptedArrayFields?: readonly string[]
   searchIndexArrays?: SearchIndex[]
 }
 
-export function encryptItems<T>(
+function encryptItems<T extends JsonObject>(
   items: T[],
-  config: FieldConfig,
+  config: SyncConfig,
   encryptionKey: string,
 ): T[] {
   return items.map((item) => {
@@ -69,25 +81,89 @@ export function encryptItems<T>(
   })
 }
 
-export async function encryptAndUpload<T>({
+export function yieldToEventLoop(): Promise<void> {
+  return new Promise((resolve) => {
+    setImmediate(resolve)
+  })
+}
+
+type UploadResult = { count: number } | { error: string }
+
+export async function encryptAndUpload<T extends JsonObject>({
   items,
   config,
   apiPath,
   bodyKey,
+  batchSize,
+  extraBody,
+  preprocess,
 }: {
   items: T[]
-  config: FieldConfig
+  config: SyncConfig
   apiPath: string
   bodyKey: string
-}): Promise<boolean> {
+  batchSize?: number
+  extraBody?: Record<string, unknown>
+  preprocess?: (items: T[], encryptionKey: string) => T[]
+}): Promise<UploadResult> {
+  if (items.length === 0) {
+    return { count: 0 }
+  }
+
   const encryptionKey = getEncryptionKey()
   if (!encryptionKey) {
-    return false
+    return { error: 'Encryption key not set' }
   }
-  const encrypted = encryptItems(items, config, encryptionKey)
-  await apiRequest({
-    path: apiPath,
-    body: { [bodyKey]: encrypted },
-  })
-  return true
+
+  const preprocessed = preprocess ? preprocess(items, encryptionKey) : items
+  const encrypted = encryptItems(preprocessed, config, encryptionKey)
+
+  if (batchSize) {
+    for (let i = 0; i < encrypted.length; i += batchSize) {
+      const batch = encrypted.slice(i, i + batchSize)
+      await apiRequest({
+        path: apiPath,
+        body: { [bodyKey]: batch, ...extraBody },
+      })
+    }
+  } else {
+    await apiRequest({
+      path: apiPath,
+      body: { [bodyKey]: encrypted, ...extraBody },
+    })
+  }
+
+  return { count: items.length }
+}
+
+export function createSyncHandler<T extends JsonObject>({
+  label,
+  fetch,
+  upload,
+}: {
+  label: string
+  fetch: () => T[]
+  upload: (items: T[]) => Promise<UploadResult>
+}): () => Promise<SyncResult> {
+  const log = createLogger(label)
+  return async () => {
+    log.info('Syncing...')
+    await yieldToEventLoop()
+
+    const items = fetch()
+    if (items.length === 0) {
+      log.info(`No ${label} to sync`)
+      return { success: true }
+    }
+
+    log.info(`Fetched ${items.length} ${label}`)
+    await yieldToEventLoop()
+
+    const result = await upload(items)
+    if ('error' in result) {
+      return { error: result.error }
+    }
+    log.info(`Uploaded ${result.count} ${label}`)
+    return { success: true }
+  }
 }
