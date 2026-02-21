@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.4](https://github.com/felipap/vaulty/compare/v0.3.2...v0.3.4) (2026-02-21)
+
+
+### Bug Fixes
+
+* minor ROADMAP formatting ([1019dd0](https://github.com/felipap/vaulty/commit/1019dd0021daff839a16b5f5827d191e213bdfb5))
+* settings btn is a dud ([357076b](https://github.com/felipap/vaulty/commit/357076be0214fcedd8b994570535a4cfe518afd8))
+
 ### [0.3.2](https://github.com/felipap/vaulty/compare/v0.3.1...v0.3.2) (2026-02-19)
 
 ### [0.3.1](https://github.com/felipap/vaulty/compare/v0.2.11...v0.3.1) (2026-02-13)

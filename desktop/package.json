@@ -1,7 +1,7 @@
 {
   "name": "context-desktop",
   "productName": "Vaulty",
-  "version": "0.3.2",
+  "version": "0.3.4",
   "description": "Vaulty desktop app",
   "main": "dist/backend/main.js",
   "license": "MIT",
