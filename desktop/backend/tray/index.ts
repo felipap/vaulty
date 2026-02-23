@@ -2,6 +2,7 @@ import {
   app,
   Menu,
   MenuItemConstructorOptions,
+  Notification,
   shell,
   Tray,
   nativeImage,
@@ -19,6 +20,9 @@ import { showMainWindow } from '../windows/settings'
 let tray: Tray | null = null
 let updateInterval: NodeJS.Timeout | null = null
 let sleepTimer: NodeJS.Timeout | null = null
+let wakeWarningTimer: NodeJS.Timeout | null = null
+
+const WAKE_WARNING_MS = 2 * 60 * 1000
 
 const SERVICE_LABELS: Record<string, string> = {
   screenshots: 'Screenshots',
@@ -66,6 +70,19 @@ function scheduleSleepWakeUp(ms: number): void {
   if (sleepTimer) {
     clearTimeout(sleepTimer)
   }
+  if (wakeWarningTimer) {
+    clearTimeout(wakeWarningTimer)
+  }
+
+  if (ms > WAKE_WARNING_MS) {
+    wakeWarningTimer = setTimeout(() => {
+      new Notification({
+        title: 'Vaulty',
+        body: 'Syncs will resume in 2 minutes',
+      }).show()
+    }, ms - WAKE_WARNING_MS)
+  }
+
   sleepTimer = setTimeout(() => {
     wakeUp()
   }, ms)
@@ -92,6 +109,10 @@ function wakeUp(): void {
   if (sleepTimer) {
     clearTimeout(sleepTimer)
     sleepTimer = null
+  }
+  if (wakeWarningTimer) {
+    clearTimeout(wakeWarningTimer)
+    wakeWarningTimer = null
   }
   if (store.get('sleepUntil')) {
     store.set('sleepUntil', null)
