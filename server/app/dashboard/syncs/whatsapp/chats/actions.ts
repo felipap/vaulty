@@ -106,6 +106,7 @@ export async function getWhatsappChats(
         ) as rn
       FROM whatsapp_messages
       WHERE user_id = ${DEFAULT_USER_ID}
+        AND text IS NOT NULL AND text != ''
     ),
     chat_participants AS (
       SELECT
@@ -212,6 +213,7 @@ export async function getWhatsappChatWithMessages(
         ) as rn
       FROM whatsapp_messages
       WHERE user_id = ${DEFAULT_USER_ID}
+        AND text IS NOT NULL AND text != ''
     ),
     chat_participants AS (
       SELECT
