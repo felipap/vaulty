@@ -4,6 +4,9 @@ import { and, asc, eq, gte, or, sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
+import { rejectUnknownParams } from "@/lib/validate-params"
+
+const ALLOWED_PARAMS = ["firstNameIndex", "lastNameIndex", "phoneNumberIndex", "limit"]
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "contacts")
@@ -12,6 +15,11 @@ export async function GET(request: NextRequest) {
   }
 
   const searchParams = request.nextUrl.searchParams
+
+  const unknownParamsError = rejectUnknownParams(searchParams, ALLOWED_PARAMS)
+  if (unknownParamsError) {
+    return unknownParamsError
+  }
   const firstNameIndex = searchParams.get("firstNameIndex")
   const lastNameIndex = searchParams.get("lastNameIndex")
   const phoneNumberIndex = searchParams.get("phoneNumberIndex")

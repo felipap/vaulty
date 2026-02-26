@@ -8,6 +8,7 @@ import {
 } from "@/lib/encryption-schema"
 import { truncateForLog } from "@/lib/logger"
 import { parsePagination } from "@/lib/pagination"
+import { rejectUnknownParams } from "@/lib/validate-params"
 import { and, eq, gte } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
@@ -49,6 +50,8 @@ const PostSchema = z.object({
   messageCount: z.number(),
 })
 
+const GET_ALLOWED_PARAMS = ["limit", "offset", "after", "chatId"]
+
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "whatsapp")
   if (!auth.authorized) {
@@ -58,6 +61,12 @@ export async function GET(request: NextRequest) {
   console.log("GET /api/whatsapp/messages")
 
   const { searchParams } = new URL(request.url)
+
+  const unknownParamsError = rejectUnknownParams(searchParams, GET_ALLOWED_PARAMS)
+  if (unknownParamsError) {
+    return unknownParamsError
+  }
+
   const pagination = parsePagination(searchParams)
   if (!pagination.ok) {
     return pagination.response

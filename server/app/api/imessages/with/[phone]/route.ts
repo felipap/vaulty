@@ -5,6 +5,9 @@ import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 import { parsePagination } from "@/lib/pagination"
+import { rejectUnknownParams } from "@/lib/validate-params"
+
+const ALLOWED_PARAMS = ["limit", "offset"]
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "imessages")
@@ -17,6 +20,11 @@ export async function GET(request: NextRequest) {
 
   if (!phone) {
     return Response.json({ error: "Phone number is required" }, { status: 400 })
+  }
+
+  const unknownParamsError = rejectUnknownParams(url.searchParams, ALLOWED_PARAMS)
+  if (unknownParamsError) {
+    return unknownParamsError
   }
 
   const pagination = parsePagination(url.searchParams)

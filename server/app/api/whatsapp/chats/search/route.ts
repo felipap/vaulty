@@ -4,9 +4,12 @@ import { logRead } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 import { parsePagination } from "@/lib/pagination"
 import { normalizePhoneForSearch } from "@/lib/search-normalize"
+import { rejectUnknownParams } from "@/lib/validate-params"
 import { type SQL, sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { type WhatsappChat, type WhatsappChatRow, parseChats } from "../../types"
+
+const ALLOWED_PARAMS = ["limit", "offset", "sender", "senderPhoneNumberIndex"]
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "whatsapp")
@@ -15,6 +18,12 @@ export async function GET(request: NextRequest) {
   }
 
   const { searchParams } = new URL(request.url)
+
+  const unknownParamsError = rejectUnknownParams(searchParams, ALLOWED_PARAMS)
+  if (unknownParamsError) {
+    return unknownParamsError
+  }
+
   const pagination = parsePagination(searchParams)
   if (!pagination.ok) {
     return pagination.response

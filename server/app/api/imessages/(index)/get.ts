@@ -3,8 +3,11 @@ import { DEFAULT_USER_ID, iMessages } from "@/db/schema"
 import { logRead } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 import { parsePagination } from "@/lib/pagination"
+import { rejectUnknownParams } from "@/lib/validate-params"
 import { and, eq, gte } from "drizzle-orm"
 import { NextRequest } from "next/server"
+
+const ALLOWED_PARAMS = ["limit", "offset", "after", "contactIndex"]
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "imessages")
@@ -15,6 +18,12 @@ export async function GET(request: NextRequest) {
   console.log("GET /api/imessages")
 
   const { searchParams } = new URL(request.url)
+
+  const unknownParamsError = rejectUnknownParams(searchParams, ALLOWED_PARAMS)
+  if (unknownParamsError) {
+    return unknownParamsError
+  }
+
   const pagination = parsePagination(searchParams)
   if (!pagination.ok) {
     return pagination.response

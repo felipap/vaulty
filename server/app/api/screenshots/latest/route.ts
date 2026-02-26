@@ -2,8 +2,11 @@ import { db } from "@/db"
 import { Screenshots } from "@/db/schema"
 import { logRead } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
+import { rejectUnknownParams } from "@/lib/validate-params"
 import { and, desc, gte } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
+
+const ALLOWED_PARAMS = ["within_min"]
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "screenshots")
@@ -12,6 +15,11 @@ export async function GET(request: NextRequest) {
   }
 
   const { searchParams } = new URL(request.url)
+
+  const unknownParamsError = rejectUnknownParams(searchParams, ALLOWED_PARAMS)
+  if (unknownParamsError) {
+    return unknownParamsError
+  }
   const withinMinParam = searchParams.get("within_min")
   const withinMin = withinMinParam ? parseInt(withinMinParam, 10) : null
 
