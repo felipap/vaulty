@@ -22,10 +22,10 @@ export const AccessTokens = sqliteTable("access_tokens", {
   tokenPrefix: text("token_prefix").notNull(),
   scopes: text("scopes", { mode: "json" }).$type<string[]>().notNull().default([]),
   dataWindowMs: integer("data_window_ms"),
-  expiresAt: integer("expires_at", { mode: "timestamp" }),
-  lastUsedAt: integer("last_used_at", { mode: "timestamp" }),
-  revokedAt: integer("revoked_at", { mode: "timestamp" }),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" }),
+  lastUsedAt: integer("last_used_at", { mode: "timestamp_ms" }),
+  revokedAt: integer("revoked_at", { mode: "timestamp_ms" }),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
 })
 
 export type NewAccessToken = typeof AccessTokens.$inferInsert
@@ -48,7 +48,7 @@ export const WriteLogs = sqliteTable(
       onDelete: "set null",
     }),
     tokenPrefix: text("token_prefix"),
-    createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
   },
   (table) => [index("write_logs_created_at_idx").on(table.createdAt)]
 )
@@ -73,7 +73,7 @@ export const ReadLogs = sqliteTable(
       onDelete: "set null",
     }),
     tokenPrefix: text("token_prefix"),
-    createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
   },
   (table) => [index("read_logs_created_at_idx").on(table.createdAt)]
 )
@@ -91,7 +91,7 @@ export const LoginAttempts = sqliteTable(
   {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
     ip: text("ip").notNull(),
-    attemptedAt: integer("attempted_at", { mode: "timestamp" })
+    attemptedAt: integer("attempted_at", { mode: "timestamp_ms" })
       .notNull()
       .$defaultFn(() => new Date()),
   },
