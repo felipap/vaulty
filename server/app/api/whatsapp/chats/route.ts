@@ -1,11 +1,11 @@
 import { db } from "@/db"
 import { DEFAULT_USER_ID } from "@/db/schema"
-import { sql } from "drizzle-orm"
-import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
 import { parsePagination } from "@/lib/pagination"
-import { type Chat, type ChatRow, parseChats } from "../types"
+import { sql } from "drizzle-orm"
+import { NextRequest } from "next/server"
+import { parseChats, WhatsappChat, WhatsappChatRow } from "../types"
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "whatsapp")
@@ -50,10 +50,10 @@ async function getLatestChats(
   limit: number,
   offset: number,
   cutoff: Date | null
-): Promise<{ chats: Chat[] }> {
+): Promise<{ chats: WhatsappChat[] }> {
   const tsFilter = cutoff ? sql`AND timestamp >= ${cutoff}` : sql``
 
-  const result = await db.all<ChatRow>(sql`
+  const result = await db.all<WhatsappChatRow>(sql`
     WITH ranked_messages AS (
       SELECT
         chat_id,

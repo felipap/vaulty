@@ -1,4 +1,4 @@
-export interface Chat {
+export interface WhatsappChat {
   chatId: string
   chatName: string | null
   isGroupChat: boolean
@@ -12,7 +12,7 @@ export interface Chat {
   messageCount: number
 }
 
-export interface ChatRow {
+export interface WhatsappChatRow {
   chat_id: string
   chat_name: string | null
   text: string | null
@@ -26,7 +26,7 @@ export interface ChatRow {
   message_count: number
 }
 
-export function parseChats(rows: ChatRow[]): Chat[] {
+export function parseChats(rows: WhatsappChatRow[]): WhatsappChat[] {
   return rows.map((row) => ({
     chatId: row.chat_id,
     chatName: row.chat_name,

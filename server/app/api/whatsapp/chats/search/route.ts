@@ -6,7 +6,7 @@ import { parsePagination } from "@/lib/pagination"
 import { normalizePhoneForSearch } from "@/lib/search-normalize"
 import { type SQL, sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
-import { type Chat, type ChatRow, parseChats } from "../../types"
+import { type WhatsappChat, type WhatsappChatRow, parseChats } from "../../types"
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "whatsapp")
@@ -74,7 +74,7 @@ async function searchChats(
   limit: number,
   offset: number,
   cutoff: Date | null
-): Promise<{ chats: Chat[]; total: number }> {
+): Promise<{ chats: WhatsappChat[]; total: number }> {
   const tsFilter = cutoff ? sql`AND timestamp >= ${cutoff}` : sql``
 
   const countResult = await db.all<{ count: number }>(sql`
@@ -87,7 +87,7 @@ async function searchChats(
 
   const total = countResult[0]?.count ?? 0
 
-  const result = await db.all<ChatRow>(sql`
+  const result = await db.all<WhatsappChatRow>(sql`
     WITH ranked_messages AS (
       SELECT
         chat_id,

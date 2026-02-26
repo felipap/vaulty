@@ -1,25 +1,14 @@
 "use server"
 
-import { isAuthenticated } from "@/lib/admin-auth"
+import { type WhatsappChat } from "@/app/api/whatsapp/types"
 import { db } from "@/db"
 import { DEFAULT_USER_ID } from "@/db/schema"
+import { isAuthenticated } from "@/lib/admin-auth"
 import { normalizePhoneForSearch } from "@/lib/search-normalize"
 import { sql } from "drizzle-orm"
 import { unauthorized } from "next/navigation"
 
-export type WhatsappChat = {
-  chatId: string
-  chatName: string | null
-  lastMessageText: string | null
-  lastMessageDate: Date | null
-  lastMessageFromMe: boolean
-  lastMessageSenderJid: string | null
-  lastMessageSenderName: string | null
-  isGroupChat: boolean
-  participantCount: number
-  participants: string[]
-  messageCount: number
-}
+export { type WhatsappChat } from "@/app/api/whatsapp/types"
 
 export type WhatsappChatsPage = {
   chats: WhatsappChat[]
