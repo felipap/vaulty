@@ -13,6 +13,8 @@ export type WhatsappChat = {
   lastMessageText: string | null
   lastMessageDate: Date | null
   lastMessageFromMe: boolean
+  lastMessageSenderJid: string | null
+  lastMessageSenderName: string | null
   isGroupChat: boolean
   participantCount: number
   participants: string[]
@@ -86,6 +88,8 @@ export async function getWhatsappChats(
     text: string | null
     timestamp: number | null
     is_from_me: number
+    sender_jid: string | null
+    sender_name: string | null
     participant_count: number
     is_group_chat: number
     participants: string
@@ -100,6 +104,7 @@ export async function getWhatsappChats(
         timestamp,
         is_from_me,
         sender_jid,
+        sender_name,
         ROW_NUMBER() OVER (
           PARTITION BY chat_id
           ORDER BY timestamp DESC NULLS LAST
@@ -131,6 +136,8 @@ export async function getWhatsappChats(
       rm.text,
       rm.timestamp,
       rm.is_from_me,
+      rm.sender_jid,
+      rm.sender_name,
       cp.participant_count,
       cp.is_group_chat,
       cp.participants,
@@ -151,6 +158,8 @@ export async function getWhatsappChats(
       lastMessageText: row.text,
       lastMessageDate: row.timestamp ? new Date(row.timestamp) : null,
       lastMessageFromMe: Boolean(row.is_from_me),
+      lastMessageSenderJid: row.sender_jid,
+      lastMessageSenderName: row.sender_name,
       isGroupChat: Boolean(row.is_group_chat),
       participantCount: Number(row.participant_count),
       participants: JSON.parse(row.participants) as string[],
@@ -195,6 +204,8 @@ export async function getWhatsappChatWithMessages(
     text: string | null
     timestamp: number | null
     is_from_me: number
+    sender_jid: string | null
+    sender_name: string | null
     participant_count: number
     is_group_chat: number
     participants: string
@@ -207,6 +218,8 @@ export async function getWhatsappChatWithMessages(
         text,
         timestamp,
         is_from_me,
+        sender_jid,
+        sender_name,
         ROW_NUMBER() OVER (
           PARTITION BY chat_id
           ORDER BY timestamp DESC NULLS LAST
@@ -232,6 +245,8 @@ export async function getWhatsappChatWithMessages(
       rm.text,
       rm.timestamp,
       rm.is_from_me,
+      rm.sender_jid,
+      rm.sender_name,
       cp.participant_count,
       cp.is_group_chat,
       cp.participants,
@@ -277,6 +292,8 @@ export async function getWhatsappChatWithMessages(
     lastMessageText: chatRow.text,
     lastMessageDate: chatRow.timestamp ? new Date(chatRow.timestamp) : null,
     lastMessageFromMe: Boolean(chatRow.is_from_me),
+    lastMessageSenderJid: chatRow.sender_jid,
+    lastMessageSenderName: chatRow.sender_name,
     participantCount: Number(chatRow.participant_count),
     participants: JSON.parse(chatRow.participants) as string[],
     messageCount: Number(chatRow.message_count),

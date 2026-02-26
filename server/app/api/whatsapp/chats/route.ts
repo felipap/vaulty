@@ -51,9 +51,7 @@ async function getLatestChats(
   offset: number,
   cutoff: Date | null
 ): Promise<{ chats: Chat[] }> {
-  const tsFilter = cutoff
-    ? sql`AND timestamp >= ${cutoff}`
-    : sql``
+  const tsFilter = cutoff ? sql`AND timestamp >= ${cutoff}` : sql``
 
   const result = await db.all<ChatRow>(sql`
     WITH ranked_messages AS (
@@ -64,12 +62,14 @@ async function getLatestChats(
         timestamp,
         is_from_me,
         sender_jid,
+        sender_name,
         ROW_NUMBER() OVER (
           PARTITION BY chat_id
           ORDER BY timestamp DESC NULLS LAST
         ) as rn
       FROM whatsapp_messages
       WHERE user_id = ${DEFAULT_USER_ID}
+        AND text IS NOT NULL AND text != ''
         ${tsFilter}
     ),
     chat_participants AS (
@@ -90,6 +90,8 @@ async function getLatestChats(
       rm.text,
       rm.timestamp,
       rm.is_from_me,
+      rm.sender_jid,
+      rm.sender_name,
       cp.participant_count,
       cp.is_group_chat,
       cp.participants,
