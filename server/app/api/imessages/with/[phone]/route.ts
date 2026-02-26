@@ -4,10 +4,12 @@ import { and, desc, eq, gte } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
-import { parsePagination } from "@/lib/pagination"
-import { rejectUnknownParams } from "@/lib/validate-params"
+import { paginationSchema, parseSearchParams } from "@/lib/validate-params"
+import { z } from "zod"
 
-const ALLOWED_PARAMS = ["limit", "offset"]
+const searchParamsSchema = z.object({
+  ...paginationSchema,
+}).strict()
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "imessages")
@@ -22,16 +24,11 @@ export async function GET(request: NextRequest) {
     return Response.json({ error: "Phone number is required" }, { status: 400 })
   }
 
-  const unknownParamsError = rejectUnknownParams(url.searchParams, ALLOWED_PARAMS)
-  if (unknownParamsError) {
-    return unknownParamsError
+  const result = parseSearchParams(url.searchParams, searchParamsSchema)
+  if (!result.ok) {
+    return result.response
   }
-
-  const pagination = parsePagination(url.searchParams)
-  if (!pagination.ok) {
-    return pagination.response
-  }
-  const { limit, offset } = pagination.params
+  const { limit, offset } = result.params
 
   const contactIndex = decodeURIComponent(phone)
   const cutoff = getDataWindowCutoff(auth.token)

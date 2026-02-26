@@ -2,11 +2,14 @@ import { db } from "@/db"
 import { Screenshots } from "@/db/schema"
 import { logRead } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
-import { rejectUnknownParams } from "@/lib/validate-params"
+import { parseSearchParams } from "@/lib/validate-params"
 import { and, desc, gte } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
+import { z } from "zod"
 
-const ALLOWED_PARAMS = ["within_min"]
+const searchParamsSchema = z.object({
+  within_min: z.coerce.number().int().min(1).optional(),
+}).strict()
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "screenshots")
@@ -14,25 +17,15 @@ export async function GET(request: NextRequest) {
     return auth.response
   }
 
-  const { searchParams } = new URL(request.url)
-
-  const unknownParamsError = rejectUnknownParams(searchParams, ALLOWED_PARAMS)
-  if (unknownParamsError) {
-    return unknownParamsError
+  const result = parseSearchParams(new URL(request.url).searchParams, searchParamsSchema)
+  if (!result.ok) {
+    return result.response
   }
-  const withinMinParam = searchParams.get("within_min")
-  const withinMin = withinMinParam ? parseInt(withinMinParam, 10) : null
-
-  if (withinMinParam !== null && (isNaN(withinMin!) || withinMin! < 1)) {
-    return NextResponse.json(
-      { error: "within_min must be a positive integer" },
-      { status: 400 }
-    )
-  }
+  const { within_min } = result.params
 
   const conditions = []
-  if (withinMin) {
-    const cutoff = new Date(Date.now() - withinMin * 60 * 1000)
+  if (within_min) {
+    const cutoff = new Date(Date.now() - within_min * 60 * 1000)
     conditions.push(gte(Screenshots.capturedAt, cutoff))
   }
   const windowCutoff = getDataWindowCutoff(auth.token)

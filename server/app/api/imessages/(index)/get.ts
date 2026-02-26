@@ -2,12 +2,16 @@ import { db } from "@/db"
 import { DEFAULT_USER_ID, iMessages } from "@/db/schema"
 import { logRead } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
-import { parsePagination } from "@/lib/pagination"
-import { rejectUnknownParams } from "@/lib/validate-params"
+import { paginationSchema, parseSearchParams } from "@/lib/validate-params"
 import { and, eq, gte } from "drizzle-orm"
 import { NextRequest } from "next/server"
+import { z } from "zod"
 
-const ALLOWED_PARAMS = ["limit", "offset", "after", "contactIndex"]
+const searchParamsSchema = z.object({
+  ...paginationSchema,
+  after: z.coerce.date().optional(),
+  contactIndex: z.string().optional(),
+}).strict()
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "imessages")
@@ -17,37 +21,20 @@ export async function GET(request: NextRequest) {
 
   console.log("GET /api/imessages")
 
-  const { searchParams } = new URL(request.url)
-
-  const unknownParamsError = rejectUnknownParams(searchParams, ALLOWED_PARAMS)
-  if (unknownParamsError) {
-    return unknownParamsError
+  const result = parseSearchParams(new URL(request.url).searchParams, searchParamsSchema)
+  if (!result.ok) {
+    return result.response
   }
-
-  const pagination = parsePagination(searchParams)
-  if (!pagination.ok) {
-    return pagination.response
-  }
-  const { limit, offset } = pagination.params
-
-  const afterParam = searchParams.get("after")
-  const contactIndexParam = searchParams.get("contactIndex")
+  const { limit, offset, after, contactIndex } = result.params
 
   const conditions = [eq(iMessages.userId, DEFAULT_USER_ID)]
 
-  if (contactIndexParam) {
-    conditions.push(eq(iMessages.contactIndex, contactIndexParam))
+  if (contactIndex) {
+    conditions.push(eq(iMessages.contactIndex, contactIndex))
   }
 
-  if (afterParam) {
-    const afterDate = new Date(afterParam)
-    if (isNaN(afterDate.getTime())) {
-      return Response.json(
-        { error: 'Invalid date format for "after" parameter' },
-        { status: 400 }
-      )
-    }
-    conditions.push(gte(iMessages.date, afterDate))
+  if (after) {
+    conditions.push(gte(iMessages.date, after))
   }
 
   const cutoff = getDataWindowCutoff(auth.token)
@@ -63,12 +50,12 @@ export async function GET(request: NextRequest) {
   })
 
   console.info(
-    `Retrieved ${messages.length} iMessages${contactIndexParam ? ` for contactIndex ${contactIndexParam}` : ""}`
+    `Retrieved ${messages.length} iMessages${contactIndex ? ` for contactIndex ${contactIndex}` : ""}`
   )
 
   await logRead({
     type: "imessage",
-    description: contactIndexParam
+    description: contactIndex
       ? `Fetched messages by contactIndex`
       : "Fetched messages",
     count: messages.length,

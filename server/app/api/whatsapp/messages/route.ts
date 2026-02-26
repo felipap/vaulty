@@ -7,12 +7,16 @@ import {
   encryptedOrEmpty,
 } from "@/lib/encryption-schema"
 import { truncateForLog } from "@/lib/logger"
-import { parsePagination } from "@/lib/pagination"
-import { rejectUnknownParams } from "@/lib/validate-params"
+import { paginationSchema, parseSearchParams } from "@/lib/validate-params"
 import { and, eq, gte } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
-import { SyncSuccessResponse, SyncErrorResponse, formatZodError, summarizeZodError } from "@/app/api/types"
+import {
+  SyncSuccessResponse,
+  SyncErrorResponse,
+  formatZodError,
+  summarizeZodError,
+} from "@/app/api/types"
 
 // TODO: implement attachment syncing
 // const AttachmentSchema = z.object({
@@ -50,7 +54,11 @@ const PostSchema = z.object({
   messageCount: z.number(),
 })
 
-const GET_ALLOWED_PARAMS = ["limit", "offset", "after", "chatId"]
+const getParamsSchema = z.object({
+  ...paginationSchema,
+  after: z.coerce.date().optional(),
+  chatId: z.string().optional(),
+}).strict()
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "whatsapp")
@@ -60,37 +68,20 @@ export async function GET(request: NextRequest) {
 
   console.log("GET /api/whatsapp/messages")
 
-  const { searchParams } = new URL(request.url)
-
-  const unknownParamsError = rejectUnknownParams(searchParams, GET_ALLOWED_PARAMS)
-  if (unknownParamsError) {
-    return unknownParamsError
+  const result = parseSearchParams(new URL(request.url).searchParams, getParamsSchema)
+  if (!result.ok) {
+    return result.response
   }
-
-  const pagination = parsePagination(searchParams)
-  if (!pagination.ok) {
-    return pagination.response
-  }
-  const { limit, offset } = pagination.params
-
-  const afterParam = searchParams.get("after")
-  const chatIdParam = searchParams.get("chatId")
+  const { limit, offset, after, chatId } = result.params
 
   const conditions = [eq(WhatsappMessages.userId, DEFAULT_USER_ID)]
 
-  if (chatIdParam) {
-    conditions.push(eq(WhatsappMessages.chatId, chatIdParam))
+  if (chatId) {
+    conditions.push(eq(WhatsappMessages.chatId, chatId))
   }
 
-  if (afterParam) {
-    const afterDate = new Date(afterParam)
-    if (isNaN(afterDate.getTime())) {
-      return Response.json(
-        { error: 'Invalid date format for "after" parameter' },
-        { status: 400 }
-      )
-    }
-    conditions.push(gte(WhatsappMessages.timestamp, afterDate))
+  if (after) {
+    conditions.push(gte(WhatsappMessages.timestamp, after))
   }
 
   const cutoff = getDataWindowCutoff(auth.token)
@@ -106,13 +97,13 @@ export async function GET(request: NextRequest) {
   })
 
   console.info(
-    `Retrieved ${messages.length} WhatsApp messages${chatIdParam ? ` for chat ${chatIdParam}` : ""}`
+    `Retrieved ${messages.length} WhatsApp messages${chatId ? ` for chat ${chatId}` : ""}`
   )
 
   await logRead({
     type: "whatsapp",
-    description: chatIdParam
-      ? `Fetched messages for chat ${chatIdParam}`
+    description: chatId
+      ? `Fetched messages for chat ${chatId}`
       : "Fetched WhatsApp messages",
     count: messages.length,
     token: auth.token,

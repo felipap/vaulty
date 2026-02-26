@@ -2,14 +2,18 @@ import { db } from "@/db"
 import { DEFAULT_USER_ID } from "@/db/schema"
 import { logRead } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
-import { parsePagination } from "@/lib/pagination"
 import { normalizePhoneForSearch } from "@/lib/search-normalize"
-import { rejectUnknownParams } from "@/lib/validate-params"
+import { paginationSchema, parseSearchParams } from "@/lib/validate-params"
 import { type SQL, sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { type WhatsappChat, type WhatsappChatRow, parseChats } from "../../types"
+import { z } from "zod"
 
-const ALLOWED_PARAMS = ["limit", "offset", "sender", "senderPhoneNumberIndex"]
+const searchParamsSchema = z.object({
+  ...paginationSchema,
+  sender: z.string().default(""),
+  senderPhoneNumberIndex: z.string().optional(),
+}).strict()
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "whatsapp")
@@ -17,21 +21,11 @@ export async function GET(request: NextRequest) {
     return auth.response
   }
 
-  const { searchParams } = new URL(request.url)
-
-  const unknownParamsError = rejectUnknownParams(searchParams, ALLOWED_PARAMS)
-  if (unknownParamsError) {
-    return unknownParamsError
+  const result = parseSearchParams(new URL(request.url).searchParams, searchParamsSchema)
+  if (!result.ok) {
+    return result.response
   }
-
-  const pagination = parsePagination(searchParams)
-  if (!pagination.ok) {
-    return pagination.response
-  }
-  const { limit, offset } = pagination.params
-
-  const sender = searchParams.get("sender") || ""
-  const senderPhoneNumberIndex = searchParams.get("senderPhoneNumberIndex")
+  const { limit, offset, sender, senderPhoneNumberIndex } = result.params
 
   const normalizedSender = normalizePhoneForSearch(sender).replace(/\D/g, "")
 

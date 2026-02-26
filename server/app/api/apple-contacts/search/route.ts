@@ -1,12 +1,20 @@
 import { db } from "@/db"
 import { AppleContacts, DEFAULT_USER_ID } from "@/db/schema"
-import { and, asc, eq, gte, or, sql } from "drizzle-orm"
-import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
-import { rejectUnknownParams } from "@/lib/validate-params"
+import { parseSearchParams } from "@/lib/validate-params"
+import { and, asc, eq, gte, or, sql } from "drizzle-orm"
+import { NextRequest } from "next/server"
+import { z } from "zod"
 
-const ALLOWED_PARAMS = ["firstNameIndex", "lastNameIndex", "phoneNumberIndex", "limit"]
+const searchParamsSchema = z
+  .object({
+    firstNameIndex: z.string().optional(),
+    lastNameIndex: z.string().optional(),
+    phoneNumberIndex: z.string().optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(50),
+  })
+  .strict()
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "contacts")
@@ -14,16 +22,15 @@ export async function GET(request: NextRequest) {
     return auth.response
   }
 
-  const searchParams = request.nextUrl.searchParams
-
-  const unknownParamsError = rejectUnknownParams(searchParams, ALLOWED_PARAMS)
-  if (unknownParamsError) {
-    return unknownParamsError
+  const result = parseSearchParams(
+    request.nextUrl.searchParams,
+    searchParamsSchema
+  )
+  if (!result.ok) {
+    return result.response
   }
-  const firstNameIndex = searchParams.get("firstNameIndex")
-  const lastNameIndex = searchParams.get("lastNameIndex")
-  const phoneNumberIndex = searchParams.get("phoneNumberIndex")
-  const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100)
+  const { limit, firstNameIndex, lastNameIndex, phoneNumberIndex } =
+    result.params
 
   if (!firstNameIndex && !lastNameIndex && !phoneNumberIndex) {
     return Response.json(

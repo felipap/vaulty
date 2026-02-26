@@ -2,13 +2,15 @@ import { db } from "@/db"
 import { DEFAULT_USER_ID } from "@/db/schema"
 import { logRead } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
-import { parsePagination } from "@/lib/pagination"
-import { rejectUnknownParams } from "@/lib/validate-params"
+import { paginationSchema, parseSearchParams } from "@/lib/validate-params"
 import { sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { parseChats, WhatsappChat, WhatsappChatRow } from "../types"
+import { z } from "zod"
 
-const ALLOWED_PARAMS = ["limit", "offset"]
+const searchParamsSchema = z.object({
+  ...paginationSchema,
+}).strict()
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "whatsapp")
@@ -16,18 +18,11 @@ export async function GET(request: NextRequest) {
     return auth.response
   }
 
-  const { searchParams } = new URL(request.url)
-
-  const unknownParamsError = rejectUnknownParams(searchParams, ALLOWED_PARAMS)
-  if (unknownParamsError) {
-    return unknownParamsError
+  const result = parseSearchParams(new URL(request.url).searchParams, searchParamsSchema)
+  if (!result.ok) {
+    return result.response
   }
-
-  const pagination = parsePagination(searchParams)
-  if (!pagination.ok) {
-    return pagination.response
-  }
-  const { limit, offset } = pagination.params
+  const { limit, offset } = result.params
 
   const startTime = Date.now()
 

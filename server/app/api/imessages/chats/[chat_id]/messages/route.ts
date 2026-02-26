@@ -2,12 +2,14 @@ import { db } from "@/db"
 import { DEFAULT_USER_ID, iMessages } from "@/db/schema"
 import { logRead } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
-import { parsePagination } from "@/lib/pagination"
-import { rejectUnknownParams } from "@/lib/validate-params"
+import { paginationSchema, parseSearchParams } from "@/lib/validate-params"
 import { and, desc, eq, gte, isNull, or } from "drizzle-orm"
 import { NextRequest } from "next/server"
+import { z } from "zod"
 
-const ALLOWED_PARAMS = ["limit", "offset"]
+const searchParamsSchema = z.object({
+  ...paginationSchema,
+}).strict()
 
 type RouteParams = { params: Promise<{ chat_id: string }> }
 
@@ -20,18 +22,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   const { chat_id } = await params
   const chatId = decodeURIComponent(chat_id)
 
-  const { searchParams } = new URL(request.url)
-
-  const unknownParamsError = rejectUnknownParams(searchParams, ALLOWED_PARAMS)
-  if (unknownParamsError) {
-    return unknownParamsError
+  const result = parseSearchParams(new URL(request.url).searchParams, searchParamsSchema)
+  if (!result.ok) {
+    return result.response
   }
-
-  const pagination = parsePagination(searchParams)
-  if (!pagination.ok) {
-    return pagination.response
-  }
-  const { limit, offset } = pagination.params
+  const { limit, offset } = result.params
 
   const cutoff = getDataWindowCutoff(auth.token)
   const messages = await getChatMessages(chatId, limit, offset, cutoff)

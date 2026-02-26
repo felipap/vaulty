@@ -4,9 +4,12 @@ import { and, eq, gte, sql } from "drizzle-orm"
 import { NextRequest } from "next/server"
 import { logRead } from "@/lib/activity-log"
 import { getDataWindowCutoff, requireReadAuth } from "@/lib/api-auth"
-import { rejectUnknownParams } from "@/lib/validate-params"
+import { parseSearchParams } from "@/lib/validate-params"
+import { z } from "zod"
 
-const ALLOWED_PARAMS = ["phoneNumberIndex"]
+const searchParamsSchema = z.object({
+  phoneNumberIndex: z.string().optional(),
+}).strict()
 
 export async function GET(request: NextRequest) {
   const auth = await requireReadAuth(request, "contacts")
@@ -14,13 +17,11 @@ export async function GET(request: NextRequest) {
     return auth.response
   }
 
-  const searchParams = request.nextUrl.searchParams
-
-  const unknownParamsError = rejectUnknownParams(searchParams, ALLOWED_PARAMS)
-  if (unknownParamsError) {
-    return unknownParamsError
+  const result = parseSearchParams(request.nextUrl.searchParams, searchParamsSchema)
+  if (!result.ok) {
+    return result.response
   }
-  const phoneNumberIndex = searchParams.get("phoneNumberIndex") // HMAC blind index
+  const { phoneNumberIndex } = result.params
 
   const url = new URL(request.url)
   const phone = url.pathname.split("/").pop()
