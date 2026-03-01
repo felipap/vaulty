@@ -80,7 +80,7 @@ async function executeJob(job: WriteJob): Promise<void> {
 async function poll(): Promise<void> {
   log.info('Polling for write jobs')
 
-  while (true) {
+  for (;;) {
     let claim: ClaimResponse
     try {
       claim = await claimNextJob()

@@ -10,5 +10,5 @@ Authorization: Bearer {{accessToken}}
 
 {
   "recipient": "+12184322739",
-  "message": "This is a test of an API 3"
-}
+  "message": "This is a test of the API"
+}ç

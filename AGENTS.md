@@ -1,6 +1,6 @@
 # Agent Development Rules
 
-Latest: Dec 15, 2025
+Latest: Mar 1, 2026
 
 ## General
 
@@ -14,7 +14,8 @@ Latest: Dec 15, 2025
   2. Creating proper type assertions with specific types like `as NylasThread`
   3. Fixing underlying type mismatches instead of bypassing them
   4. Using proper type guards and null checks
-- Use `npm run ts-check` instead of building to check for TypeScript errors (faster and more focused)
+- Use `npm run ts-check` on each of the projects instead of building to check for TypeScript errors (faster and more focused)
+- Run `npm run lint` to check for linting before each commit
 
 ## Component Organization
 
