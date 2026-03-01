@@ -10,24 +10,35 @@ interface Props {
 }
 
 export function Decrypted({ children, showLockIcon }: Props) {
-  const [decrypted, setDecrypted] = useState<string | null>(null)
-  const [failed, setFailed] = useState(false)
+  const [state, setState] = useState<{
+    decrypted: string | null
+    failed: boolean
+  }>({ decrypted: null, failed: false })
   const wasEncrypted = children ? isEncrypted(children) : false
 
   useEffect(() => {
-    setDecrypted(null)
-    setFailed(false)
+    let stale = false
     async function load() {
       const result = await maybeDecrypt(children)
+      if (stale) {
+        return
+      }
       if (result) {
-        setDecrypted(result)
+        setState({ decrypted: result, failed: false })
       } else if (wasEncrypted && getEncryptionKey()) {
-        setFailed(true)
+        setState({ decrypted: null, failed: true })
         console.warn("Decryption failed for encrypted field")
+      } else {
+        setState({ decrypted: null, failed: false })
       }
     }
     load()
+    return () => {
+      stale = true
+    }
   }, [children, wasEncrypted])
+
+  const { decrypted, failed } = state
 
   if (failed) {
     return (
