@@ -22,7 +22,9 @@ type SchedulerOptions = {
   onStop?: () => void
 }
 
-export function createScheduledService(options: SchedulerOptions): Service {
+export function createScheduledWriteService(
+  options: SchedulerOptions,
+): Service {
   const { name, configKey, onSync, onStart, onStop } = options
   const log = createLogger(name)
 

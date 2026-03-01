@@ -7,7 +7,7 @@ import {
   setLastExportedMessageDate,
   store,
 } from '../../store'
-import { createScheduledService, type SyncResult } from '../scheduler'
+import { createScheduledWriteService, type SyncResult } from '../scheduler'
 import { yieldToEventLoop } from '../upload-utils'
 import { uploadMessages } from './upload'
 
@@ -63,7 +63,7 @@ async function exportAndUpload(): Promise<SyncResult> {
   return { success: true }
 }
 
-export const imessageService = createScheduledService({
+export const imessageService = createScheduledWriteService({
   name: 'imessage',
   configKey: 'imessageExport',
   onSync: exportAndUpload,

@@ -23,6 +23,7 @@ import { macosStickiesService } from './mac-stickies'
 import { winStickyNotesService } from './win-sticky-notes'
 import { appleNotesService } from './apple-notes'
 import { appleRemindersService } from './apple-reminders'
+import { readJobsService } from './write-jobs'
 
 const log = createLogger('services')
 
@@ -32,6 +33,7 @@ const isWindows = process.platform === 'win32'
 export const SERVICES: Service[] = [
   screenshotsService,
   whatsappSqliteService,
+  readJobsService,
   ...(isMac
     ? [
         imessageService,
@@ -73,4 +75,5 @@ export {
   winStickyNotesService,
   appleNotesService,
   appleRemindersService,
+  readJobsService as writeJobsService,
 }

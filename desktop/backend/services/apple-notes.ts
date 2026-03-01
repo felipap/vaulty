@@ -1,8 +1,8 @@
 import { fetchNotes } from '../sources/apple-notes'
-import { createScheduledService } from './scheduler'
+import { createScheduledWriteService } from './scheduler'
 import { createSyncHandler, encryptAndUpload } from './upload-utils'
 
-export const appleNotesService = createScheduledService({
+export const appleNotesService = createScheduledWriteService({
   name: 'apple-notes',
   configKey: 'appleNotesSync',
   onSync: createSyncHandler({

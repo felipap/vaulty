@@ -4,7 +4,7 @@ import {
 } from '../lib/search-index-utils'
 import { fetchContacts } from '../sources/apple-contacts'
 import { getDeviceId } from '../store'
-import { createScheduledService } from './scheduler'
+import { createScheduledWriteService } from './scheduler'
 import {
   createSyncHandler,
   encryptAndUpload,
@@ -35,7 +35,7 @@ const CONFIG: SyncConfig = {
   ],
 }
 
-export const iContactsService = createScheduledService({
+export const iContactsService = createScheduledWriteService({
   name: 'apple-contacts',
   configKey: 'appleContactsSync',
   onSync: createSyncHandler({

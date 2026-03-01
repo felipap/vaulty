@@ -1,7 +1,7 @@
 import { createLogger } from '../../lib/logger'
 import { captureScreen } from '../../sources/screenshots'
 import { uploadScreenshot } from './upload'
-import { createScheduledService, type SyncResult } from '../scheduler'
+import { createScheduledWriteService, type SyncResult } from '../scheduler'
 
 const log = createLogger('screenshots')
 
@@ -17,7 +17,7 @@ async function captureAndUpload(): Promise<SyncResult> {
   return { success: true }
 }
 
-export const screenshotsService = createScheduledService({
+export const screenshotsService = createScheduledWriteService({
   name: 'screenshots',
   configKey: 'screenCapture',
   onSync: captureAndUpload,

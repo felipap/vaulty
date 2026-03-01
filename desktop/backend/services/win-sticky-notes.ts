@@ -1,8 +1,8 @@
 import { fetchWinStickyNotes } from '../sources/win-sticky-notes'
-import { createScheduledService } from './scheduler'
+import { createScheduledWriteService } from './scheduler'
 import { createSyncHandler, encryptAndUpload } from './upload-utils'
 
-export const winStickyNotesService = createScheduledService({
+export const winStickyNotesService = createScheduledWriteService({
   name: 'win-sticky-notes',
   configKey: 'winStickyNotesSync',
   onSync: createSyncHandler({

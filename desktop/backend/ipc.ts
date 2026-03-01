@@ -26,6 +26,7 @@ const CONFIG_KEY_TO_SERVICE: Record<ServiceConfigKey, string> = {
   winStickyNotesSync: 'win-sticky-notes',
   appleNotesSync: 'apple-notes',
   appleRemindersSync: 'apple-reminders',
+  writeJobs: 'write-jobs',
 }
 
 export function registerIpcHandlers(): void {

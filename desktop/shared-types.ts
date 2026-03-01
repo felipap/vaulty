@@ -42,6 +42,10 @@ export interface WhatsappSqliteConfig extends ServiceConfig {
   ignoredChatIds?: string[]
 }
 
+export interface WriteJobsConfig extends ServiceConfig {
+  allowedRecipients: string[]
+}
+
 export type ServiceConfigMap = {
   screenCapture: ServiceConfig
   imessageExport: IMessageExportConfig
@@ -51,6 +55,7 @@ export type ServiceConfigMap = {
   winStickyNotesSync: ServiceConfig
   appleNotesSync: ServiceConfig
   appleRemindersSync: ServiceConfig
+  writeJobs: WriteJobsConfig
 }
 
 export type ServiceConfigKey = keyof ServiceConfigMap

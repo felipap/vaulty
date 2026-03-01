@@ -1,6 +1,6 @@
 import { fetchReminders } from '../sources/apple-reminders'
 import { getDeviceId } from '../store'
-import { createScheduledService } from './scheduler'
+import { createScheduledWriteService } from './scheduler'
 import {
   createSyncHandler,
   encryptAndUpload,
@@ -27,7 +27,7 @@ function fetchSerializedReminders() {
   }))
 }
 
-export const appleRemindersService = createScheduledService({
+export const appleRemindersService = createScheduledWriteService({
   name: 'apple-reminders',
   configKey: 'appleRemindersSync',
   onSync: createSyncHandler({

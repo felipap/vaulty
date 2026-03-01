@@ -9,6 +9,7 @@ export type SyncLogSource =
   | 'win-sticky-notes'
   | 'apple-reminders'
   | 'apple-notes'
+  | 'write-jobs'
 
 export type SyncLog = {
   id: string
@@ -69,6 +70,12 @@ export type StoreSchema = {
     intervalMinutes: number
     nextSyncAfter: string | null
   }
+  writeJobs: {
+    enabled: boolean
+    intervalMinutes: number
+    nextSyncAfter: string | null
+    allowedRecipients: string[]
+  }
   sleepUntil: string | null
   syncLogs: SyncLog[]
 }
@@ -122,6 +129,12 @@ export const DEFAULT_STATE: StoreSchema = {
     enabled: false,
     intervalMinutes: 60,
     nextSyncAfter: null,
+  },
+  writeJobs: {
+    enabled: true,
+    intervalMinutes: 1,
+    nextSyncAfter: null,
+    allowedRecipients: [],
   },
   sleepUntil: null,
   syncLogs: [],

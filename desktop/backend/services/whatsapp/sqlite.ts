@@ -6,7 +6,7 @@ import {
   type WhatsappSqliteMessage,
 } from '../../sources/whatsapp-sqlite'
 import { store } from '../../store'
-import { createScheduledService, type SyncResult } from '../scheduler'
+import { createScheduledWriteService, type SyncResult } from '../scheduler'
 import { yieldToEventLoop } from '../upload-utils'
 import { log } from './index'
 import type { WhatsAppMessage } from './types'
@@ -70,8 +70,11 @@ async function exportAndUpload(): Promise<SyncResult> {
   let latestTimestamp: string | null = null
 
   for (;;) {
-    const { messages: sqliteMessages, nextAfterMessageDate, nextAfterId: nextId } =
-      fetchMessagesBatch(db, since, BATCH_SIZE, nextAfterDate, nextAfterId)
+    const {
+      messages: sqliteMessages,
+      nextAfterMessageDate,
+      nextAfterId: nextId,
+    } = fetchMessagesBatch(db, since, BATCH_SIZE, nextAfterDate, nextAfterId)
 
     const filtered = sqliteMessages.filter(
       (msg) => !ignoredChatIds.includes(msg.chatId),
@@ -87,7 +90,9 @@ async function exportAndUpload(): Promise<SyncResult> {
         latestTimestamp = batchLatest
       }
 
-      const res = await catchAndComplain(uploadWhatsAppMessages(batch, 'sqlite'))
+      const res = await catchAndComplain(
+        uploadWhatsAppMessages(batch, 'sqlite'),
+      )
       if ('error' in res) {
         return { error: `uploadWhatsAppMessages failed: ${res.error}` }
       }
@@ -112,7 +117,7 @@ async function exportAndUpload(): Promise<SyncResult> {
   return { success: true }
 }
 
-export const whatsappSqliteService = createScheduledService({
+export const whatsappSqliteService = createScheduledWriteService({
   name: 'whatsapp-sqlite',
   configKey: 'whatsappSqlite',
   onSync: exportAndUpload,

@@ -1,8 +1,8 @@
 import { fetchStickies } from '../sources/mac-stickies'
-import { createScheduledService } from './scheduler'
+import { createScheduledWriteService } from './scheduler'
 import { createSyncHandler, encryptAndUpload } from './upload-utils'
 
-export const macosStickiesService = createScheduledService({
+export const macosStickiesService = createScheduledWriteService({
   name: 'macos-stickies',
   configKey: 'macosStickiesSync',
   onSync: createSyncHandler({
