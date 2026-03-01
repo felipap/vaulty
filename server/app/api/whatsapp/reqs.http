@@ -1,7 +1,6 @@
 # Create an access token in the dashboard settings page
-@accessToken = vault_7ebbf837e9676f3e6d9256f2e567ac3577c01d6af8abf20f49
-# @host = {{$dotenv WEBSITE_HOST}}
-@host = http://localhost:3030
+@accessToken = {{$dotenv EXAMPLE_ACCESS_TOKEN}}
+@host = {{$dotenv WEBSITE_HOST}}
 
 ###
 

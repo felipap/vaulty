@@ -8,14 +8,20 @@ import {
 
 // Encrypted: data
 export const Screenshots = sqliteTable("screenshots", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
   // encrypted
   data: text("data").notNull(),
   width: integer("width").notNull(),
   height: integer("height").notNull(),
   sizeBytes: integer("size_bytes").notNull(),
-  capturedAt: integer("captured_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+  capturedAt: integer("captured_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
 })
 
 export type NewScreenshot = typeof Screenshots.$inferInsert
@@ -30,9 +36,13 @@ export type Screenshot = typeof Screenshots.$inferSelect
 export const iMessages = sqliteTable(
   "imessages",
   {
-    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     userId: text("user_id").notNull(),
-    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .$defaultFn(() => new Date()),
     deviceId: text("device_id").notNull(),
     syncTime: integer("sync_time", { mode: "timestamp_ms" }).notNull(),
     //
@@ -73,8 +83,12 @@ export type Message = typeof iMessages.$inferSelect
 
 // Encrypted: dataBase64
 export const iMessageAttachments = sqliteTable("imessage_attachments", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
   deviceId: text("device_id").notNull(),
   syncTime: integer("sync_time", { mode: "timestamp_ms" }).notNull(),
   userId: text("user_id").notNull(),
@@ -101,10 +115,16 @@ export type IMessageAttachment = typeof iMessageAttachments.$inferSelect
 export const AppleContacts = sqliteTable(
   "apple_contacts",
   {
-    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     userId: text("user_id").notNull(),
-    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
-    updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .$defaultFn(() => new Date()),
     deviceId: text("device_id").notNull(),
     syncTime: integer("sync_time", { mode: "timestamp_ms" }).notNull(),
     //
@@ -124,7 +144,9 @@ export const AppleContacts = sqliteTable(
     // encrypted, JSON array
     phoneNumbers: text("phone_numbers").notNull(),
     // HMAC blind indexes for phone search (one per phone number), stored as JSON array
-    phoneNumbersIndex: text("phone_numbers_index", { mode: "json" }).$type<string[] | null>(),
+    phoneNumbersIndex: text("phone_numbers_index", { mode: "json" }).$type<
+      string[] | null
+    >(),
   },
   (table) => [
     unique("contacts_user_contact_unique").on(table.userId, table.contactId),
@@ -151,7 +173,9 @@ export const Locations = sqliteTable(
   "locations",
   {
     id: text("id").primaryKey(),
-    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .$defaultFn(() => new Date()),
     timestamp: integer("timestamp", { mode: "timestamp_ms" }).notNull(),
     // encrypted
     latitude: text("latitude").notNull(),
@@ -175,10 +199,14 @@ export type Location = typeof Locations.$inferSelect
 export const WhatsappMessages = sqliteTable(
   "whatsapp_messages",
   {
-    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     userId: text("user_id").notNull(),
     syncTime: integer("sync_time", { mode: "timestamp_ms" }).notNull(),
-    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .$defaultFn(() => new Date()),
     deviceId: text("device_id").notNull(),
     //
     messageId: text("message_id").notNull().unique(),
@@ -225,9 +253,15 @@ export type WhatsappMessage = typeof WhatsappMessages.$inferSelect
 
 // Encrypted: text
 export const MacosStickies = sqliteTable("macos_stickies", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
   deviceId: text("device_id").notNull(),
   stickyId: text("sticky_id").notNull().unique(),
   // encrypted
@@ -240,9 +274,15 @@ export type MacosSticky = typeof MacosStickies.$inferSelect
 
 // Encrypted: text
 export const WinStickyNotes = sqliteTable("win_sticky_notes", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
   deviceId: text("device_id").notNull(),
   //
   stickyId: text("sticky_id").notNull().unique(),
@@ -261,9 +301,15 @@ export type WinStickyNote = typeof WinStickyNotes.$inferSelect
 
 // Encrypted: title, body
 export const AppleNotes = sqliteTable("apple_notes", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
   deviceId: text("device_id").notNull(),
   noteId: integer("note_id").notNull().unique(),
   // encrypted
@@ -288,9 +334,15 @@ export type AppleNote = typeof AppleNotes.$inferSelect
 
 // Encrypted: title, notes, listName
 export const AppleReminders = sqliteTable("apple_reminders", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
   deviceId: text("device_id").notNull(),
   //
   reminderId: text("reminder_id").notNull().unique(),
@@ -312,3 +364,43 @@ export const AppleReminders = sqliteTable("apple_reminders", {
 
 export type NewAppleReminder = typeof AppleReminders.$inferInsert
 export type AppleReminderRow = typeof AppleReminders.$inferSelect
+
+//
+//
+//
+//
+
+export const WriteJobs = sqliteTable(
+  "write_jobs",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    //
+    type: text("type").notNull(),
+    status: text("status", {
+      enum: ["pending", "claimed", "completed", "failed", "expired"],
+    })
+      .notNull()
+      .default("pending"),
+    expiresAt: integer("expires_at", { mode: "timestamp_ms" }),
+    payload: text("payload", { mode: "json" }).notNull(),
+    claimedAt: integer("claimed_at", { mode: "timestamp_ms" }),
+    completedAt: integer("completed_at", { mode: "timestamp_ms" }),
+    claimedByDeviceId: text("claimed_by_device_id"),
+    error: text("error"),
+    accessTokenId: text("access_token_id"),
+    tokenPrefix: text("token_prefix"),
+  },
+  (table) => [
+    index("write_jobs_status_idx").on(table.status),
+    index("write_jobs_type_idx").on(table.type),
+    index("write_jobs_created_at_idx").on(table.createdAt),
+  ]
+)
+
+export type NewWriteJob = typeof WriteJobs.$inferInsert
+export type WriteJob = typeof WriteJobs.$inferSelect

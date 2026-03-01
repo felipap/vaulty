@@ -1,0 +1,14 @@
+# Create an access token in the dashboard settings page
+@accessToken = {{$dotenv EXAMPLE_ACCESS_TOKEN}}
+@host = {{$dotenv WEBSITE_HOST}}
+
+###
+
+POST {{host}}/api/write/imessage/send
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "recipient": "+12184322739",
+  "message": "This is a test of an API 3"
+}

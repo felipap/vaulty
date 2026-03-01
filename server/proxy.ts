@@ -29,14 +29,19 @@ if (!API_WRITE_IP_WHITELIST) {
   console.warn("API_WRITE_IP_WHITELIST is not set")
 }
 
-const TRUSTED_PROXY = process.env.TRUSTED_PROXY === "true" || process.env.TRUSTED_PROXY === "1"
-const hasAnyIpWhitelist = !!(DASHBOARD_IP_WHITELIST || API_READ_IP_WHITELIST || API_WRITE_IP_WHITELIST)
+const TRUSTED_PROXY =
+  process.env.TRUSTED_PROXY === "true" || process.env.TRUSTED_PROXY === "1"
+const hasAnyIpWhitelist = !!(
+  DASHBOARD_IP_WHITELIST ||
+  API_READ_IP_WHITELIST ||
+  API_WRITE_IP_WHITELIST
+)
 if (hasAnyIpWhitelist && !TRUSTED_PROXY) {
   console.warn(
     "⚠️  IP whitelists are configured but TRUSTED_PROXY is not enabled. " +
-    "IP detection from forwarded headers is disabled, so whitelisting will " +
-    "only work on Vercel (via request.ip). Set TRUSTED_PROXY=true if you're " +
-    "behind a reverse proxy that sets X-Real-IP / X-Forwarded-For."
+      "IP detection from forwarded headers is disabled, so whitelisting will " +
+      "only work on Vercel (via request.ip). Set TRUSTED_PROXY=true if you're " +
+      "behind a reverse proxy that sets X-Real-IP / X-Forwarded-For."
   )
 }
 
@@ -78,8 +83,8 @@ export function proxy(request: NextRequest) {
     // which is hard to do. Reading use-cases will depend on what users do with
     // their context.
 
-    const isWriteEndpoint = isApiWriteRequest(request)
-    if (isWriteEndpoint) {
+    const isClientEndpoint = isDesktopClientRequest(request)
+    if (isClientEndpoint) {
       if (API_WRITE_IP_WHITELIST) {
         // Validate that request IP is allowed.
         const whitelist = parseWhitelist(API_WRITE_IP_WHITELIST)
@@ -109,7 +114,7 @@ export function proxy(request: NextRequest) {
     // We check the token after because we treat whitelists first, to give back
     // the smallest amount of information possible.
 
-    if (isWriteEndpoint) {
+    if (isClientEndpoint) {
       const token = getBearerToken(request)
       if (!token) {
         return makeNonWhitelistedResponse()
@@ -158,8 +163,11 @@ export const config = {
   matcher: ["/sign-in", "/dashboard/:path*", "/api/:path*"],
 }
 
-function isApiWriteRequest(request: NextRequest): boolean {
+function isDesktopClientRequest(request: NextRequest): boolean {
   const pathname = request.nextUrl.pathname
+  if (pathname.startsWith("/api/write")) {
+    return false
+  }
   if (!pathname.startsWith("/api")) {
     throw Error("only use fn with API routes")
   }
