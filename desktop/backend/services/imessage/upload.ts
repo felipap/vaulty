@@ -41,7 +41,7 @@ export async function uploadMessages(
   const result = await encryptAndUpload({
     items: messages,
     config: FIELD_CONFIG,
-    apiPath: '/api/imessages',
+    apiPath: '/api/imessage',
     bodyKey: 'messages',
     extraBody: {
       syncTime: new Date().toISOString(),
@@ -52,7 +52,7 @@ export async function uploadMessages(
   })
 
   if ('error' in result) {
-    log.error('Upload to /api/imessages failed:', result.error.slice(0, 1000))
+    log.error('Upload to /api/imessage failed:', result.error.slice(0, 1000))
     return { error: result.error }
   }
 

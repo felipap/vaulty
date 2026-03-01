@@ -46,9 +46,9 @@ Once your data is synced, agents can access it through bearer-token-authenticate
 
 ```
 GET /api/apple-contacts
-GET /api/imessages?limit=20&after=2025-01-01T00:00:00Z
-GET /api/imessages/chats
-GET /api/imessages/with/{phone}
+GET /api/imessage?limit=20&after=2025-01-01T00:00:00Z
+GET /api/imessage/chats
+GET /api/imessage/with/{phone}
 GET /api/whatsapp/chats
 GET /api/whatsapp/chats/{chat_id}/messages
 GET /api/screenshots/latest?within_min=60

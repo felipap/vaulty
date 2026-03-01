@@ -4,15 +4,15 @@
 
 ###
 
-GET {{host}}/api/imessages/chats
+GET {{host}}/api/imessage/chats
 Authorization: Bearer {{accessToken}}
 
 ###
 
-GET {{host}}/api/imessages/chats/+18573319216/messages
+GET {{host}}/api/imessage/chats/+18573319216/messages
 Authorization: Bearer {{accessToken}}
 
 ###
 
-GET {{host}}/api/imessages/latest?within_min=60
+GET {{host}}/api/imessage/latest?within_min=60
 Authorization: Bearer {{accessToken}}

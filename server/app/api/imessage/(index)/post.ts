@@ -273,7 +273,7 @@ async function insertAttachments(
 }
 
 export async function POST(request: NextRequest) {
-  console.log("POST /api/imessages")
+  console.log("POST /api/imessage")
 
   const json = await request.json()
 

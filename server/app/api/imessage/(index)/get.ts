@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     return auth.response
   }
 
-  console.log("GET /api/imessages")
+  console.log("GET /api/imessage")
 
   const result = parseSearchParams(new URL(request.url).searchParams, searchParamsSchema)
   if (!result.ok) {

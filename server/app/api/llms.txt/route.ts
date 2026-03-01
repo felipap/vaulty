@@ -16,12 +16,12 @@ const LLMS_TXT = `# Vaulty API
 - GET /api/apple-contacts/search?q={query} - Search contacts by name
 
 ### iMessages
-- GET /api/imessages - List messages (params: limit, offset, after, contact)
-- POST /api/imessages - Sync encrypted messages from device
-- GET /api/imessages/chats - List chats with last message and participant info
-- GET /api/imessages/chats/{chat_id} - Get chat details
-- GET /api/imessages/chats/{chat_id}/messages - Get messages in a chat
-- GET /api/imessages/with/{phone} - Get conversation with a contact
+- GET /api/imessage - List messages (params: limit, offset, after, contact)
+- POST /api/imessage - Sync encrypted messages from device
+- GET /api/imessage/chats - List chats with last message and participant info
+- GET /api/imessage/chats/{chat_id} - Get chat details
+- GET /api/imessage/chats/{chat_id}/messages - Get messages in a chat
+- GET /api/imessage/with/{phone} - Get conversation with a contact
 
 ### WhatsApp
 - GET /api/whatsapp-messages - List messages (params: limit, offset, after, chatId)
