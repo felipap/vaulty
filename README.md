@@ -18,17 +18,17 @@ See [ROADMAP.md](./ROADMAP.md).
 
 ## Supported sources
 
-| ID                 | Source                   | Description                               | Status |
-| ------------------ | ------------------------ | ----------------------------------------- | ------ |
-| `imessage`         | **Apple Messages**       | Message history and attachments            | Stable |
-| `whatsapp-sqlite`  | **WhatsApp**             | Message history via local SQLite database  | Stable |
-| `apple-contacts`   | **Apple Contacts**       | From macOS AddressBook                     | Stable |
-| `apple-notes`      | **Apple Notes**          | Notes from macOS Notes app                 | Beta   |
-| `apple-reminders`  | **Apple Reminders**      | Reminders from macOS Reminders app         | Beta   |
-| `screenshots`      | **Screenshots**          | Periodic screen captures                   | Beta   |
-| `locations`        | **Locations**            | GPS coordinates via iOS app                | Beta   |
-| `macos-stickies`   | **macOS Stickies**       | Sticky notes from macOS desktop            | Stable |
-| `win-sticky-notes` | **Windows Sticky Notes** | Sticky notes from Windows                  | Beta   |
+| ID                 | Source                   | Description                                                                                                 | Status |
+| ------------------ | ------------------------ | ----------------------------------------------------------------------------------------------------------- | ------ |
+| `imessage`         | **Apple Messages**       | Message history and attachments (via [imessage-kit](https://www.npmjs.com/package/@photon-ai/imessage-kit)) | Stable |
+| `whatsapp-sqlite`  | **WhatsApp**             | Message history via local SQLite database                                                                   | Stable |
+| `apple-contacts`   | **Apple Contacts**       | From macOS AddressBook                                                                                      | Stable |
+| `apple-notes`      | **Apple Notes**          | Notes from macOS Notes app                                                                                  | Beta   |
+| `apple-reminders`  | **Apple Reminders**      | Reminders from macOS Reminders app                                                                          | Beta   |
+| `screenshots`      | **Screenshots**          | Periodic screen captures                                                                                    | Beta   |
+| `locations`        | **Locations**            | GPS coordinates via iOS app                                                                                 | Beta   |
+| `macos-stickies`   | **macOS Stickies**       | Sticky notes from macOS desktop                                                                             | Stable |
+| `win-sticky-notes` | **Windows Sticky Notes** | Sticky notes from Windows                                                                                   | Beta   |
 
 ## How it works
 
