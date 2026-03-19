@@ -118,7 +118,7 @@ function NoteCard({
       )}
     >
       <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-medium leading-snug">
+        <p className="min-w-0 break-all text-sm font-medium leading-snug line-clamp-2">
           {title || <span className="italic text-secondary">Untitled</span>}
         </p>
         {note.isPinned && (
@@ -126,7 +126,7 @@ function NoteCard({
         )}
       </div>
       {body && (
-        <p className="mt-1.5 whitespace-pre-wrap text-sm text-secondary line-clamp-3">
+        <p className="mt-1.5 break-all text-sm text-secondary line-clamp-3">
           {body}
         </p>
       )}
