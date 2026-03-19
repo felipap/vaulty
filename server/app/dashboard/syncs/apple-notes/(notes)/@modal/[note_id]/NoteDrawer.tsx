@@ -1,6 +1,7 @@
 "use client"
 
 import { maybeDecrypt } from "@/lib/encryption"
+import { Decrypted } from "@/ui/Decrypted"
 import { Drawer } from "@/ui/drawers/Drawer"
 import { formatDate } from "@/ui/drawers/formatDate"
 import { InfoRow } from "@/ui/drawers/InfoRow"
@@ -17,32 +18,24 @@ export function NoteDrawer({ note }: Props) {
   const [decrypted, setDecrypted] = useState<{
     title: string | null
     body: string | null
-    folderName: string | null
-    accountName: string | null
   }>({
     title: null,
     body: null,
-    folderName: null,
-    accountName: null,
   })
 
   useEffect(() => {
     async function decrypt() {
-      const [title, body, folderName, accountName] = await Promise.all([
+      const [title, body] = await Promise.all([
         maybeDecrypt(note.title),
         maybeDecrypt(note.body),
-        note.folderName ? maybeDecrypt(note.folderName) : null,
-        note.accountName ? maybeDecrypt(note.accountName) : null,
       ])
-      setDecrypted({ title, body, folderName, accountName })
+      setDecrypted({ title, body })
     }
     decrypt()
   }, [note])
 
   const title = decrypted.title ?? note.title
   const body = decrypted.body ?? note.body
-  const folderName = decrypted.folderName ?? note.folderName
-  const accountName = decrypted.accountName ?? note.accountName
 
   const displayTitle =
     (title || "Untitled Note").slice(0, 50) +
@@ -57,11 +50,19 @@ export function NoteDrawer({ note }: Props) {
           </div>
         )}
         <InfoRow label="Note ID" value={String(note.noteId)} copyable />
-        {folderName && <InfoRow label="Folder" value={folderName} />}
-        {accountName && <InfoRow label="Account" value={accountName} />}
+        {note.folderName && (
+          <InfoRow label="Folder">
+            <Decrypted>{note.folderName}</Decrypted>
+          </InfoRow>
+        )}
+        {note.accountName && (
+          <InfoRow label="Account">
+            <Decrypted>{note.accountName}</Decrypted>
+          </InfoRow>
+        )}
         <InfoRow label="Created" value={formatDate(note.noteCreatedAt)} />
         <InfoRow label="Modified" value={formatDate(note.noteModifiedAt)} />
-        <TextBlock label="Content" copyText={body || undefined}>
+        <TextBlock foldable label="Content" copyText={body || undefined}>
           {body ? (
             <div className="whitespace-pre-wrap break-all text-sm text-contrast">
               {body}
