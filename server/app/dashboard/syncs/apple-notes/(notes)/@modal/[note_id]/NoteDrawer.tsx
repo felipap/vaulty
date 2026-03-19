@@ -53,6 +53,7 @@ export function NoteDrawer({ note }: Props) {
             Pinned
           </div>
         )}
+        <InfoRow label="Note ID" value={String(note.noteId)} copyable />
         {folderName && <InfoRow label="Folder" value={folderName} />}
         {accountName && <InfoRow label="Account" value={accountName} />}
         <InfoRow

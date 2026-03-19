@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { NavTabs } from "@/ui/NavTabs"
+import { NavTabs } from "@/ui/indices/NavTabs"
 import { PageHeader } from "@/ui/indices/PageHeader"
 import { deleteAllIMessages } from "./(messages)/actions"
 

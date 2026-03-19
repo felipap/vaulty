@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { CopyButton } from "@/ui/CopyButton"
 import { DemoBlur } from "@/ui/DemoBlur"
 import { Drawer } from "@/ui/drawers/Drawer"
 import { GroupIcon } from "@/ui/icons"
@@ -99,13 +100,19 @@ function ChatInfo({
           )}
         </div>
       </div>
-      <div className="mt-3 flex gap-4 text-xs text-secondary">
-        <span>{chat.messageCount.toLocaleString()} messages</span>
-        {chat.lastMessageDate && (
-          <span>
-            Last: {new Date(chat.lastMessageDate).toLocaleDateString()}
-          </span>
-        )}
+      <div className="mt-3 space-y-1 text-xs text-secondary">
+        <div className="flex gap-4">
+          <span>{chat.messageCount.toLocaleString()} messages</span>
+          {chat.lastMessageDate && (
+            <span>
+              Last: {new Date(chat.lastMessageDate).toLocaleDateString()}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5 font-mono text-secondary">
+          {chat.chatId}
+          <CopyButton text={chat.chatId} size={12} />
+        </div>
       </div>
     </div>
   )

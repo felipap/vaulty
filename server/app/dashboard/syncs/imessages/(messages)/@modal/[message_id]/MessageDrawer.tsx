@@ -74,6 +74,7 @@ export function MessageDrawer({ message }: Props) {
   return (
     <Drawer title="Message Details">
       <div className="space-y-4">
+        <InfoRow label="Message ID" value={message.id} copyable />
         <DemoBlur>
           <InfoRow label="Contact" value={decryptedContact} copyable />
         </DemoBlur>
