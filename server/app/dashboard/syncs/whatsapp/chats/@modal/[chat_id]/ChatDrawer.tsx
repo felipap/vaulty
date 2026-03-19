@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Drawer } from "@/ui/Drawer"
+import { Drawer } from "@/ui/drawers/Drawer"
 import { CopyButton } from "@/ui/CopyButton"
 import { maybeDecrypt } from "@/lib/encryption"
 import { type WhatsappChatWithMessages } from "../../actions"

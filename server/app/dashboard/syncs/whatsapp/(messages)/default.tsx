@@ -1,7 +1,7 @@
 "use client"
 
-import { SortSelector } from "@/ui/SortSelector"
-import { PageCount, EmptyState, LoadingState } from "@/ui/PageHeader"
+import { SortSelector } from "@/ui/indices/SortSelector"
+import { PageCount, EmptyState, LoadingState } from "@/ui/indices/PageHeader"
 import { type SortBy } from "./actions"
 import { useMessageList } from "./useMessageList"
 import { MessagesTable } from "./MessagesTable"

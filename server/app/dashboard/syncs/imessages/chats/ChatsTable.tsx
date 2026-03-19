@@ -2,10 +2,10 @@
 
 import { useMemo } from "react"
 import { ContactAvatar } from "@/ui/ContactAvatar"
-import { DataTable } from "@/ui/DataTable"
+import { DataTable } from "@/ui/indices/DataTable"
 import { DemoBlur } from "@/ui/DemoBlur"
 import { LockIcon } from "@/ui/icons"
-import { Pagination } from "@/ui/Pagination"
+import { Pagination } from "@/ui/indices/Pagination"
 import { type ContactLookup } from "./actions"
 import { type DecryptedChat } from "./useChatList"
 import { isEncrypted } from "@/lib/encryption"

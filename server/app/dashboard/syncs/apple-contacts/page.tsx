@@ -10,14 +10,14 @@ import {
   type ContactSearchParams,
 } from "./actions"
 import { DemoBlur } from "@/ui/DemoBlur"
-import { Pagination } from "@/ui/Pagination"
+import { Pagination } from "@/ui/indices/Pagination"
 import { SearchIcon } from "@/ui/icons"
 import {
   PageHeader,
   PageCount,
   EmptyState,
   LoadingState,
-} from "@/ui/PageHeader"
+} from "@/ui/indices/PageHeader"
 import { computeSearchIndex, getEncryptionKey } from "@/lib/encryption"
 import {
   normalizeStringForSearch,

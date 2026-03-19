@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { EmptyState, LoadingState } from "@/ui/PageHeader"
+import { EmptyState, LoadingState } from "@/ui/indices/PageHeader"
 import { ChatsTable } from "../ChatsTable"
 import { useChatList } from "../useChatList"
 import { IMessageChatsSearch } from "../IMessageChatsSearch"

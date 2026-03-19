@@ -3,7 +3,7 @@
 import { SearchIcon, CloseIcon } from "@/ui/icons"
 import { useEffect, useRef, useState } from "react"
 import { twMerge } from "tailwind-merge"
-import { PageCount } from "@/ui/PageHeader"
+import { PageCount } from "@/ui/indices/PageHeader"
 import type { ChatFilters } from "./useChatList"
 
 type Props = {

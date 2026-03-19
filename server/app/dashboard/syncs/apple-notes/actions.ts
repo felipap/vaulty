@@ -27,9 +27,12 @@ export type NotesPage = {
   totalPages: number
 }
 
+export type SortOption = "modified" | "created"
+
 export async function getAppleNotes(
   page: number = 1,
-  pageSize: number = 30
+  pageSize: number = 30,
+  sort: SortOption = "modified"
 ): Promise<NotesPage> {
   if (!(await isAuthenticated())) {
     unauthorized()
@@ -43,8 +46,12 @@ export async function getAppleNotes(
 
   const total = countResult.count
 
+  const orderByColumn = sort === "created" 
+    ? AppleNotes.noteCreatedAt 
+    : AppleNotes.noteModifiedAt
+
   const results = await db.query.AppleNotes.findMany({
-    orderBy: desc(AppleNotes.updatedAt),
+    orderBy: desc(orderByColumn),
     limit: pageSize,
     offset,
   })

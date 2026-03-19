@@ -17,7 +17,7 @@ export function SortSelector<T extends string>({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as T)}
-        className="rounded-md border border-zinc-200 bg-white px-2 pr-8 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+        className="rounded border border-zinc-200 bg-white py-1 pl-2 pr-7 text-sm text-contrast dark:border-zinc-700 dark:bg-zinc-900"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>

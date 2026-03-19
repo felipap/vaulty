@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { getWinStickies, deleteAllWinStickies, type StickyNote } from "./actions"
-import { Pagination } from "@/ui/Pagination"
+import { Pagination } from "@/ui/indices/Pagination"
 import { maybeDecrypt } from "@/lib/encryption"
-import { PageHeader, PageCount, EmptyState, LoadingState } from "@/ui/PageHeader"
+import { PageHeader, PageCount, EmptyState, LoadingState } from "@/ui/indices/PageHeader"
 
 export default function Page() {
   const router = useRouter()

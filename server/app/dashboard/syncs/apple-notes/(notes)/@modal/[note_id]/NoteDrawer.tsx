@@ -1,9 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Drawer } from "@/ui/Drawer"
-import { InfoRow } from "@/ui/InfoRow"
-import { RawJson } from "@/ui/RawJson"
+import { Drawer } from "@/ui/drawers/Drawer"
+import { InfoRow } from "@/ui/drawers/InfoRow"
+import { RawJson } from "@/ui/drawers/RawJson"
+import { CopyButton } from "@/ui/CopyButton"
 import { maybeDecrypt } from "@/lib/encryption"
 import { type NoteItem } from "../../../actions"
 
@@ -63,9 +64,12 @@ export function NoteDrawer({ note }: Props) {
           value={formatDate(note.noteModifiedAt)}
         />
         <div className="min-w-0">
-          <label className="mb-1 block text-sm font-medium text-secondary">
-            Content
-          </label>
+          <div className="mb-1 flex items-center justify-between">
+            <label className="text-sm font-medium text-secondary">
+              Content
+            </label>
+            {body && <CopyButton text={body} />}
+          </div>
           <div className="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-950 overflow-hidden">
             {body ? (
               <div className="whitespace-pre-wrap break-all text-sm text-contrast">

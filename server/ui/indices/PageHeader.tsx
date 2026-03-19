@@ -1,4 +1,4 @@
-import { DeleteAllButton } from "@/ui/DeleteAllButton"
+import { DeleteAllButton } from "@/ui/indices/DeleteAllButton"
 
 type Props = {
   title: string

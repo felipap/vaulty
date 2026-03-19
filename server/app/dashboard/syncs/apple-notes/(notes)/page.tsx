@@ -3,16 +3,22 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { getAppleNotes, deleteAllAppleNotes, type NoteItem } from "../actions"
-import { Pagination } from "@/ui/Pagination"
+import { getAppleNotes, deleteAllAppleNotes, type NoteItem, type SortOption } from "../actions"
+import { Pagination } from "@/ui/indices/Pagination"
 import { maybeDecrypt } from "@/lib/encryption"
 import {
   PageHeader,
   PageCount,
   EmptyState,
   LoadingState,
-} from "@/ui/PageHeader"
+} from "@/ui/indices/PageHeader"
+import { SortSelector } from "@/ui/indices/SortSelector"
 import { twMerge } from "tailwind-merge"
+
+const SORT_OPTIONS = [
+  { value: "modified" as const, label: "Modified Date" },
+  { value: "created" as const, label: "Created Date" },
+]
 
 export default function Page() {
   const router = useRouter()
@@ -24,11 +30,12 @@ export default function Page() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
+  const [sort, setSort] = useState<SortOption>("modified")
 
   useEffect(() => {
     async function load() {
       setLoading(true)
-      const data = await getAppleNotes(page)
+      const data = await getAppleNotes(page, 30, sort)
       setNotes(data.notes)
       setTotalPages(data.totalPages)
       setTotal(data.total)
@@ -46,7 +53,12 @@ export default function Page() {
       setLoading(false)
     }
     load()
-  }, [page])
+  }, [page, sort])
+
+  function handleSortChange(newSort: SortOption) {
+    setSort(newSort)
+    setPage(1)
+  }
 
   async function handleDeleteAll() {
     await deleteAllAppleNotes()
@@ -91,6 +103,11 @@ export default function Page() {
       >
         {total > 0 && <PageCount total={total} />}
       </PageHeader>
+      {notes.length > 0 && (
+        <div className="mb-3">
+          <SortSelector value={sort} onChange={handleSortChange} options={SORT_OPTIONS} />
+        </div>
+      )}
       {inner}
     </div>
   )

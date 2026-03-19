@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { DemoBlur } from "@/ui/DemoBlur"
-import { Drawer } from "@/ui/Drawer"
+import { Drawer } from "@/ui/drawers/Drawer"
 import { GroupIcon } from "@/ui/icons"
 import { maybeDecrypt } from "@/lib/encryption"
 import { type ChatWithMessages, type ContactLookup } from "../../../actions"

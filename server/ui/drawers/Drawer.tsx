@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { CloseIcon } from "./icons"
+import { CloseIcon } from "@/ui/icons"
 
 type Props = {
   title: string

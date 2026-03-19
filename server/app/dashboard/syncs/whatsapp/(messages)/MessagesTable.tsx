@@ -7,13 +7,13 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import { WhatsappIcon } from "@/ui/icons"
-import { DataTable } from "@/ui/DataTable"
+import { DataTable } from "@/ui/indices/DataTable"
 import { Decrypted } from "@/ui/Decrypted"
 import { DemoBlur } from "@/ui/DemoBlur"
 import { DateCell as SharedDateCell } from "@/ui/DateCell"
 import { DirectionBadge } from "@/ui/DirectionBadge"
 import { MessageCell as SharedMessageCell } from "@/ui/MessageCell"
-import { Pagination } from "@/ui/Pagination"
+import { Pagination } from "@/ui/indices/Pagination"
 import { type WhatsappMessage, type SortBy } from "./actions"
 
 export type DecryptedMessage = WhatsappMessage & {

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { NavTabs } from "@/ui/NavTabs"
-import { PageHeader } from "@/ui/PageHeader"
+import { PageHeader } from "@/ui/indices/PageHeader"
 import { deleteAllWhatsappMessages } from "./(messages)/actions"
 
 const subTabs = [

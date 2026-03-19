@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { SortSelector } from "@/ui/SortSelector"
+import { SortSelector } from "@/ui/indices/SortSelector"
 import { getMessages, type Message, type SortBy } from "./actions"
 import { getContactLookup, type ContactLookup } from "../chats/actions"
 
@@ -11,7 +11,7 @@ const SORT_OPTIONS: { value: SortBy; label: string }[] = [
 ]
 import { decryptText, isEncrypted, getEncryptionKey } from "@/lib/encryption"
 import { MessagesTable, type DecryptedMessage } from "./MessagesTable"
-import { PageCount, EmptyState, LoadingState } from "@/ui/PageHeader"
+import { PageCount, EmptyState, LoadingState } from "@/ui/indices/PageHeader"
 
 export default function Page() {
   const [messages, setMessages] = useState<DecryptedMessage[]>([])

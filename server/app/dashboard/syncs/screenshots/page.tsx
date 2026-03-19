@@ -14,7 +14,7 @@ import {
   PageCount,
   EmptyState,
   LoadingState,
-} from "@/ui/PageHeader"
+} from "@/ui/indices/PageHeader"
 
 const IS_DEV = process.env.NODE_ENV === "development"
 

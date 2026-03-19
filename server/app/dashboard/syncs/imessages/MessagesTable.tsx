@@ -1,7 +1,7 @@
 "use client"
 
 import { ArrowDownIcon, ArrowUpIcon, LockIcon } from "@/ui/icons"
-import { Pagination } from "@/ui/Pagination"
+import { Pagination } from "@/ui/indices/Pagination"
 import { isEncrypted } from "@/lib/encryption"
 import { type Message } from "./(messages)/actions"
 

@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { getReminders, deleteAllReminders, type ReminderItem } from "./actions"
-import { Pagination } from "@/ui/Pagination"
+import { Pagination } from "@/ui/indices/Pagination"
 import { maybeDecrypt } from "@/lib/encryption"
 import {
   PageHeader,
   PageCount,
   EmptyState,
   LoadingState,
-} from "@/ui/PageHeader"
+} from "@/ui/indices/PageHeader"
 import { twMerge } from "tailwind-merge"
 
 type Filter = "all" | "incomplete" | "completed"

@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react"
 import { Decrypted } from "@/ui/Decrypted"
 import { DemoBlur } from "@/ui/DemoBlur"
-import { Drawer } from "@/ui/Drawer"
-import { InfoRow } from "@/ui/InfoRow"
-import { RawJson } from "@/ui/RawJson"
+import { Drawer } from "@/ui/drawers/Drawer"
+import { InfoRow } from "@/ui/drawers/InfoRow"
+import { RawJson } from "@/ui/drawers/RawJson"
 import { LockIcon, FileIcon, ImageIcon, DownloadIcon } from "@/ui/icons"
 import {
   decryptBinaryToBase64,

@@ -5,7 +5,7 @@ import { type Route } from "next"
 import { useEffect, useState } from "react"
 import { ActivityLogs } from "./ActivityLogs"
 import { getDashboardStats, type DashboardStats } from "./actions"
-import { LoadingState } from "@/ui/PageHeader"
+import { LoadingState } from "@/ui/indices/PageHeader"
 
 export function DashboardClient() {
   const [stats, setStats] = useState<DashboardStats | null>(null)

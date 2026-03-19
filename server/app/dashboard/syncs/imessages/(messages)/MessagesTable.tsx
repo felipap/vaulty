@@ -6,12 +6,12 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { DataTable } from "@/ui/DataTable"
+import { DataTable } from "@/ui/indices/DataTable"
 import { DemoBlur } from "@/ui/DemoBlur"
 import { DateCell as SharedDateCell } from "@/ui/DateCell"
 import { DirectionBadge } from "@/ui/DirectionBadge"
 import { MessageCell as SharedMessageCell } from "@/ui/MessageCell"
-import { Pagination } from "@/ui/Pagination"
+import { Pagination } from "@/ui/indices/Pagination"
 import { type Message, type SortBy } from "./actions"
 import { type ContactLookup } from "../chats/actions"
 import { ContactAvatar } from "@/ui/ContactAvatar"

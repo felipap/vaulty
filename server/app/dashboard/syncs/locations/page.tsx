@@ -3,14 +3,14 @@
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { getLocations, deleteAllLocations, type Location } from "./actions"
-import { Pagination } from "@/ui/Pagination"
+import { Pagination } from "@/ui/indices/Pagination"
 import { MapPinIcon, LockIcon } from "@/ui/icons"
 import {
   PageHeader,
   PageCount,
   EmptyState,
   LoadingState,
-} from "@/ui/PageHeader"
+} from "@/ui/indices/PageHeader"
 import { decryptText, isEncrypted, getEncryptionKey } from "@/lib/encryption"
 
 export type DecryptedLocation = Location & {

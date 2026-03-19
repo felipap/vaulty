@@ -1,7 +1,7 @@
 "use client"
 
-import { DataTable } from "@/ui/DataTable"
-import { Pagination } from "@/ui/Pagination"
+import { DataTable } from "@/ui/indices/DataTable"
+import { Pagination } from "@/ui/indices/Pagination"
 import { type Screenshot } from "./actions"
 import {
   createColumnHelper,

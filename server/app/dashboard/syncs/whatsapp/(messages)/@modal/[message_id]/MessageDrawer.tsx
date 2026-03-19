@@ -2,9 +2,9 @@
 
 import { Decrypted } from "@/ui/Decrypted"
 import { DemoBlur } from "@/ui/DemoBlur"
-import { Drawer } from "@/ui/Drawer"
-import { InfoRow } from "@/ui/InfoRow"
-import { RawJson } from "@/ui/RawJson"
+import { Drawer } from "@/ui/drawers/Drawer"
+import { InfoRow } from "@/ui/drawers/InfoRow"
+import { RawJson } from "@/ui/drawers/RawJson"
 import { type Route } from "next"
 import Link from "next/link"
 import { type WhatsappMessageDetail } from "../../actions"

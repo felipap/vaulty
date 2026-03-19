@@ -2,10 +2,10 @@
 
 import { isEncrypted } from "@/lib/encryption"
 import { ContactAvatar } from "@/ui/ContactAvatar"
-import { DataTable } from "@/ui/DataTable"
+import { DataTable } from "@/ui/indices/DataTable"
 import { Decrypted } from "@/ui/Decrypted"
 import { LockIcon } from "@/ui/icons"
-import { Pagination } from "@/ui/Pagination"
+import { Pagination } from "@/ui/indices/Pagination"
 import {
   createColumnHelper,
   getCoreRowModel,
