@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { getAppleNotes, deleteAllAppleNotes, type NoteItem } from "./actions"
+import Link from "next/link"
+import { getAppleNotes, deleteAllAppleNotes, type NoteItem } from "../actions"
 import { Pagination } from "@/ui/Pagination"
 import { maybeDecrypt } from "@/lib/encryption"
 import {
@@ -111,9 +112,10 @@ function NoteCard({
   const folderName = decryptedFolderName ?? note.folderName
 
   return (
-    <div
+    <Link
+      href={`/dashboard/syncs/apple-notes/${note.id}`}
       className={twMerge(
-        "border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900",
+        "block border border-zinc-200 bg-white p-4 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800",
         note.isPinned && "border-l-2 border-l-amber-400 dark:border-l-amber-500"
       )}
     >
@@ -134,7 +136,7 @@ function NoteCard({
         {folderName && <span>{folderName}</span>}
         <span>{formatDate(note.noteModifiedAt)}</span>
       </div>
-    </div>
+    </Link>
   )
 }
 

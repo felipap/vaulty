@@ -71,6 +71,33 @@ export async function getAppleNotes(
   }
 }
 
+export async function getAppleNote(id: string): Promise<NoteItem | null> {
+  if (!(await isAuthenticated())) {
+    unauthorized()
+  }
+
+  const note = await db.query.AppleNotes.findFirst({
+    where: (notes, { eq }) => eq(notes.id, id),
+  })
+
+  if (!note) {
+    return null
+  }
+
+  return {
+    id: note.id,
+    noteId: note.noteId,
+    title: note.title,
+    body: note.body,
+    folderName: note.folderName,
+    accountName: note.accountName,
+    isPinned: note.isPinned,
+    noteCreatedAt: note.noteCreatedAt,
+    noteModifiedAt: note.noteModifiedAt,
+    updatedAt: note.updatedAt,
+  }
+}
+
 export async function deleteAllAppleNotes(): Promise<{ deleted: number }> {
   if (!(await isAuthenticated())) {
     unauthorized()
