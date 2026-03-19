@@ -90,6 +90,7 @@ async function poll(): Promise<void> {
     }
 
     if (!claim.job) {
+      log.info('No jobs to claim')
       return
     }
 
