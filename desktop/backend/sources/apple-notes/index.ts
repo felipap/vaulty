@@ -71,15 +71,30 @@ export function extractTextFromProtobuf(data: Buffer): string {
         }
 
         const slice = buf.subarray(pos, pos + length)
-        const isText = slice.every(
-          (b) => b >= 0x20 || b === 0x0a || b === 0x0d || b === 0x09,
-        )
-        if (isText && length > 1) {
-          const str = slice.toString('utf-8')
+        const str = slice.toString('utf-8')
+        // Check if it decodes as valid UTF-8 text (no replacement characters)
+        // and contains mostly printable characters
+        const hasReplacementChars = str.includes('\ufffd')
+        const printableRatio =
+          str.split('').filter((c) => {
+            const code = c.charCodeAt(0)
+            return (
+              (code >= 0x20 && code <= 0x7e) || // printable ASCII
+              code === 0x0a || // newline
+              code === 0x0d || // carriage return
+              code === 0x09 || // tab
+              code > 0x7f // valid UTF-8 multi-byte (already decoded)
+            )
+          }).length / str.length
+
+        const isText = !hasReplacementChars && printableRatio > 0.8 && length > 1
+
+        if (isText) {
           if (str.trim().length > 0) {
             strings.push(str)
           }
         } else if (length > 2) {
+          // Recurse into non-text blobs to find nested text
           walk(buf, pos + length, pos)
         }
         pos += length
