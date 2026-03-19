@@ -37,7 +37,7 @@ export async function GET(
     })
 
     return Response.json(
-      { success: false, error: "Note not found" },
+      { error: "Note not found" },
       { status: 404 }
     )
   }

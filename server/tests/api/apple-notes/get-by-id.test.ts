@@ -71,8 +71,8 @@ describe("GET /api/apple-notes/[noteId]", () => {
 
     expect(response.status).toBe(404)
     const json = await response.json()
-    expect(json.success).toBe(false)
     expect(json.error).toBe("Note not found")
+    expect(json.success).toBeUndefined()
   })
 
   it("returns note when found", async () => {
