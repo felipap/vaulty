@@ -46,7 +46,7 @@ export function IpWhitelistWarningBanner() {
   }
 
   return (
-    <div className="bg-red-600 px-4 py-3 text-white">
+    <div className="fixed bottom-0 left-0 right-0 bg-red-600 px-4 py-3 text-white z-50">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
         <p className="text-sm">
           <span className="font-medium">Security Warning:</span> Dashboard IP

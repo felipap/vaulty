@@ -18,8 +18,8 @@ export default async function DashboardLayout({ children }: Props) {
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
       <DashboardNav />
-      {!isWhitelistEnabled && <IpWhitelistWarningBanner />}
       <main className="mx-auto max-w-5xl px-6 py-10">{children}</main>
+      {!isWhitelistEnabled && <IpWhitelistWarningBanner />}
     </div>
   )
 }
