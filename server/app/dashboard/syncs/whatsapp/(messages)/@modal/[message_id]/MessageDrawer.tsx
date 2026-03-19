@@ -1,5 +1,6 @@
 "use client"
 
+import { TextBlock } from "@/ui/drawers/TextBlock"
 import { Decrypted } from "@/ui/Decrypted"
 import { DemoBlur } from "@/ui/DemoBlur"
 import { Drawer } from "@/ui/drawers/Drawer"
@@ -59,14 +60,9 @@ export function MessageDrawer({ message }: Props) {
           label="Synced"
           value={new Date(message.syncTime).toLocaleString()}
         />
-        <div>
-          <label className="mb-1 block text-sm font-medium text-secondary">
-            Message
-          </label>
-          <div className="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-950">
-            <Decrypted showLockIcon>{message.text}</Decrypted>
-          </div>
-        </div>
+        <TextBlock label="Message">
+          <Decrypted showLockIcon>{message.text}</Decrypted>
+        </TextBlock>
       </div>
       <RawJson data={message} />
     </Drawer>

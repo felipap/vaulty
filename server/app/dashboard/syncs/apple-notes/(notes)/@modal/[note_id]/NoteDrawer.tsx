@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { maybeDecrypt } from "@/lib/encryption"
 import { Drawer } from "@/ui/drawers/Drawer"
+import { formatDate } from "@/ui/drawers/formatDate"
 import { InfoRow } from "@/ui/drawers/InfoRow"
 import { RawJson } from "@/ui/drawers/RawJson"
-import { CopyButton } from "@/ui/CopyButton"
-import { maybeDecrypt } from "@/lib/encryption"
+import { TextBlock } from "@/ui/drawers/TextBlock"
+import { useEffect, useState } from "react"
 import { type NoteItem } from "../../../actions"
 
 type Props = {
@@ -43,7 +44,9 @@ export function NoteDrawer({ note }: Props) {
   const folderName = decrypted.folderName ?? note.folderName
   const accountName = decrypted.accountName ?? note.accountName
 
-  const displayTitle = (title || "Untitled Note").slice(0, 50) + ((title?.length ?? 0) > 50 ? "…" : "")
+  const displayTitle =
+    (title || "Untitled Note").slice(0, 50) +
+    ((title?.length ?? 0) > 50 ? "…" : "")
 
   return (
     <Drawer title={displayTitle}>
@@ -56,47 +59,19 @@ export function NoteDrawer({ note }: Props) {
         <InfoRow label="Note ID" value={String(note.noteId)} copyable />
         {folderName && <InfoRow label="Folder" value={folderName} />}
         {accountName && <InfoRow label="Account" value={accountName} />}
-        <InfoRow
-          label="Created"
-          value={formatDate(note.noteCreatedAt)}
-        />
-        <InfoRow
-          label="Modified"
-          value={formatDate(note.noteModifiedAt)}
-        />
-        <div className="min-w-0">
-          <div className="mb-1 flex items-center justify-between">
-            <label className="text-sm font-medium text-secondary">
-              Content
-            </label>
-            {body && <CopyButton text={body} />}
-          </div>
-          <div className="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-950 overflow-hidden">
-            {body ? (
-              <div className="whitespace-pre-wrap break-all text-sm text-contrast">
-                {body}
-              </div>
-            ) : (
-              <span className="text-sm italic text-secondary">No content</span>
-            )}
-          </div>
-        </div>
+        <InfoRow label="Created" value={formatDate(note.noteCreatedAt)} />
+        <InfoRow label="Modified" value={formatDate(note.noteModifiedAt)} />
+        <TextBlock label="Content" copyText={body || undefined}>
+          {body ? (
+            <div className="whitespace-pre-wrap break-all text-sm text-contrast">
+              {body}
+            </div>
+          ) : (
+            <span className="text-sm italic text-secondary">No content</span>
+          )}
+        </TextBlock>
       </div>
       <RawJson data={note} />
     </Drawer>
   )
-}
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  if (isNaN(date.getTime())) {
-    return dateStr
-  }
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  })
 }

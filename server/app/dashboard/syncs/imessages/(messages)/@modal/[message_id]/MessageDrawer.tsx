@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { TextBlock } from "@/ui/drawers/TextBlock"
 import { Decrypted } from "@/ui/Decrypted"
 import { DemoBlur } from "@/ui/DemoBlur"
 import { Drawer } from "@/ui/drawers/Drawer"
@@ -87,20 +88,15 @@ export function MessageDrawer({ message }: Props) {
           label="Date"
           value={message.date ? new Date(message.date).toLocaleString() : "—"}
         />
-        <div>
-          <label className="mb-1 block text-sm font-medium text-secondary">
-            Message
-          </label>
-          <div className="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-950">
-            {message.text ? (
-              <Decrypted showLockIcon>{message.text}</Decrypted>
-            ) : (
-              <span className="text-sm italic text-secondary">
-                {message.hasAttachments ? "📎 Attachment" : "No content"}
-              </span>
-            )}
-          </div>
-        </div>
+        <TextBlock label="Message">
+          {message.text ? (
+            <Decrypted showLockIcon>{message.text}</Decrypted>
+          ) : (
+            <span className="text-sm italic text-secondary">
+              {message.hasAttachments ? "📎 Attachment" : "No content"}
+            </span>
+          )}
+        </TextBlock>
         {message.attachments.length > 0 && (
           <div>
             <label className="mb-2 block text-sm font-medium text-secondary">
