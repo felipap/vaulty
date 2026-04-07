@@ -1,4 +1,4 @@
-import { BrowserWindow, app } from 'electron'
+import { BrowserWindow, app, nativeTheme } from 'electron'
 import path from 'node:path'
 import { findIconPath } from '../lib/utils'
 
@@ -36,6 +36,9 @@ export function createSettingsWindow(
 
   const iconPath = findIconPath()
 
+  const isMac = process.platform === 'darwin'
+  const bgColor = nativeTheme.shouldUseDarkColors ? '#1f1f1f' : '#f4f6f6'
+
   settingsWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -43,11 +46,26 @@ export function createSettingsWindow(
     minHeight: 600,
     maxWidth: 800,
     maxHeight: 600,
+    backgroundColor: bgColor,
+    titleBarStyle: isMac ? 'hiddenInset' : 'default',
+    trafficLightPosition: isMac ? { x: 14, y: 14 } : undefined,
+    vibrancy: isMac ? 'sidebar' : undefined,
+    visualEffectState: 'active',
     webPreferences: {
       preload: path.join(__dirname, '../preload.js'),
     },
-    show: true,
+    show: false,
     icon: iconPath || undefined,
+  })
+
+  settingsWindow.once('ready-to-show', () => {
+    settingsWindow?.show()
+  })
+
+  nativeTheme.on('updated', () => {
+    settingsWindow?.setBackgroundColor(
+      nativeTheme.shouldUseDarkColors ? '#1f1f1f' : '#f4f6f6',
+    )
   })
 
   if (iconPath) {

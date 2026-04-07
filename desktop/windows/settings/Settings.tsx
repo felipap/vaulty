@@ -217,7 +217,7 @@ function SettingsPanel() {
   }
 
   return (
-    <div className="h-screen flex bg-one">
+    <div className="h-screen flex bg-transparent">
       <Sidebar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
@@ -226,7 +226,8 @@ function SettingsPanel() {
       />
 
       {/* Main content */}
-      <div className="flex-1 overflow-auto p-4">
+      <div className="flex-1 overflow-auto bg-one">
+        <div className="px-8 pt-16 pb-8">
         {activeTab === 'general' && <GeneralSettings />}
         {activeTab === 'logs' && <LogsTab highlightSyncId={highlightSyncId} />}
         {activeTab === 'screenshots' && (
@@ -293,6 +294,7 @@ function SettingsPanel() {
             highlightSyncId={highlightSyncId}
           />
         )}
+        </div>
       </div>
     </div>
   )

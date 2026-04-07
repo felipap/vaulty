@@ -1,13 +1,16 @@
+import { twMerge } from 'tailwind-merge'
 import {
-  AppleNotesIcon,
-  AppleRemindersIcon,
-  ContactsIcon,
-  IMessageIcon,
-  ScreenCaptureIcon,
-  StickiesIcon,
-  WhatsappIcon,
-  WinStickiesIcon,
-} from '../shared/ui/icons'
+  VscChecklist,
+  VscComment,
+  VscCommentDiscussion,
+  VscDeviceCamera,
+  VscNote,
+  VscNotebook,
+  VscOrganization,
+  VscOutput,
+  VscSettingsGear,
+} from 'react-icons/vsc'
+import { IconType } from 'react-icons'
 import { SyncLogSource } from '../electron'
 
 export type ActiveTab = 'general' | 'logs' | SyncLogSource
@@ -26,18 +29,15 @@ type Props = {
   disabledSources: DataSourceInfo[]
 }
 
-const SYNC_SOURCE_ICONS: Record<
-  SyncLogSource,
-  React.ComponentType<{ size?: number; className?: string }>
-> = {
-  screenshots: ScreenCaptureIcon,
-  imessage: IMessageIcon,
-  contacts: ContactsIcon,
-  'whatsapp-sqlite': WhatsappIcon,
-  'macos-stickies': StickiesIcon,
-  'win-sticky-notes': WinStickiesIcon,
-  'apple-notes': AppleNotesIcon,
-  'apple-reminders': AppleRemindersIcon,
+const SYNC_SOURCE_ICONS: Record<SyncLogSource, IconType> = {
+  screenshots: VscDeviceCamera,
+  imessage: VscComment,
+  contacts: VscOrganization,
+  'whatsapp-sqlite': VscCommentDiscussion,
+  'macos-stickies': VscNote,
+  'win-sticky-notes': VscNote,
+  'apple-notes': VscNotebook,
+  'apple-reminders': VscChecklist,
 }
 
 function SidebarButton({
@@ -53,22 +53,29 @@ function SidebarButton({
   children: React.ReactNode
   disabled?: boolean
   hasError?: boolean
-  icon?: React.ComponentType<{ size?: number; className?: string }>
+  icon?: IconType
 }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full px-3 py-2 text-sm text-left rounded-md transition-colors flex items-center justify-between gap-2 ${
-        active
-          ? 'bg-blue-500 text-white'
-          : disabled
-            ? 'text-tertiary opacity-60 hover:bg-[var(--background-color-three)]'
-            : 'text-[var(--color-contrast)] hover:bg-[var(--background-color-three)]'
-      }`}
+      className={twMerge(
+        'group w-full px-3 py-[7px] text-[13px] text-left rounded-md transition-colors flex items-center justify-between gap-2',
+        'text-[var(--color-contrast)] hover:bg-[var(--background-color-three)]',
+        disabled && 'text-tertiary opacity-70',
+        active && 'bg-[#007AFF] text-white hover:bg-[#007AFF]',
+      )}
     >
       <span className="flex items-center gap-2 min-w-0">
-        {Icon && <Icon size={16} className="shrink-0" />}
-        {children}
+        {Icon && (
+          <Icon
+            size={15}
+            className={twMerge(
+              'shrink-0 text-tertiary',
+              active && 'text-white',
+            )}
+          />
+        )}
+        <span className="truncate">{children}</span>
       </span>
       {hasError && !active && (
         <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
@@ -79,7 +86,7 @@ function SidebarButton({
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-tertiary">
+    <div className="px-3 pt-3 pb-1 text-[11px] font-medium text-tertiary">
       {children}
     </div>
   )
@@ -92,62 +99,58 @@ export function Sidebar({
   disabledSources,
 }: Props) {
   return (
-    <div className="w-52 shrink-0 border-r bg-two flex flex-col">
-      <div className="p-2 space-y-1">
+    <div
+      className="w-64 shrink-0 border-r flex flex-col"
+      style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
+    >
+      <div className="h-16 shrink-0" />
+      <div
+        className="px-1.5 space-y-0.5"
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+      >
         <SidebarButton
           active={activeTab === 'general'}
           onClick={() => onSelectTab('general')}
+          icon={VscSettingsGear}
         >
           General
         </SidebarButton>
         <SidebarButton
           active={activeTab === 'logs'}
           onClick={() => onSelectTab('logs')}
+          icon={VscOutput}
         >
           All Logs
         </SidebarButton>
       </div>
 
-      <div className="border-t my-2" />
-
-      <div className="flex-1 overflow-auto px-2 pb-2">
-        {enabledSources.length > 0 && (
-          <div className="mb-2">
-            <SectionLabel>Enabled</SectionLabel>
-            <div className="space-y-1">
-              {enabledSources.map((info) => (
-                <SidebarButton
-                  key={info.source}
-                  active={activeTab === info.source}
-                  onClick={() => onSelectTab(info.source)}
-                  hasError={info.lastSyncFailed}
-                  icon={SYNC_SOURCE_ICONS[info.source]}
-                >
-                  {info.label}
-                </SidebarButton>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {disabledSources.length > 0 && (
-          <div>
-            <SectionLabel>Disabled</SectionLabel>
-            <div className="space-y-1">
-              {disabledSources.map((info) => (
-                <SidebarButton
-                  key={info.source}
-                  active={activeTab === info.source}
-                  onClick={() => onSelectTab(info.source)}
-                  disabled
-                  icon={SYNC_SOURCE_ICONS[info.source]}
-                >
-                  {info.label}
-                </SidebarButton>
-              ))}
-            </div>
-          </div>
-        )}
+      <div className="mx-3 mt-2 border-t" />
+      <div
+        className="flex-1 overflow-auto px-1.5 pb-2 pt-2 space-y-0.5"
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+      >
+        {enabledSources.map((info) => (
+          <SidebarButton
+            key={info.source}
+            active={activeTab === info.source}
+            onClick={() => onSelectTab(info.source)}
+            hasError={info.lastSyncFailed}
+            icon={SYNC_SOURCE_ICONS[info.source]}
+          >
+            {info.label}
+          </SidebarButton>
+        ))}
+        {disabledSources.map((info) => (
+          <SidebarButton
+            key={info.source}
+            active={activeTab === info.source}
+            onClick={() => onSelectTab(info.source)}
+            disabled
+            icon={SYNC_SOURCE_ICONS[info.source]}
+          >
+            {info.label}
+          </SidebarButton>
+        ))}
       </div>
     </div>
   )

@@ -37,10 +37,13 @@
 @theme {
   /* Colors */
   --color-contrast: #000;
+  --color-secondary: #3a3a3a;
+  --color-tertiary: #6e6e6e;
   --text-color-secondary: #aaa;
   --text-color-inverted: #fff;
-  --background-color-one: #f4f6f6;
+  --background-color-one: #ffffff;
   --background-color-two: #eee;
+  --background-color-three: #d4d7da;
   --background-color-input: #fff;
   --highlight-color: #3b82f6;
   --twitter-blue: #1da1f2;
@@ -60,14 +63,17 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --color-contrast: #fff;
+    --color-secondary: #d0d0d0;
+    --color-tertiary: #9a9a9a;
     --text-color-primary: #fff;
     --text-color-link: #6fb4ff;
     --text-color-secondary: #aaa;
     --text-color-inverted: #000;
     --color-sidebar: #222222ea;
 
-    --background-color-one: #202020;
-    --background-color-two: #161616;
+    --background-color-one: #1f1f1f;
+    --background-color-two: #181818;
+    --background-color-three: #2a2d2e;
     --background-color-input: #222;
 
     --border-color-one: #333;
@@ -100,8 +106,34 @@ body {
   color: var(--text-color-primary);
 }
 
-button {
+html {
+  font-family:
+    -apple-system, BlinkMacSystemFont, ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  cursor: default;
+  user-select: none;
+}
+
+a[href^='http'],
+a[href^='mailto'] {
   cursor: pointer;
+}
+
+input,
+textarea,
+[contenteditable] {
+  cursor: text;
+  user-select: text;
+}
+
+button {
+  cursor: default;
 }
 
 textarea {

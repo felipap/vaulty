@@ -222,8 +222,14 @@ function updateTrayMenu(): void {
   }
 
   const MAX_TRAY_SERVICES = 6
-  const visibleServices = SERVICES.slice(0, MAX_TRAY_SERVICES)
-  const hiddenServices = SERVICES.slice(MAX_TRAY_SERVICES)
+  const TRAY_PRIORITY = ['imessage', 'apple-contacts']
+  const trayServices = [...SERVICES].sort((a, b) => {
+    const ai = TRAY_PRIORITY.indexOf(a.name)
+    const bi = TRAY_PRIORITY.indexOf(b.name)
+    return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi)
+  })
+  const visibleServices = trayServices.slice(0, MAX_TRAY_SERVICES)
+  const hiddenServices = trayServices.slice(MAX_TRAY_SERVICES)
 
   const serviceMenuItems: MenuItemConstructorOptions[] = []
 

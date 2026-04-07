@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { EyeIcon, EyeOffIcon, DiceIcon } from '../shared/ui/icons'
+import { VscEye, VscEyeClosed, VscSparkle } from 'react-icons/vsc'
 import { Label } from '../shared/ui/forms'
 import { twMerge } from 'tailwind-merge'
 
@@ -39,7 +39,7 @@ function PasswordInput({
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
           className={twMerge(
-            'w-full px-3 py-2 pr-10 rounded-md border bg-input focus:outline-none focus:ring-2 focus:ring-blue-500',
+            'w-full px-2 py-[3px] pr-8 rounded-[5px] border border-[var(--border-color-one)] bg-input text-[13px] focus:outline-none focus:border-[#007AFF] focus:ring-[3px] focus:ring-[#007AFF]/25',
             hasError ? 'border-red-500' : '',
           )}
           placeholder={placeholder}
@@ -47,19 +47,19 @@ function PasswordInput({
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-tertiary hover:text-contrast transition-colors"
+          className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 text-tertiary hover:text-contrast transition-colors"
         >
-          {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+          {showPassword ? <VscEyeClosed size={14} /> : <VscEye size={14} />}
         </button>
       </div>
       {onGenerate && (
         <button
           type="button"
           onClick={onGenerate}
-          className="flex items-center gap-1 px-2.5 py-2 rounded-md border text-sm text-tertiary hover:text-contrast hover:bg-(--surface-hover) transition-colors shrink-0"
+          className="flex items-center gap-1 px-2.5 py-[5px] rounded-[5px] border border-[var(--border-color-one)] bg-input text-[12px] text-[var(--color-contrast)] hover:bg-[var(--background-color-three)] transition-colors shrink-0"
           title="Generate a random value"
         >
-          <DiceIcon size={15} />
+          <VscSparkle size={13} />
           <span>Generate</span>
         </button>
       )}
@@ -122,50 +122,62 @@ export function GeneralSettings() {
   }
 
   return (
-    <div className="space-y-6 max-w-lg">
+    <div className="space-y-10 max-w-2xl text-[13px]">
       <div>
-        <h2 className="text-lg font-semibold mb-4">App Settings</h2>
-        <label className="flex items-center gap-3 cursor-pointer">
+        <h1 className="text-[20px] font-semibold tracking-normal">General</h1>
+        <p className="text-[13px] text-tertiary mt-1">
+          Configure how Vaulty runs on your computer and connects to your
+          server.
+        </p>
+      </div>
+
+      <div>
+        <h2 className="text-[13px] font-semibold mb-3">App</h2>
+        <label className="flex items-center gap-2">
           <input
             type="checkbox"
             checked={openAtLogin}
             onChange={(e) => handleOpenAtLoginChange(e.target.checked)}
-            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            className="w-[13px] h-[13px] accent-[#007AFF]"
           />
-          <span className="text-sm">Start on login</span>
+          <span className="text-[13px]">Start on login</span>
         </label>
-        <p className="text-xs text-tertiary mt-1 ml-7">
+        <p className="text-[12px] text-tertiary mt-1 ml-[21px]">
           Automatically start Vaulty when you log in to your computer
         </p>
-        <p className="text-xs text-tertiary mt-4">Version {appVersion}</p>
+        <p className="text-[12px] text-tertiary mt-3">Version {appVersion}</p>
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold mb-4">Server Connection</h2>
+        <h2 className="text-[13px] font-semibold mb-3">Server Connection</h2>
 
         {!hasEncryptionKey && (
-          <div className="mb-4 rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-4 py-3">
-            <p className="text-sm text-amber-800 dark:text-amber-200">
+          <div className="mb-3 rounded-[5px] bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-2.5 py-2">
+            <p className="text-[12px] text-amber-800 dark:text-amber-200">
               Set an encryption key below to enable data syncing.
             </p>
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-5">
           <div>
-            <Label>Server URL</Label>
+            <Label className="text-[13px] mb-1">
+              Server URL
+            </Label>
             <input
               type="url"
               value={serverUrl}
               onChange={(e) => setServerUrl(e.target.value)}
               onBlur={handleServerUrlBlur}
-              className="w-full px-3 py-2 rounded-md border bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-2 py-[3px] rounded-[5px] border border-[var(--border-color-one)] bg-input text-[13px] focus:outline-none focus:border-[#007AFF] focus:ring-[3px] focus:ring-[#007AFF]/25"
               placeholder="http://context.yourdomain.com"
             />
           </div>
 
           <div>
-            <Label>API Write Secret</Label>
+            <Label className="text-[13px] mb-1">
+              API Write Secret
+            </Label>
             <PasswordInput
               value={deviceSecret}
               onChange={setDeviceSecret}
@@ -177,13 +189,13 @@ export function GeneralSettings() {
                 window.electron.setDeviceSecret(password)
               }}
             />
-            <p className="text-xs text-tertiary mt-1">
+            <p className="text-[12px] text-tertiary mt-1">
               Must match API_WRITE_SECRET on the server
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label>
+          <div>
+            <Label className="text-[13px] mb-1">
               Encryption Key (E2E) <span className="text-red-500">*</span>
             </Label>
             <PasswordInput
@@ -198,7 +210,7 @@ export function GeneralSettings() {
                 window.electron.setEncryptionKey(password)
               }}
             />
-            <p className="text-xs text-tertiary mt-1">
+            <p className="text-[12px] text-tertiary mt-1">
               All data is encrypted before upload. Use the same key on the
               dashboard to decrypt.
             </p>
