@@ -2,8 +2,8 @@
 
 # Vaulty
 
-A cloud database for your data (WhatsApp, iMessage, contacts, etc.) that AIs can
-read.
+An end-to-end encrypted cloud vault for your personal data (WhatsApp, iMessage,
+contacts, etc.) that your AI agents can read.
 
 Agents need access to your data to be useful to you. Vaulty is an E2E encrypted
 database that stores your messages, contacts, coordinates etc, and makes it
@@ -26,13 +26,13 @@ See [ROADMAP.md](./ROADMAP.md).
 | `apple-notes`      | **Apple Notes**          | Notes from macOS Notes app                                                                                  | Beta   |
 | `apple-reminders`  | **Apple Reminders**      | Reminders from macOS Reminders app                                                                          | Beta   |
 | `screenshots`      | **Screenshots**          | Periodic screen captures                                                                                    | Beta   |
-| `locations`        | **Locations**            | GPS coordinates via iOS app                                                                                 | Beta   |
+| `locations`        | **Locations**            | Realtime GPS coordinates from the companion iOS app                                                         | Beta   |
 | `macos-stickies`   | **macOS Stickies**       | Sticky notes from macOS desktop                                                                             | Stable |
 | `win-sticky-notes` | **Windows Sticky Notes** | Sticky notes from Windows                                                                                   | Beta   |
 
 ## How it works
 
-Vaulty has three copmponents
+Vaulty has three components:
 
 - **Desktop app** (macOS) — Reads your local data, encrypts it on your machine, and syncs it to your server on a schedule. Runs quietly in the menu bar.
 - **Server** (Next.js, deployable via Docker or Vercel) — Stores the encrypted data and exposes it through a REST API. Includes a dashboard for managing access tokens and browsing your data.
